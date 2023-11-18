@@ -1,4 +1,4 @@
-import subprocess
+# import subprocess
 import os
 os.environ['XONSH_INTERACTIVE'] = 'False'
 # Run xonsh and capture stdout
