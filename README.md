@@ -1,6 +1,9 @@
 # cognosis
 ## kernel-level agentic LLM RLHF OS -- under development.
 
+
+(SQL) Relational schema: `"entity --> UFS ... entity --> bridge <-- UFS ... <--entity"` 
+
 ```
 ### db example:
 CREATE TABLE Entity_ (
