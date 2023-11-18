@@ -27,7 +27,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Navigate to directory with main.py and print current directory
-        run: cd /home/runner/work/xongptsh/xongptsh; pwd; ls -la
+        run: cd /home/runner/work/cognosis/cognosis; pwd; ls -la
 
       - name: Test with pytest
         run: |
