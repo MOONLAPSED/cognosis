@@ -1,7 +1,7 @@
 # cognosis
 ## kernel-level agentic LLM RLHF OS -- under development.
 
-
+"""
 ### db example:
 CREATE TABLE Entity_ (
     entity_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,3 +31,4 @@ Entity --> Bridge <-- UFS: This indirect relationship is mediated by the bridge 
 Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect connection allows you to link multiple embeddings to a single entity. Embeddings represent the entity's content or features in a vectorized form, enabling efficient processing and analysis.
 
 Entity --> Bridge <-- Runtime_Agent: This relationship associates Runtime_Agents with entities. Runtime_Agents are yet to be coded, but they are expected to represent some type of dynamic or active entity that interacts with the system. */
+"""
