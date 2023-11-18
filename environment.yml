@@ -1,0 +1,30 @@
+#! bin/python3/ ... /cognosis/main.py ... /cognosis/requirements.txt ... / ... /cognosis/setup.py
+name: jupyterjax
+channels:
+- conda-forge
+- defaults
+- nvidia/label/cuda-11.8.0
+dependencies:
+- python=3.10
+- jax
+- numpy
+- pandas
+- xonsh
+- ipykernel
+- jupyterlab
+- cudatoolkit=11.8
+- openai
+
+env:
+DATABASE_URL: sqlite:///db.sqlite3
+ENV_DICT: []
+ENV_KEYS: []
+ENV_VALUES: []
+ENV_PROMISES: []
+ENV_worker_status: ""
+ENV_workerid: ""
+ENV_task_status: ""
+ENV_taskid: ""
+ENV_credentials: []
+ENV_embeddings: ""  # type: BLOB
+ENV_entbeddings: ""  # type: BLOB
