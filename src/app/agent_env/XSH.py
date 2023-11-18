@@ -34,10 +34,7 @@ We need to pass the -c flag to xonsh to indicate the command line argument is Py
 
 For example:
 
-python
-
-Copy code
-directory_path = "/home/runner/work/xongptsh/xongptsh"
+directory_path = "/home/runner/work/cognosis/cognosis"
 if not os.path.isdir(directory_path):
     os.makedirs(directory_path)
 os.chdir(directory_path)
