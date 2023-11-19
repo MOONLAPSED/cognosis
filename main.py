@@ -29,6 +29,51 @@ def main():
         prompt = ''.join(prompt)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
+    def main():
+        try:
+            prompt = []
+            parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
+            parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
+            args = parser.parse_args()
+            prompt.extend(args.prompt)
+            if len(prompt) == 0:
+                prompt.append('Hello world!')
+            else:
+                for line in args.prompt:
+                    prompt.append(line)
+                    prompt.append('\n')  # Append newline after each line
+            if prompt[-1] == '\n':  # Remove the last newline if present
+                prompt.pop()
+            prompt = ''.join(prompt)
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+        print(prompt)
+        test_suite = unittest.defaultTestLoader.discover(start_dir='.', pattern='test_*.py')
+        unittest.TextTestRunner().run(test_suite)
+    test_suite = unittest.defaultTestLoader.discover(start_dir='.', pattern='test_*.py')
+    unittest.TextTestRunner().run(test_suite)
+def main():
+    """
+    Main function of the program.
+    Parses command line arguments and executes the program accordingly.
+    """
+    try:
+        prompt = []
+        parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
+        parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
+        args = parser.parse_args()
+        prompt.extend(args.prompt)
+        if len(prompt) == 0:
+            prompt.append('Hello world!')
+        else:
+            for line in args.prompt:
+                prompt.append(line)
+                prompt.append('\n')  # Append newline after each line
+        if prompt[-1] == '\n':  # Remove the last newline if present
+            prompt.pop()
+        prompt = ''.join(prompt)
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
     print(prompt)
     test_suite = unittest.defaultTestLoader.discover(start_dir='.', pattern='test_*.py')
     unittest.TextTestRunner().run(test_suite)
