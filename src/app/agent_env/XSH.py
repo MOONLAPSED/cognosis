@@ -1,4 +1,4 @@
-import subprocess
+# import subprocess
 import os
 os.environ['XONSH_INTERACTIVE'] = 'False'
 # Run xonsh and capture stdout
@@ -34,9 +34,10 @@ We need to pass the -c flag to xonsh to indicate the command line argument is Py
 
 For example:
 
-python
-
-Copy code
+directory_path = "/home/runner/work/cognosis/cognosis"
+if not os.path.isdir(directory_path):
+    os.makedirs(directory_path)
+os.chdir(directory_path)
 result = subprocess.run(['xonsh', '-c', cleaned_code], stdout=subprocess.PIPE)
 
 The -c flag tells xonsh to interpret the cleaned_code string as Python code to execute.
