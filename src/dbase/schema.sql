@@ -18,7 +18,6 @@ SCHEMA FOR xongptshnvm by MOONLAPSED@github MIT LICENSE:
 - text_entries - Table containing information about text entries, including text entry name, file name, file path, file type, and text entry ID (primary key).
 - embeddings - Table containing information about embeddings, including embedding ID, model ID, and vector (primary key).
 - models - Table containing information about models, including model ID, model name, and model description.
-- unix_filesystem - Table containing information about UFS objects or states, including inode, PID, systemd_host_file, etc.
 
 // SpecObject_ Store and manage specific entity instances Represents entity attributes and values
 - TextEntry (entity_id, attribute_id, text_content, timestamp, etc.)
