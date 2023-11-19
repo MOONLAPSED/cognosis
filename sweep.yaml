@@ -51,7 +51,7 @@ blocked_dirs: ["/src/app/agent_env"]
 #
 # docs:
 #   - PyGitHub: ["https://pygithub.readthedocs.io/en/latest/", "We use pygithub to interact with the GitHub API"]
-docs: [
+docs: 
    - PyGitHub: https://pygithub.readthedocs.io/en/latest/
    - Linux_kernel: https://www.kernel.org/doc/html/latest/index.html
    - ELF_files: https://flint.cs.yale.edu/cs422/doc/ELF_Format.pdf
@@ -67,9 +67,7 @@ docs: [
    - LMOps_repo: https://github.com/microsoft/lmops
    - minilm: https://mohitmayank.com/a_lazy_data_science_guide/natural_language_processing/minilm/
    - Transformers: https://huggingface.co/docs/transformers/main_classes/model
-
-]
-
+   
 # Sandbox executes commands in a sandboxed environment to validate code changes after every edit to guarantee pristine code. For more details, see the [Sandbox](./sandbox) page.
 sandbox:
   install:
