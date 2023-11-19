@@ -25,5 +25,6 @@ class TestStatserv(unittest.TestCase):
         expected_output = "Special characters not supported"
         self.assertEqual(statserv.help("!@#$"), expected_output)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
