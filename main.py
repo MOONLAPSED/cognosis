@@ -50,3 +50,41 @@ port = 8000
 server = socketserver.TCPServer(("localhost", port), MyHandler)
 server.serve_forever()
 """
+    try:
+        prompt = []
+        parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
+        parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
+        args = parser.parse_args()
+        prompt.extend(args.prompt)
+        if len(prompt) == 0:
+            prompt.append('Hello world!')
+        else:
+            for line in args.prompt:
+                prompt.append(line)
+                prompt.append('\n')  # Append newline after each line
+        if prompt[-1] == '\n':  # Remove the last newline if present
+            prompt.pop()
+        prompt = ''.join(prompt)
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+    print(prompt)
+    test_suite = unittest.defaultTestLoader.discover(start_dir='.', pattern='test_*.py')
+    unittest.TextTestRunner().run(test_suite)
+
+# TODO ~/static/.server/statserv.py integration      
+"""
+class MyHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path.endswith(".html"):
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            with open(self.path[1:], "r") as f:
+                self.copyfile(f, self.wfile)
+        else:
+            super().do_GET()
+
+port = 8000
+server = socketserver.TCPServer(("localhost", port), MyHandler)
+server.serve_forever()
+"""
