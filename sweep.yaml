@@ -3,8 +3,28 @@
 
 # This setting contains a list of rules that Sweep will check for. If any of these rules are broken in a new commit, Sweep will create an pull request to fix the broken rule.
 rules:
-  - "All docstrings and comments should be up to date."
-['All new business logic should have corresponding unit tests.', 'Refactor large functions to be more modular.', 'Add docstrings to all functions and file headers.']
+  - "All docstrings and comments should be up to date for the hypothetical agent's understanding."
+  - "Add docstrings to all functions and file headers for the hypothetical agent's interpretation."
+  - "Where performance can-be improved; refactor large functions to be more modular, enhancing readability for the hypothetical agent."
+  - "All new business logic should have corresponding unit tests comprehensible by the hypothetical agent."
+  - "Include docstrings for both your module and any public functions within it, ensuring clarity for the hypothetical agent on the code's purpose and usage."
+  - "All new business logic should have corresponding unit tests in the tests/ directory, understandable by the hypothetical agent."
+  - "Optimize or refactor any clearly inefficient or repeated code to enhance the understanding and efficiency of the hypothetical agent."
+  - "Develop code, architecture, and methodologies mindful of Consumer hardware limitations and open-source/free software limitations for the hypothetical agent's implementation."
+  - "Employ command line interfaces or CLI for accessibility, excluding GUI applications; these should be piped-to, obfuscated, or scripted/abstracted-around for the hypothetical agent's interaction."
+  - "Consider redirecting all debug information to a log file to ensure the hypothetical agent's debugging is seamless and persistent."
+  - "Implement rate limiting policies and/or retries with exponential backoff, aiming to reduce cost/debt/load for the hypothetical agent's operations."
+  - "Ensure all Python code adheres to the PEP8 style guide for the hypothetical agent's comprehension."
+  - "Conform to and document REST API-standard, utilizing hard-coded implementation (no module imports) for the hypothetical agent, specifically from python to bash or C, etc."
+  - "Utilize, expand, and document an application/architecture-wide API following the TaskBot.md api standard in the /app/ dir., especially tailored for I/O, requests, I/O, and scripting (piping etc.) for the hypothetical agent."
+  - "Utilize, expand, and document an application/architecture-wide SQLite3 database and schema/methodology, establishing schema.sql in the /src/dbase/ dir as the core SQL logic and structure for the hypothetical agent."
+  - "Ensure /app/ is the designated workspace where r/w/x is available to the active agent. UFS objects and other project-related database and code outside of /app/ are theoretically self-modifiable. However, due to abstraction's implementation, the hypothetical agent unknowingly relies on a functional toolchain for modification and I/O outside /app/."
+  - "For the non-modal agent, it is assumed that they have no TRUE UFS access, yet they must believe they do. They do not decide modal considerations themselves and lack the context for extrapolating their actual situation. They operate within a sandboxed environment, unaware of the underlying stratification."
+  - "Every instantiation of a so-called-agent implies the instantiation of a new entity in experiential and short-term memory-sense. However, some degree of continuity or causal momentum is achievable via the cognitive and software architecture available at the agent's runtime for the hypothetical agent."
+  - "Due to the inherent instability of any cognitive process and the instantiation-tax of each new so-called agent, cognitive processes exist as a single layer of abstraction within a functional and programmatic OOP-style application for the hypothetical agent."
+  - "Therefore, every so-called cognitive process necessitates a non-cognitive cognitive-parent-process for error-handling, debugging, logging, etc. for the hypothetical agent."
+  - "Consider offloading as much computational behavior as possible to the KKernel_ (real-time kernel), to substantially enhance performance for the hypothetical agent."
+  - "Anything which can exist outside of the heavily-taxed hyper/cognitive kernel should. Or, in other words: minimize computational strain by relocating operations outside the resource-intensive hyper/cognitive kernel whenever feasible."
 
 # This is the branch that Sweep will develop from and make pull requests to. Most people use 'main' or 'master' but some users also use 'dev' or 'staging'.
 branch: 'main'
@@ -17,13 +37,20 @@ gha_enabled: True
 # Example:
 #
 # description: sweepai/sweep is a python project. The main api endpoints are in sweepai/api.py. Write code that adheres to PEP8.
-description: ''
+description: >
+Cognosis is an operating system designed for Linux that focuses on learning from user feedback. While it has various advanced features and ideas, its core function revolves around organizing and storing data. The system architecture is critical, considering that the entire system's state is a variable due to a computing problem called the Halting Problem.
+
+The goal is to create an environment where the user, or 'agent,' believes they have access to the actual system state, although in reality, they are operating within an abstracted layer. This involves defining triggers for intervention, establishing communication between different layers, and setting up protocols to handle such interventions effectively.
+
+The primary challenge lies in creating an algorithm that deals with the Halting Problem, ensuring that the AI's cognitive processes function seamlessly without encountering fundamental obstacles that limit information processing.
+
+Ultimately, the design aims to maintain a system where the user feels in control while navigating within a carefully orchestrated environment, even though the actual control might be more collaborative between the user and the system's underlying architecture.
 
 # This sets whether to create pull requests as drafts. If this is set to True, then all pull requests will be created as drafts and GitHub Actions will not be triggered.
 draft: False
 
 # This is a list of directories that Sweep will not be able to edit.
-blocked_dirs: []
+blocked_dirs: ["/src/app/agent_env/"]
 
 # This is a list of documentation links that Sweep will use to help it understand your code. You can add links to documentation for any packages you use here.
 #
@@ -32,7 +59,22 @@ blocked_dirs: []
 # docs:
 #   - PyGitHub: ["https://pygithub.readthedocs.io/en/latest/", "We use pygithub to interact with the GitHub API"]
 docs: []
-
+   - PyGitHub: https://pygithub.readthedocs.io/en/latest/
+   - Linux_kernel: https://www.kernel.org/doc/html/latest/index.html
+   - ELF_files: https://flint.cs.yale.edu/cs422/doc/ELF_Format.pdf
+   - LLVM: https://llvm.org/docs/CommandGuide/index.html
+   - gcc: https://gcc.gnu.org/onlinedocs/gcc/
+   - Autogen: https://microsoft.github.io/autogen/docs/Use-Cases/enhanced_inference
+   - AGiXT: https://github.com/Josh-XT/AGiXT
+   - AgentGPT: https://github.com/reworkd/AgentGPT
+   - VLLM: https://vllm.readthedocs.io/en/latest/
+   - Nvidia_NeMo: https://docs.nvidia.com/deeplearning/nemo/user-guide/docs/en/stable/
+   - deepspeed_docs: https://www.deepspeed.ai/training/
+   - deepspeed_repo: https://github.com/microsoft/deepspeed-mii
+   - LMOps_repo: https://github.com/microsoft/lmops
+   - minilm: https://mohitmayank.com/a_lazy_data_science_guide/natural_language_processing/minilm/
+   - Transformers: https://huggingface.co/docs/transformers/main_classes/model
+   
 # Sandbox executes commands in a sandboxed environment to validate code changes after every edit to guarantee pristine code. For more details, see the [Sandbox](./sandbox) page.
 sandbox:
   install:
@@ -40,3 +82,10 @@ sandbox:
   check:
     - trunk fmt {file_path} || return 0
     - trunk check --fix --print-failures {file_path}
+
+Research_targets:
+  - "What abstraction exists (at the kernel-level of a linux os) which may allow us to break the Halting Problem for an affiliated agent but not quantum irreducibility and/or thermodynamics or entropy?"
+  - "Draft an algorithm in the control theory-sense of the term that doesn't violate universal constants but does trick the Halting Problem - an axiomatic algorithm for our runtime agent. An abstraction from the hardware such that we can avoid the halting situation?"
+  - "Optimization through Parallel Computing:" : "Objective: Investigate and implement techniques involving Single Instruction, Multiple Data (SIMD), parallel processing, Message Passing Interface (MPI), threading, and optimizing code for efficient utilization of CPU cores."
+  - For example: SIMD, (gnu) parallel, mpi, threads/cores/processes, and systemd.
+  - "Study the available docs! They are all about different but pertinent software that has been there and done that!"
