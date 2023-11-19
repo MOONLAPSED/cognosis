@@ -49,6 +49,7 @@ docs:
    - Nvidia_NeMo: https://docs.nvidia.com/deeplearning/nemo/user-guide/docs/en/stable/
    - deepspeed_docs: https://www.deepspeed.ai/training/
    - deepspeed_repo: https://github.com/microsoft/deepspeed-mii
+  - "Add docstrings to all functions and file headers for the hypothetical agent's interpretation."
    - LMOps_repo: https://github.com/microsoft/lmops
    - minilm: https://mohitmayank.com/a_lazy_data_science_guide/natural_language_processing/minilm/
    - Transformers: https://huggingface.co/docs/transformers/main_classes/model
@@ -59,3 +60,6 @@ Research_targets:
   - "Optimization through Parallel Computing: Investigate and implement techniques involving Single Instruction, Multiple Data (SIMD), parallel processing, Message Passing Interface (MPI), threading, and optimizing code for efficient utilization of CPU cores."
   - "For example: SIMD, (gnu) parallel, mpi, threads, and systemd."
   - "Study the available docs! They are all about different but pertinent software that has been there and done that!"
+   - LMOps_repo: https://github.com/microsoft/lmops
+   - minilm: https://mohitmayank.com/a_lazy_data_science_guide/natural_language_processing/minilm/
+   - Transformers: https://huggingface.co/docs/transformers/main_classes/model
