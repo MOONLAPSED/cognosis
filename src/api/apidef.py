@@ -8,7 +8,7 @@ class API:
         response = requests.post(url, headers=headers, data=json.dumps(data), timeout=timeout)
         return response.json()
 
-from src.utils.errors import FallbackError, BadRequestError, UnsupportedActionError, BadParamError, BadHandlerError, InternalHandlerError
+from src.utils.errors import (FallbackError, BadRequestError, UnsupportedActionError, BadParamError, BadHandlerError, InternalHandlerError)
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, headers=headers, data=json.dumps(data), timeout=timeout)
         return response.json()
