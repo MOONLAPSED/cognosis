@@ -29,6 +29,21 @@ To ensure that a {prompt} object includes all the necessary data and context, fo
 2. **Provide Examples and Data Sources**: If applicable, offer examples of data or entities that can fill the variables or placeholders. You can also reference external data sources to populate these elements.
 
 3. **Contextual References**: Refer to relevant information from previous questions or interactions within the {prompt} object to maintain context and coherence.
+4. **Address Potential Biases and Variations**: Be mindful of potential biases or variations in the {prompt} that may influence the generated responses. Provide guidelines on how to handle these biases and variations appropriately.
+
+5. **Explicit Instructions and Guidelines**: Clearly specify the instructions and constraints for generating responses based on the {prompt}. Ensure that the AI model knows the boundaries and limitations.
+
+6. **Structured Data Formats**: Utilize structured data formats like JSON to represent the {prompt} object. Consistent naming conventions, nesting, and comments can enhance readability and understanding.
+
+## How to Ensure Inclusion of Necessary Data and Context
+
+To ensure that a {prompt} object includes all the necessary data and context, follow these steps:
+
+1. **Define Variables and Placeholders**: Identify the dynamic elements in the {prompt} that require specific values during generation. Represent these elements as variables or placeholders.
+
+2. **Provide Examples and Data Sources**: If applicable, offer examples of data or entities that can fill the variables or placeholders. You can also reference external data sources to populate these elements.
+
+3. **Contextual References**: Refer to relevant information from previous questions or interactions within the {prompt} object to maintain context and coherence.
 
 4. **Use Structured Data Formats**: Use JSON or other structured formats to organize and represent the data and context effectively. Follow the rules of thumb mentioned earlier to create a clear and concise structure.
 
