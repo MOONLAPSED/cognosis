@@ -1,11 +1,16 @@
 # api.py
 
-from src.api.apidef import API
-from src.utils.errors import (BadHandlerError, BadParamError, BadRequestError,
-                              ErrorHandler, FallbackError,
-                              InternalHandlerError, UnsupportedActionError)
+from src.utils.errors import (
+    BadHandlerError,
+    BadParamError,
+    BadRequestError,
+    FallbackError,
+    InternalHandlerError,
+    UnsupportedActionError,
+)
 
 # Import necessary classes from static/.server/staticserv.py (if available)
+
 
 class APIHandler:
     def __init__(self):
@@ -62,5 +67,6 @@ class APIHandler:
         else:
             # Handle other errors
             pass
+
 
 # Implement unit tests for all methods and classes
