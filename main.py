@@ -30,13 +30,12 @@ def main():
         prompt = ''.join(prompt)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
-            logging.error(f"An error occurred: {e}")
         print(prompt)
         api_instance = API()
         api_instance.call_api(prompt)
         test_suite = unittest.defaultTestLoader.discover(start_dir='.', pattern='test_*.py')
         unittest.TextTestRunner().run(test_suite)
-            logging.error(f"An error occurred: {e}")
+        logging.error(f"An error occurred: {e}")
         print(prompt)
         test_suite = unittest.defaultTestLoader.discover(start_dir='.', pattern='test_*.py')
         unittest.TextTestRunner().run(test_suite)
@@ -60,6 +59,9 @@ def main():
                 prompt.append(line)
                 prompt.append('\n')  # Append newline after each line
         if prompt[-1] == '\n':  # Remove the last newline if present
+        if prompt[-1] == '\n':  # Remove the last newline if present
+            prompt.pop()
+        prompt = ''.join(prompt)
             prompt.pop()
         prompt = ''.join(prompt)
     except Exception as e:
