@@ -3,6 +3,7 @@ import socketserver
 import os, sys, json, argparse, logging, unittest
 from src.utils.errors import *  # Import the error classes
 from src.utils.logutils import *  # Check and create the log directory
+from src.api.api import *  # Import the api module and its classes
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 log_directory = 'logs'
 log_file_path = os.path.join(log_directory, 'app.log')
@@ -29,24 +30,12 @@ def main():
         prompt = ''.join(prompt)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
-    def main():
-        try:
-            prompt = []
-            parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
-            parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
-            args = parser.parse_args()
-            prompt.extend(args.prompt)
-            if len(prompt) == 0:
-                prompt.append('Hello world!')
-            else:
-                for line in args.prompt:
-                    prompt.append(line)
-                    prompt.append('\n')  # Append newline after each line
-            if prompt[-1] == '\n':  # Remove the last newline if present
-                prompt.pop()
-            prompt = ''.join(prompt)
-        except Exception as e:
-            logging.error(f"An error occurred: {e}")
+        print(prompt)
+        api_instance = API()
+        api_instance.call_api(prompt)
+        test_suite = unittest.defaultTestLoader.discover(start_dir='.', pattern='test_*.py')
+        unittest.TextTestRunner().run(test_suite)
+        logging.error(f"An error occurred: {e}")
         print(prompt)
         test_suite = unittest.defaultTestLoader.discover(start_dir='.', pattern='test_*.py')
         unittest.TextTestRunner().run(test_suite)
