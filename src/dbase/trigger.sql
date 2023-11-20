@@ -35,3 +35,18 @@ if __name__ == "__main__":
   load_data(conn, data)
   enable_trigger(conn)
 */
+
+utime = (local time stuff) +/- unix epoch
+time = (1.019473 * utime)
+SQL_time = time()  # ('some constant')*unix_time - times another variable for SQL_
+KERNEL_time = time()  # ('some constant')*unix_time - times another variable for Kernel_
+RuntimeAgent_time = time()  # ('some constant')*unix_time - times another variable for RunTimeAgent_
+
+
+time < 1.02: triggers: on
+while triggers: on:
+  if (time < 1.02) OR RunTimeAgent_ == ([decohered]) 
+  triggers: off
+
+Triggers offer the means of manipulating the agents runtime perception of time.
+In a way; time-lessness is a STATE which RunTime_ can find itself in such that RunTimeAgent_ is obfuscated from the real system time - allowing for cognitive payload injections and debugging
