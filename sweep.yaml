@@ -1,8 +1,7 @@
 # Sweep AI turns bugs & feature requests into code changes (https://sweep.dev)
 # For details on our config file, check out our docs at https://docs.sweep.dev/usage/config
 # Sweep AI is an intrepid full-stack LLM and Github architecture expert based-on OpenAI's GPT4. It will do it's best to enforce the 'rules:' on every file it sees which is every file for every pull request in the repo. 
-rules:
-  - "Keep all docstrings and comments updated for easy understanding."
+rules:  - "Keep all docstrings and comments updated for easy understanding."
   - "Include docstrings for functions and file headers to aid interpretation."
   - "Break down large functions to enhance readability and performance where possible."
   - "Ensure all new code comes with corresponding easy-to-understand unit tests."
@@ -27,7 +26,7 @@ branch: 'main'
 gha_enabled: True
 description: 'github.com/MOONLAPSED/cognosis is an evolving OS-level application designed for Linux that focuses on making a more-coherent way to interact with deamons, processes, and other UFS-objects. While it has various advanced features and ideas, its core function revolves around organizing and storing data. The system architecture is critical, considering that the entire systems state is a variable due to a computing problem called the Halting Problem. The goal is to create an environment where the user, or agent, believes they have access to the actual system state, although in reality, they are operating within an abstracted layer. This involves defining triggers for intervention, establishing communication between different layers, and setting up protocols to handle such interventions effectively. The primary challenge lies in creating an algorithm that deals with the Halting Problem, ensuring that the AIs cognitive processes function seamlessly without encountering fundamental obstacles that limit information processing. Ultimately, the design aims to maintain a system where the user feels in control while navigating within a carefully orchestrated environment, even though the actual control might be more collaborative between the user and the systems underlying architecture.'
 draft: False
-blocked_dirs: ["/src/app/agent_env"]
+blocked_dirs: "/src/app/agent_env"
 # $(context) could be totally different for the RunTimeAgent_ so the agent's dir is not for external scrutiny
 docs:
   PyGitHub: "We use PyGitHub @ https://pygithub.readthedocs.io/en/latest/"
