@@ -3,32 +3,14 @@ import requests
 import websocket
 
 class API:
-    def __init__(self):
-        pass
-
-    def handle_event(self, event):
-        event_type = event['type']
-        # Handle event based on type
-        # ...
-
-    def handle_action_request(self, request):
-        action = request['action']
-        # Handle action request based on action
-        # ...
-
-    def handle_action_response(self, response):
-        status = response['status']
-        retcode = response['retcode']
-        # Handle action response based on status and retcode
-        # ...
-
-    def handle_return_code(self, code):
-        # Implement return code handling logic
-        pass
-
-    def http_communication(self, url, data):
+    def http_communication(self, url, data, timeout=10):
         headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response = requests.post(url, headers=headers, data=json.dumps(data), timeout=timeout)
+        return response.json()
+
+from src.utils.errors import FallbackError, BadRequestError, UnsupportedActionError, BadParamError, BadHandlerError, InternalHandlerError
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, headers=headers, data=json.dumps(data), timeout=timeout)
         return response.json()
 
     def websocket_communication(self, url, data):
