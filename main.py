@@ -5,10 +5,13 @@ import sys
 import argparse
 import logging
 import unittest
+import json
 
+
+from src.dbase.pydbase import *  # Import the database module and its classes
 from src.utils.errors import *  # Import the error classes
 from src.utils.logutils import *  # Check and create the log directory
-from src.api.api import *  # Import the api module and its classes
+from src.api.apidef import *  # Import the api module and its classes
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 log_directory = 'logs'
@@ -52,9 +55,11 @@ def main():
         logger.error("Some tests failed.")
 
     # Instantiate API and call the API with the prompt
-    api_instance = API()
-    api_instance.call_api(prompt)
+    # api_instance = API()
+    # api_instance.call_api(prompt)
 
 
 if __name__ == "__main__":
+    rlhf = RLHF('rlhf.db')
+    rlhf.dbinitcall() 
     main()

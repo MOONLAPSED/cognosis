@@ -4,3 +4,5 @@ requests
 openai
 ipykernel
 jupyterlab
+websockets
+asyncio

@@ -1,6 +1,5 @@
-import json
 import requests
-import websocket
+from .websocket import *
 from src.utils.errors import (FallbackError, BadRequestError, UnsupportedActionError, BadParamError, BadHandlerError, InternalHandlerError)
 
 class API:
