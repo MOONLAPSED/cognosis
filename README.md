@@ -1,6 +1,9 @@
 # cognosis
 ## kernel-level agentic LLM RLHF OS -- under development.
 
+The key functionality (yet-unsolved) is the llama-index/langchain/hf_transformers/AGiXT 'memory' functionality (my own implementation), + a cognitive loop through the greater-than-context-length-memory in a ratio with the real linux kernel but with the MOST IMPORTANT DESTINCTION: the ability to FREEZE (The runtime loop/ring) WHILE supressing all time signals to runtime. The purpose of this so-called-cognitive architecture is to INJECT runtime source code into the morphological memory loops such that it may be possible to overcome some of the problems associated with so-called-agentic behaviors.
+
+
 
 (SQL) Relational schema: `"entity --> UFS ... entity --> bridge <-- UFS ... <--entity"` 
 
