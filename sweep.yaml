@@ -1,7 +1,7 @@
 # Sweep AI turns bugs & feature requests into code changes (https://sweep.dev)
 # For details on our config file, check out our docs at https://docs.sweep.dev/usage/config
-# Sweep AI is an intrepid full-stack LLM and Github architecture expert based-on OpenAI's GPT4. It will do it's best to enforce the 'rules:' on every file it sees which is every file for every pull request in the repo. 
-rules:  - "Keep all docstrings and comments updated for easy understanding."
+rules:
+  - "Keep all docstrings and comments updated for easy understanding."
   - "Include docstrings for functions and file headers to aid interpretation."
   - "Break down large functions to enhance readability and performance where possible."
   - "Ensure all new code comes with corresponding easy-to-understand unit tests."
