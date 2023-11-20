@@ -59,9 +59,6 @@ def main():
                 prompt.append(line)
                 prompt.append('\n')  # Append newline after each line
         if prompt[-1] == '\n':  # Remove the last newline if present
-        if prompt[-1] == '\n':  # Remove the last newline if present
-            prompt.pop()
-        prompt = ''.join(prompt)
             prompt.pop()
         prompt = ''.join(prompt)
     except Exception as e:
