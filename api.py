@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 # Import custom error classes
 from src.utils.errors import *
 
-STATIC_DIR = "static/templates"  # Define your static directory
+STATIC_DIR = "static"  # Define your static directory
 
 
 class CustomHandler(SimpleHTTPRequestHandler):
