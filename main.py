@@ -48,6 +48,16 @@ def main():
     # Run tests
     test_suite = unittest.defaultTestLoader.discover(start_dir='.', pattern='test_*.py')
     result = unittest.TextTestRunner().run(test_suite)
+    
+    if result.wasSuccessful():
+        logger.info("Tests passed successfully.")
+    else:
+        logger.error("Some tests failed.")
+    
+    # Instantiate API and call the API with the prompt
+    # api_instance = API()
+    # api_instance.call_api(prompt)
+    result = unittest.TextTestRunner().run(test_suite)
 
     if result.wasSuccessful():
         logger.info("Tests passed successfully.")
