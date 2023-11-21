@@ -41,6 +41,14 @@ def main():
             prompt = prompt[:-1]
     except Exception as e:
         logger.error(f"An error occurred: {e}")
+class RLHF:
+    def __init__(self, db_name):
+        self.db_name = db_name
+
+    def dbinitcall(self):
+        # Initialize the database
+        db = DBASE(self.db_name)
+        db.init()
         sys.exit(1)
 
     logger.info(f"Prompt: {prompt}")
