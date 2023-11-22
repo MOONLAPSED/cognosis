@@ -7,35 +7,55 @@ on:
     branches: [ "main" ]
 
 jobs:
-
-  setup:
+  build-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v2
+    
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+    
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
         with:
-          python-version: "3.10"
+          file: ./Dockerfile
+          push: true
+          tags: myimage:latest
+          cache-from: type=registry,ref=myimage:cache
+          cache-to: type=inline
 
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Navigate to directory with main.py and print current directory
-        run: cd /home/runner/work/cognosis/cognosis; pwd; ls -la
-
-      - name: Test with pytest
+      - name: Define logs directory
         run: |
-          python main.py 2>&1 | tee python-app.log > /dev/null || true  # Redirect both standard output and standard error to the python-app.log file
+          echo "LOGS_DIR=$GITHUB_WORKSPACE/logs" >> $GITHUB_ENV
+          
+      - name: Create logs directory
+        run: mkdir -p ${{ env.LOGS_DIR }}
 
-      - name: Archive test output as artifact
-        if: always()
-        uses: actions/upload-artifact@v2
+      - name: Download existing logs artifact
+        uses: actions/download-artifact@v2
         with:
-          name: test-results
-          path: test-output.txt
+          name: logs
+          path: existing-logs
+      
+      - name: Run tests in CUDA Docker container
+        run: |
+          docker run --rm --gpus all \
+            -v ${{ env.LOGS_DIR }}:/app/logs \
+            myimage:latest \
+            bash -c "cd /app && python main.py 2>&1 | tee /app/logs/python-app.log"
+
+      - name: Append new log entries to existing logs
+        run: |
+          if [ -d existing-logs ]; then
+            cp -r existing-logs/* ${{ env.LOGS_DIR }}
+          fi
+          cat ${{ env.LOGS_DIR }}/python-app.log >> ${{ env.LOGS_DIR }}/python-app-accumulated.log
+
+      - name: Upload updated logs artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs
+          path: |
+            ${{ env.LOGS_DIR }}/python-app-accumulated.log
+            ${{ env.LOGS_DIR }}/

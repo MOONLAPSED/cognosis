@@ -6,3 +6,5 @@ ipykernel
 jupyterlab
 websockets
 asyncio
+llvmlite
+litellm

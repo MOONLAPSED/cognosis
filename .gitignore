@@ -3,7 +3,7 @@
 /logs/
 *.vs
 /apps/
-
+/src/app/agent_env/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
