@@ -15,8 +15,15 @@ update_counter_and_timestamp() {
 	timestamp=${current_time}
 }
 run_setup() {
-	echo "Running setup job..." >>~/logs/setup.log
-	# Add setup job code here
+    """
+    Run the setup job.
+
+    This function executes the setup job by running the necessary code.
+    The details of the setup job code should be added here.
+
+    """
+    echo "Running setup job..." >>~/logs/setup.log
+    # Add setup job code here
 }
 
 	# Run setup job
