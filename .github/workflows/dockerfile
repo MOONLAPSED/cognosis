@@ -1,4 +1,6 @@
 
+name: Docker Build and Tag
+
 on:
   push:
     branches:
@@ -29,6 +31,12 @@ jobs:
 
       - name: Docker Login
         run: docker login -u <username> -p <password>
+        # Include this step only if Docker login is required
+
+      - name: Push Docker Image
+
+      - name: Healthcheck
+        run: docker inspect --format='{{json .State.Health.Status}}' cognosis
         # Include this step only if Docker login is required
 
       - name: Push Docker Image
