@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# File: setup.sh
+# Purpose: Run the setup job
+# Usage: ./setup.sh
+
 # Function to check if setup job can be run
 can_run_setup() {
 	current_time=$(get_time)
@@ -14,8 +18,6 @@ update_counter_and_timestamp() {
 	counter=$((counter + 1))
 	timestamp=${current_time}
 }
-
-# Function to run setup job
 run_setup() {
 	echo "Running setup job..." >>~/logs/setup.log
 	# Add setup job code here
