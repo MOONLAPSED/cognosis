@@ -17,5 +17,5 @@ run_setup() {
 	# Add setup job code here
 }
 
-	# Run setup job
-	echo "Running setup job..." >>~/logs/setup.log
+# Run setup job
+echo "Running setup job..." >>~/logs/setup.log
