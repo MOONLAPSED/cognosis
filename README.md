@@ -16,6 +16,7 @@ CREATE TABLE Attribute_ (
     attribute_id INTEGER PRIMARY KEY AUTOINCREMENT,
     attribute_name TEXT,
     attribute_name TEXT,
+    attribute_name TEXT,
     attribute_type_id INTEGER FOREIGN KEY REFERENCES Type_(type_id)
 );
 
