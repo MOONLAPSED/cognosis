@@ -38,6 +38,39 @@ Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect 
 
 Entity --> Bridge <-- Runtime_Agent: This relationship associates Runtime_Agents with entities. Runtime_Agents are yet to be coded, but they are expected to represent some type of dynamic or active entity that interacts with the system. */
 
+# Instructions
+To build and run the Docker image, follow these steps:
+
+1. Clone the repository:
+```
+git clone https://github.com/username/repository.git
+```
+
+2. Navigate to the project directory:
+```
+cd repository
+```
+
+3. Build the Docker image:
+```
+docker build -t image_name .
+```
+
+4. Run the Docker container:
+```
+docker run -d -p 8080:80 image_name
+```
+
+5. Access the application in your browser:
+```
+http://localhost:8080
+```
+
+Make sure to replace `username/repository` with the actual repository URL and `image_name` with the desired name for your Docker image.
+Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect connection allows you to link multiple embeddings to a single entity. Embeddings represent the entity's content or features in a vectorized form, enabling efficient processing and analysis.
+
+Entity --> Bridge <-- Runtime_Agent: This relationship associates Runtime_Agents with entities. Runtime_Agents are yet to be coded, but they are expected to represent some type of dynamic or active entity that interacts with the system. */
+
 ## Authentication and Image Pulling Instructions
 
 To authenticate and pull the image from the repository, follow these steps:
@@ -49,27 +82,7 @@ To authenticate and pull the image from the repository, follow these steps:
    ```
    Replace `<repository-url>` with the URL of the repository.
 3. Enter your username and password when prompted.
-```sql
-CREATE TABLE Attribute_ (
-    attribute_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    attribute_name TEXT,
-    attribute_type_id INTEGER FOREIGN KEY REFERENCES Type_(type_id)
-);
-```
-```sql
-CREATE TABLE Attribute_ (
-    attribute_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    attribute_name TEXT,
-    attribute_type_id INTEGER FOREIGN KEY REFERENCES Type_(type_id)
-);
-```
-```sql
-CREATE TABLE Attribute_ (
-    attribute_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    attribute_name TEXT,
-    attribute_type_id INTEGER FOREIGN KEY REFERENCES Type_(type_id)
-);
-```
+
 4. Once authenticated, you can pull the image using the following command:
    ```
    docker pull <image-name>:<tag>
@@ -77,37 +90,3 @@ CREATE TABLE Attribute_ (
    Replace `<image-name>` with the name of the image and `<tag>` with the desired version or tag.
 
 That's it! You have successfully authenticated and pulled the image from the repository.
-Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect connection allows you to link multiple embeddings to a single entity. Embeddings represent the entity's content or features in a vectorized form, enabling efficient processing and analysis.
-
-Entity --> Bridge <-- Runtime_Agent: This relationship associates Runtime_Agents with entities. Runtime_Agents are yet to be coded, but they are expected to represent some type of dynamic or active entity that interacts with the system. */
-```sql
-CREATE TABLE EntityAttributes_UFS (
-  entity_id INTEGER FOREIGN KEY REFERENCES Entity_(entity_id),
-  ufs_id INTEGER FOREIGN KEY REFERENCES ufs(ufs_id),
-  PRIMARY KEY (entity_id, ufs_id)
-);
-```
-```sql
-CREATE TABLE EntityAttributes_UFS (
-  entity_id INTEGER FOREIGN KEY REFERENCES Entity_(entity_id),
-  ufs_id INTEGER FOREIGN KEY REFERENCES ufs(ufs_id),
-  PRIMARY KEY (entity_id, ufs_id)
-);
-```
-```sql
-CREATE TABLE EntityAttributes_UFS (
-  entity_id INTEGER FOREIGN KEY REFERENCES Entity_(entity_id),
-  ufs_id INTEGER FOREIGN KEY REFERENCES ufs(ufs_id),
-  PRIMARY KEY (entity_id, ufs_id)
-);
-```
-```
-```
-Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect connection allows you to link multiple embeddings to a single entity. Embeddings represent the entity's content or features in a vectorized form, enabling efficient processing and analysis.
-```
-```
-Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect connection allows you to link multiple embeddings to a single entity. Embeddings represent the entity's content or features in a vectorized form, enabling efficient processing and analysis.
-```
-```
-Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect connection allows you to link multiple embeddings to a single entity. Embeddings represent the entity's content or features in a vectorized form, enabling efficient processing and analysis.
-```
