@@ -1,5 +1,37 @@
 
-name: Docker Build and Tag
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build and Tag Docker Image
+        run: docker build -t cognosis:latest .
+
+      - name: Create User
+        run: useradd -m -s /bin/bash myuser
+
+      - name: Docker Login
+        run: docker login -u <username> -p <password>
+        # Include this step only if Docker login is required
+
+      - name: Push Docker Image
+        run: docker push cognosis:latest
+      - name: Build and Tag Docker Image
+        run: docker build -t cognosis:latest .
+
+      - name: Docker Login
+        run: docker login -u <username> -p <password>
+        # Include this step only if Docker login is required
+
+      - name: Push Docker Image
 
 on:
   push:
@@ -34,6 +66,7 @@ jobs:
         # Include this step only if Docker login is required
 
       - name: Push Docker Image
+new line(s) to append to snippet 0
         run: docker push cognosis:latest
 
       - name: Healthcheck
