@@ -21,7 +21,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           file: ./Dockerfile
-          push: false # Disable image pushing
+          push: false
           tags: myimage:latest
           cache-from: type=registry,ref=myimage:cache
           cache-to: type=inline
@@ -32,12 +32,6 @@ jobs:
 
       - name: Create logs directory
         run: mkdir -p ${{ env.LOGS_DIR }}
-
-      - name: Download existing logs artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: logs
-          path: existing-logs
 
       - name: Run tests in CUDA Docker container
         run: |
