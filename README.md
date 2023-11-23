@@ -37,6 +37,9 @@ To build and run the Docker image, follow these steps:
 ```
 git clone https://github.com/username/repository.git
 ```
+```
+git clone https://github.com/username/repository.git
+```
 
 2. Navigate to the project directory:
 ```
