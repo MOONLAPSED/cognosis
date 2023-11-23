@@ -14,8 +14,6 @@ update_counter_and_timestamp() {
 	counter=$((counter + 1))
 	timestamp=${current_time}
 }
-
-# Function to run setup job
 run_setup() {
 	echo "Running setup job..." >>~/logs/setup.log
 	# Add setup job code here
