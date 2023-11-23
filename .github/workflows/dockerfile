@@ -19,6 +19,7 @@ jobs:
 
       - name: Create User
         run: useradd -m -s /bin/bash myuser
+        run: chown -R myuser:myuser /app
 
       - name: Docker Login
         run: docker login -u <username> -p <password>
