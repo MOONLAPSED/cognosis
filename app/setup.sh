@@ -16,8 +16,6 @@ run_setup() {
 	echo "Running setup job..." >>~/logs/setup.log
 	# Add setup job code here
 }
-# Run setup job
-run_setup
 
-# Install retry library
-pip install retry
+	# Run setup job
+	echo "Running setup job..." >>~/logs/setup.log
