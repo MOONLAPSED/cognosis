@@ -33,7 +33,6 @@ Entity --> Bridge <-- UFS: This indirect relationship is mediated by the bridge 
 Entity --> Bridge <-- Runtime_Agent: This relationship associates Runtime_Agents with entities. Runtime_Agents are yet to be coded, but they are expected to represent some type of dynamic or active entity that interacts with the system. */
 # Instructions
 To build and run the Docker image, follow these steps:
-
 1. Clone the repository:
 ```
 git clone https://github.com/username/repository.git
