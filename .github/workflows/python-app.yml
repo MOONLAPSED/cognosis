@@ -22,7 +22,7 @@ jobs:
         with:
           file: ./Dockerfile
           push: false
-          tags: myimage:latest
+          tags: cognosis:latest
           cache-from: type=registry,ref=myimage:cache
           cache-to: type=inline
 
@@ -35,9 +35,9 @@ jobs:
 
       - name: Run tests in CUDA Docker container
         run: |
-          docker run --rm --gpus all myimage:latest
+          docker run --rm --gpus all cognosis:latest
             -v ${{ env.LOGS_DIR }}:/app/logs
-            myimage:latest
+            cognosis:latest
             bash -c "cd /app && python main.py 2>&1 | tee /app/logs/python-app.log"
 
       - name: Append new log entries to existing logs
