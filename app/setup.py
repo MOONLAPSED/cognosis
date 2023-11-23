@@ -32,3 +32,6 @@ def run_setup():
     if 'Error: Setup job has been run too many times. Please wait and try again.' in result.stderr:
         raise RateLimitExceededError('Rate limit exceeded for setup job')
     return result.stdout
+from common import common_setup
+from common import common_setup
+from common import common_setup
