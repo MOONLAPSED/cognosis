@@ -18,3 +18,6 @@ run_setup() {
 }
 # Run setup job
 run_setup
+
+# Install retry library
+pip install retry
