@@ -14,6 +14,11 @@ update_counter_and_timestamp() {
 	counter=$((counter + 1))
 	timestamp=${current_time}
 }
+# Function to update counter and timestamp
+update_counter_and_timestamp() {
+	counter=$((counter + 1))
+	timestamp=${current_time}
+}
 run_setup() {
     """
     Run the setup job.
