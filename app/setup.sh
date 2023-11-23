@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# File: setup.sh
+# Purpose: Run the setup job
+# Usage: ./setup.sh
+
 # Function to check if setup job can be run
 can_run_setup() {
 	current_time=$(get_time)
