@@ -14,8 +14,9 @@ WORKDIR /app
 # Copy files to working directory
 COPY . /app
 # Install required packages
+RUN pip3 install --no-cache-dir -r requirements.txt
 RUN pip3 install -r requirements.txt
 
 # Set the CMD line to redirect output to a log file
 CMD [ "/bin/bash", "-c", "source activate myenv && \
-    xonsh -c 'jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root > debug.log 2>&1'" ]
+    jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root > debug.log 2>&1" ]
