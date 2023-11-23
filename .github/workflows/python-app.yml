@@ -9,18 +9,19 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-    
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-    
-      - name: Build and push Docker image
+
+      - name: Build Docker image (no push)
         uses: docker/build-push-action@v2
         with:
           file: ./Dockerfile
-          push: true
+          push: false # Disable image pushing
           tags: myimage:latest
           cache-from: type=registry,ref=myimage:cache
           cache-to: type=inline
@@ -28,7 +29,7 @@ jobs:
       - name: Define logs directory
         run: |
           echo "LOGS_DIR=$GITHUB_WORKSPACE/logs" >> $GITHUB_ENV
-          
+
       - name: Create logs directory
         run: mkdir -p ${{ env.LOGS_DIR }}
 
@@ -37,12 +38,12 @@ jobs:
         with:
           name: logs
           path: existing-logs
-      
+
       - name: Run tests in CUDA Docker container
         run: |
-          docker run --rm --gpus all \
-            -v ${{ env.LOGS_DIR }}:/app/logs \
-            myimage:latest \
+          docker run --rm --gpus all
+            -v ${{ env.LOGS_DIR }}:/app/logs
+            myimage:latest
             bash -c "cd /app && python main.py 2>&1 | tee /app/logs/python-app.log"
 
       - name: Append new log entries to existing logs
