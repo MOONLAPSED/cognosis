@@ -1,6 +1,22 @@
 # Project Name
 
-This is a project for XYZ.
+This is a project for XYZ. It aims to develop a kernel-level agentic LLM RLHF OS.
+
+## Instructions
+
+...
+### db example:
+CREATE TABLE Entity_ (
+    entity_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entity_name TEXT,
+    entity_type_id INTEGER FOREIGN KEY REFERENCES Type_(type_id)
+);
+
+CREATE TABLE Attribute_ (
+    attribute_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    attribute_name TEXT,
+    attribute_type_id INTEGER FOREIGN KEY REFERENCES Type_(type_id)
+);
 
 ## Instructions
 
