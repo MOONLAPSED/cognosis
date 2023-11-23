@@ -1,7 +1,7 @@
 FROM ghcr.io/ai-dock/jupyter-pytorch:2.1.0-py3.9-cuda-12.1.0-cudnn8-devel-22.04
 # Set the working directory
 WORKDIR /app
-COPY .env .
+COPY .env.dev .
 COPY app ./cognosis/app
 COPY main ./cognosis/main
 COPY src ./cognosis/src
