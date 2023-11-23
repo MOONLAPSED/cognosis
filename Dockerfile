@@ -13,7 +13,6 @@ WORKDIR /app
 
 # Copy files to working directory
 COPY . /app
-
 # Install required packages
 RUN pip3 install -r requirements.txt
 
