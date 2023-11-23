@@ -1,5 +1,5 @@
 # cognosis
-## kernel-level agentic LLM RLHF OS -- under development.
+## kernel-level agentic LLM RLHF OS -- under development....
 
 The key functionality (yet-unsolved) is the llama-index/langchain/hf_transformers/AGiXT 'memory' functionality (my own implementation), + a cognitive loop through the greater-than-context-length-memory in a ratio with the real linux kernel but with the MOST IMPORTANT DESTINCTION: the ability to FREEZE (The runtime loop/ring) WHILE supressing all time signals to runtime. The purpose of this so-called-cognitive architecture is to INJECT runtime source code into the morphological memory loops such that it may be possible to overcome some of the problems associated with so-called-agentic behaviors.
 
@@ -49,6 +49,27 @@ To authenticate and pull the image from the repository, follow these steps:
    ```
    Replace `<repository-url>` with the URL of the repository.
 3. Enter your username and password when prompted.
+```sql
+CREATE TABLE Attribute_ (
+    attribute_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    attribute_name TEXT,
+    attribute_type_id INTEGER FOREIGN KEY REFERENCES Type_(type_id)
+);
+```
+```sql
+CREATE TABLE Attribute_ (
+    attribute_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    attribute_name TEXT,
+    attribute_type_id INTEGER FOREIGN KEY REFERENCES Type_(type_id)
+);
+```
+```sql
+CREATE TABLE Attribute_ (
+    attribute_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    attribute_name TEXT,
+    attribute_type_id INTEGER FOREIGN KEY REFERENCES Type_(type_id)
+);
+```
 4. Once authenticated, you can pull the image using the following command:
    ```
    docker pull <image-name>:<tag>
@@ -59,4 +80,34 @@ That's it! You have successfully authenticated and pulled the image from the rep
 Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect connection allows you to link multiple embeddings to a single entity. Embeddings represent the entity's content or features in a vectorized form, enabling efficient processing and analysis.
 
 Entity --> Bridge <-- Runtime_Agent: This relationship associates Runtime_Agents with entities. Runtime_Agents are yet to be coded, but they are expected to represent some type of dynamic or active entity that interacts with the system. */
+```sql
+CREATE TABLE EntityAttributes_UFS (
+  entity_id INTEGER FOREIGN KEY REFERENCES Entity_(entity_id),
+  ufs_id INTEGER FOREIGN KEY REFERENCES ufs(ufs_id),
+  PRIMARY KEY (entity_id, ufs_id)
+);
+```
+```sql
+CREATE TABLE EntityAttributes_UFS (
+  entity_id INTEGER FOREIGN KEY REFERENCES Entity_(entity_id),
+  ufs_id INTEGER FOREIGN KEY REFERENCES ufs(ufs_id),
+  PRIMARY KEY (entity_id, ufs_id)
+);
+```
+```sql
+CREATE TABLE EntityAttributes_UFS (
+  entity_id INTEGER FOREIGN KEY REFERENCES Entity_(entity_id),
+  ufs_id INTEGER FOREIGN KEY REFERENCES ufs(ufs_id),
+  PRIMARY KEY (entity_id, ufs_id)
+);
+```
+```
+```
+Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect connection allows you to link multiple embeddings to a single entity. Embeddings represent the entity's content or features in a vectorized form, enabling efficient processing and analysis.
+```
+```
+Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect connection allows you to link multiple embeddings to a single entity. Embeddings represent the entity's content or features in a vectorized form, enabling efficient processing and analysis.
+```
+```
+Entity --> Bridge <-- Embedding: Similar to the UFS relationship, this indirect connection allows you to link multiple embeddings to a single entity. Embeddings represent the entity's content or features in a vectorized form, enabling efficient processing and analysis.
 ```
