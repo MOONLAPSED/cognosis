@@ -1,5 +1,5 @@
 /* 
-SCHEMA FOR xongptshnvm by MOONLAPSED@github MIT LICENSE:
+SCHEMA FOR cognosis by MOONLAPSED@github MIT LICENSE:
 
 // Types_
 - Entity_ - A data model defining the system, with relationships to other entities. It represents a definition or blueprint, not an instance of an object.
