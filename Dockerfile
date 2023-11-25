@@ -14,18 +14,16 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install jupyter_contrib_nbextensions && \
-    conda install -y -c pytorch pytorch torchvision cudatoolkit=12.1.0 cudnn=8.1.0 && \
-    conda clean -afy
+    adduser --uid 5678 --disabled-password --gecos "" appuser  && \
+    chown -R appuser /app && \
+    chmod -R 755 /app && \
+    chmod +x /start.sh
 #1. Step 1 creates a new user with a specific UID. This is useful for running the application in a container with non-root privileges, which is considered a best practice for security reasons.
 #2. Step 2 changes the ownership of the  /app  directory (and all its contents) to the new user created in Step 1. This is necessary because the new user needs permission to access the application code and any other files in the  /app  directory.
 #3. Step 3 updates the permissions of the  /app  directory (and all its contents) to allow the new user to read, write, and execute files, and to allow everyone else to read and execute files. This is necessary to ensure that the new user has the appropriate permissions to run the application.
 #4. Step 4 sets the working directory to  /app . This is useful for ensuring that any subsequent commands in the Dockerfile are executed in the context of the  /app  directory.
 #5. Step 5 sets the default user for subsequent commands in the Dockerfile to the new user created in Step 1. This is necessary to ensure that any subsequent commands are executed with the appropriate user permissions.
 # Creating a non-root user and setting permissions
-RUN adduser --uid 5678 --disabled-password --gecos "" appuser  && \
-    chown -R appuser /app && \
-    chmod -R 755 /app && \
-    chmod +x /start.sh
 
 ENV PATH="/opt/conda/bin:${PATH}"
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -33,7 +31,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH="/home/appuser/.local/bin:${PATH}"
 
 WORKDIR /app
-
 USER appuser
 
 # Set the default command to start the application
