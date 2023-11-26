@@ -63,6 +63,8 @@ class TestServerStatus(unittest.TestCase):
             response = requests.get(server_main_url)
             self.assertEqual(response.status_code, 200)
         except requests.ConnectionError as e:
+from cognosis.main import Entity_
+
             self.fail('Server is not running or not reachable.')
 # A function to run all tests when this script is executed
 
