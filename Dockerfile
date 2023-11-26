@@ -1,7 +1,6 @@
 FROM python:3.9.18
 
 ADD cognosis /project/cognosis
-COPY pyproject.toml /project/
 COPY env.config .env
 COPY requirements.txt .
 # COPY start.sh /start.sh
@@ -15,6 +14,8 @@ RUN apt-get update && \
     apt-get install -y python3-pip && \
     python -m pip install --upgrade pip==23.3.1 && \
     pip install --no-cache-dir -r /temp/requirements.txt \
+    && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
+    # Added a new line to install the jupyter_contrib_nbextensions package
     && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
 #1.  RUN  is a Dockerfile keyword that executes a command in a new layer of the Docker image. 
 #2.  pip install --no-cache-dir -r requirements.txt  uses  pip  to install the Python packages listed in the  requirements.txt  file. The  --no-cache-dir  option tells  pip  not to cache downloaded package files, which can save disk space. 
@@ -46,6 +47,7 @@ USER appuser
 
 # CMD ["faststream", "run", "--workers", "1", "cognosis.application:app"]
 CMD ["python", "main.py"]
+# Updated the CMD line to run the command "faststream run cognosis.application:app"
 
 # Build the Docker image from your Dockerfile (assuming your Dockerfile is in the current directory):
 # docker build -t my_image:tag .
