@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 # Import the Entity_ class from the correct location
-from cognosis.main import Entity_
+import cognosis.main
 from main import main, run_tests
 
 
