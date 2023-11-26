@@ -13,8 +13,7 @@ COPY requirements.txt /temp/
 RUN apt-get update && \
     apt-get install -y python3-pip && \
     python -m pip install --upgrade pip==23.3.1 && \
-    pip install --no-cache-dir -r /temp/requirements.txt \
-    && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
+    pip install --no-cache-dir -r /temp/requirements.txt
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
