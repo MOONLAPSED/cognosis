@@ -1,7 +1,6 @@
 FROM ghcr.io/ai-dock/jupyter-pytorch:2.1.0-py3.9-cuda-12.1.0-cudnn8-devel-22.04
 
 ADD cognosis /project/cognosis
-COPY pyproject.toml /project/
 COPY env.config .env
 COPY requirements.txt .
 # COPY start.sh /start.sh
@@ -14,6 +13,8 @@ COPY requirements.txt /temp/
 RUN apt-get update && \
     apt-get install -y python3-pip && \
     pip3 install --no-cache-dir -r /temp/requirements.txt \
+    && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
+    # Added a new line to install the jupyter_contrib_nbextensions package
     && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
 #1.  RUN  is a Dockerfile keyword that executes a command in a new layer of the Docker image. 
 #2.  apt-get update  updates the list of available packages and their versions from the Debian/Ubuntu package repositories. 
@@ -49,6 +50,7 @@ USER appuser
 
 # CMD ["faststream", "run", "--workers", "1", "cognosis.application:app"]
 CMD ["python", "main.py"]
+# Updated the CMD line to run the command "faststream run cognosis.application:app"
 
 # Build the Docker image from your Dockerfile (assuming your Dockerfile is in the current directory):
 # docker build -t my_image:tag .
