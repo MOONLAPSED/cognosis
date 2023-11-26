@@ -1,9 +1,25 @@
 #! /usr/bin/env python3
-import sys, os, argparse, json, logging, asyncio, datetime, requests, sqlite3, socketserver, subprocess, re, threading, http.server, unittest, typer
+import argparse
+import asyncio
+import datetime
+import http.server
+import json
+import logging
+import os
+import re
+import socketserver
+import sqlite3
+import subprocess
+import sys
+import threading
+import unittest
+
+import requests
+import typer
 from cognosis.Chunk_ import TextChunker
-from cognosis.UFS import *
-from cognosis.FSK_mono.monoTypes import *
 from cognosis.FSK_mono.mono import *
+from cognosis.FSK_mono.monoTypes import *
+from cognosis.UFS import *
 from logs.logdef import *
 
 # main.py is for orchestration and initialization of the FastStream application.
@@ -75,10 +91,25 @@ for test_case in entity_test_cases:
         def publisher(self, topic: str):
             """
             The publisher decorator for the Entity_ class. It publishes the entity to a topic.
+        
+            Parameters:
+            topic (str): The topic to publish to.
+        
+            Returns:
+            wrapper: The wrapper function that publishes the message to the topic.
             """
             async def wrapper(message: str):
+                """
+                The wrapper function that publishes the message to the topic.
+        
+                Parameters:
+                message (str): The message to publish.
+                """
                 print(f"Publishing message: {message}")
                 await self.publish(topic, message)
+                return wrapper
+            return wrapper
+        def publish(self, topic: str, message: str):
                 return wrapper
             return wrapper
         def publish(self, topic: str, message: str):
@@ -102,6 +133,21 @@ def main():
         args = parser.parse_args()
 
         if not args.prompt:  # If the prompt is empty, provide a default
+            return None
+def main():
+    """
+    Main function of the program.
+    Parses command line arguments, runs unit tests, and starts the static file server.
+    """
+    try:
+        parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
+        parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
+        args = parser.parse_args()
+
+        if not args.prompt:  # If the prompt is empty, provide a default
+        args = parser.parse_args()
+
+        if not args.prompt:  # If the prompt is empty, provide a default
             args.prompt.append('Hello world!')
 
         # Construct the prompt as a single string
@@ -111,6 +157,46 @@ def main():
 
         # Run tests
         test_suite = unittest.TestLoader().discover(start_dir='.', pattern='test_*.py')
+def main():
+    """
+    Main function of the program.
+    Parses command line arguments, runs unit tests, and starts the static file server.
+    """
+    try:
+        parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
+        parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
+        args = parser.parse_args()
+
+        if not args.prompt:  # If the prompt is empty, provide a default
+            args.prompt.append('Hello world!')
+
+        # Construct the prompt as a single string
+        prompt = ' '.join(args.prompt).strip()  # Remove leading/trailing spaces
+
+        logger.info(f"Prompt: {prompt}")
+
+        # Run tests
+        test_suite = unittest.TestLoader().discover(start_dir='.', pattern='test_*.py')
+        result = unittest.TextTestRunner().run(test_suite)
+
+        if result.wasSuccessful():
+            logger.info("Tests passed successfully.")
+        else:
+            logger.error("Some tests failed.")
+            sys.exit(1)  # Exit if tests have failed
+
+        # API or other logic can be executed here
+        # NOTE: This section will only execute if tests pass
+        
+        # Start the static file server
+        def run_static_server():
+            with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
+                logger.info(f"Serving files and handling API requests on port {PORT}")
+                httpd.serve_forever()
+        run_static_server()
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        sys.exit(1)
         result = unittest.TextTestRunner().run(test_suite)
 
         if result.wasSuccessful():
