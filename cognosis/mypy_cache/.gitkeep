@@ -1,0 +1,13 @@
+import os
+
+def create_gitkeep_file():
+    directory = "cognosis/mypy_cache"
+    file_path = os.path.join(directory, ".gitkeep")
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    with open(file_path, "w"):
+        pass
+
+create_gitkeep_file()
