@@ -1,7 +1,21 @@
 #! /usr/bin/env python3
 """
-This file contains the main orchestration and initialization logic for the FastStream application.
+The main.py module is responsible for the orchestration and initialization
+of the FastStream application. It sets up server configurations, initializes
+logging, and provides a test server status to ensure all components of
+the application are functioning correctly before deployment.
+
+This module is the entry point to the application and contains the command-line
+interface (CLI) logic for command processing and handling all necessary startup
+procedures.
+
+Defines:
+- Server configuration and status testing.
+- Initiation of the logging system.
+- Execution of unittests when the script is run.
+
 """
+# Import necessary modules for network communication, data handling, and application functionality.
 import argparse
 import asyncio
 import datetime
@@ -40,6 +54,8 @@ logger = init_logging(log_directory, log_file_path)
 PORT = 8080
 server_main_url = 'http://localhost:{}'.format(PORT)
 
+
+# Unit test case to verify that the server is up and responding to requests.
 class TestServerStatus(unittest.TestCase):
     def test_server_is_running(self):
         """ Test if the server is running and reachable """
@@ -49,6 +65,8 @@ class TestServerStatus(unittest.TestCase):
         except requests.ConnectionError as e:
             self.fail('Server is not running or not reachable.')
 # A function to run all tests when this script is executed
+
+# Callable function to execute all the unit tests for the application.
 def run_tests():
     """
     Runs all the unit tests.
@@ -62,6 +80,8 @@ def run_tests():
     """
     unittest.main()
 
+
+# List of test cases for Entity_ instances, each with a unique name and description.
 entity_test_cases = [
     {
         "name": "Entity 1",
@@ -72,6 +92,8 @@ entity_test_cases = [
         "description": "Description 2"
     }
 ]
+
+# Iterate over test cases to create and process Entity_ instances.
 for test_case in entity_test_cases:
     entity = Entity_(test_case["name"], test_case["description"])
     
