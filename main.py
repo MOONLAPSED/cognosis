@@ -131,11 +131,14 @@ for test_case in entity_test_cases:
             """
             The subscriber decorator for the Entity_ class. It subscribes the entity to a topic.
             """
-        def decorator(func):
-            """A decorator that wraps a function to provide additional functionality."""
-            async def wrapper():
-                await func(self)
-            return wrapper
+            """
+            The subscriber decorator for the Entity_ class. It subscribes the entity to a topic.
+            """
+            def decorator(func):
+                """A decorator that wraps a function to provide additional functionality."""
+                async def wrapper():
+                    await func(self)
+                return wrapper
             return decorator
         def publisher(self, topic: str):
             """
@@ -144,19 +147,22 @@ for test_case in entity_test_cases:
             async def wrapper(message: str):
                 print(f"Publishing message: {message}")
                 await self.publish(topic, message)
-                return wrapper
             return wrapper
         def publish(self, topic: str, message: str):
             """
             The publish method for the Entity_ class. It publishes the entity to a topic.
-
+        
             Parameters:
             topic (str): The topic to publish to.
             message (str): The message to publish.
             """
             print(f"Publishing message: {message}")
             return None
-def main():
+        def main():
+            """
+            Main function of the program.
+            Parses command line arguments, runs unit tests, and starts the static file server.
+            """
     """
     Main function of the program.
     Parses command line arguments, runs unit tests, and starts the static file server.
@@ -176,6 +182,10 @@ def main():
 
         # Run tests
         test_suite = unittest.TestLoader().discover(start_dir='.', pattern='test_*.py')
+    """
+    Runs all the unit tests.
+    """
+    unittest.main()
         result = unittest.TextTestRunner().run(test_suite)
 
         if result.wasSuccessful():
