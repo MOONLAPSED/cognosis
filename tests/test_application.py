@@ -7,7 +7,6 @@ import unittest
 from unittest.mock import patch
 
 import pytest
-# Import Entity_ from the application module within the cognosis package
 from cognosis.application import Entity_, broker
 from cognosis.FSK_mono.mono import UUID
 from faststream.kafka import TestKafkaBroker
