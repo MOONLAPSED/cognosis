@@ -182,7 +182,6 @@ for test_case in entity_test_cases:
 
         # Run tests
         test_suite = unittest.TestLoader().discover(start_dir='.', pattern='test_*.py')
-    """
     Runs all the unit tests.
     """
     unittest.main()
