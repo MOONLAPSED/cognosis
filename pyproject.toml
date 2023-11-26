@@ -1,5 +1,5 @@
 [tool.mypy]
-mypy_path = "cognosis/cognosis/db"
+mypy_path = "cognosis/db"
 ]
 
 testing = [
