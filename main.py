@@ -47,6 +47,16 @@ class TestServerStatus(unittest.TestCase):
             self.fail('Server is not running or not reachable.')
 # A function to run all tests when this script is executed
 def run_tests():
+    """
+    Runs all the unit tests.
+
+    Returns:
+    None
+    """
+    unittest.main()
+    """
+    Runs all the unit tests.
+    """
     unittest.main()
 
 entity_test_cases = [
