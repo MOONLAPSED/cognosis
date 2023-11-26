@@ -1,4 +1,7 @@
 #! /usr/bin/env python3
+"""
+This file contains the main orchestration and initialization logic for the FastStream application.
+"""
 import argparse
 import asyncio
 import datetime
