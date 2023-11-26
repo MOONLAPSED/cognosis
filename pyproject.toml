@@ -1,6 +1,5 @@
 [tool.mypy]
-mypy_path = "cognosis/cognosis/db"
-]
+mypy_path = ["cognosis/cognosis/db"]
 
 testing = [
     "pytest==7.4.2",
@@ -34,6 +33,7 @@ disallow_any_unimported = false
 [tool.black]
 line-length = 88
 target-version = ['py38']
+
 include = '\.pyi?$'
 
 [tool.ruff]
@@ -49,13 +49,3 @@ select = [
     "B",  # flake8-bugbear
     "Q",  # flake8-quotes
 ]
-ignore = [
-    "E501",  # line too long, handled by black
-    "C901",  # too complex
-]
-
-[tool.ruff.pydocstyle]
-mypy_path = "cognosis/cognosis/db"
-convention = "google"
-
-[tool.bandit]
