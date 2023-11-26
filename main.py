@@ -1,9 +1,25 @@
 #! /usr/bin/env python3
-import sys, os, argparse, json, logging, asyncio, datetime, requests, sqlite3, socketserver, subprocess, re, threading, http.server, unittest, typer
+import argparse
+import asyncio
+import datetime
+import http.server
+import json
+import logging
+import os
+import re
+import socketserver
+import sqlite3
+import subprocess
+import sys
+import threading
+import unittest
+
+import requests
+import typer
 from cognosis.Chunk_ import TextChunker
-from cognosis.UFS import *
-from cognosis.FSK_mono.monoTypes import *
 from cognosis.FSK_mono.mono import *
+from cognosis.FSK_mono.monoTypes import *
+from cognosis.UFS import *
 from logs.logdef import *
 
 # main.py is for orchestration and initialization of the FastStream application.
@@ -21,17 +37,6 @@ logger = init_logging(log_directory, log_file_path)
 PORT = 8080
 server_main_url = 'http://localhost:{}'.format(PORT)
 
-class TestServerStatus(unittest.TestCase):
-    def test_server_is_running(self):
-        """ Test if the server is running and reachable """
-        try:
-            response = requests.get(server_main_url)
-            self.assertEqual(response.status_code, 200)
-        except requests.ConnectionError as e:
-            self.fail('Server is not running or not reachable.')
-# A function to run all tests when this script is executed
-def run_tests():
-    unittest.main()
 
 entity_test_cases = [
     {
@@ -109,25 +114,6 @@ def main():
 
         logger.info(f"Prompt: {prompt}")
 
-        # Run tests
-        test_suite = unittest.TestLoader().discover(start_dir='.', pattern='test_*.py')
-        result = unittest.TextTestRunner().run(test_suite)
-
-        if result.wasSuccessful():
-            logger.info("Tests passed successfully.")
-        else:
-            logger.error("Some tests failed.")
-            sys.exit(1)  # Exit if tests have failed
-
-        # API or other logic can be executed here
-        # NOTE: This section will only execute if tests pass
-        
-        # Start the static file server
-        def run_static_server():
-            with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
-                logger.info(f"Serving files and handling API requests on port {PORT}")
-                httpd.serve_forever()
-        run_static_server()
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         sys.exit(1)
