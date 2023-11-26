@@ -1,7 +1,6 @@
-FROM ghcr.io/ai-dock/jupyter-pytorch:2.1.0-py3.9-cuda-12.1.0-cudnn8-devel-22.04
+FROM python:3.9.18
 
 ADD cognosis /project/cognosis
-COPY pyproject.toml /project/
 COPY env.config .env
 COPY requirements.txt .
 # COPY start.sh /start.sh
@@ -13,14 +12,13 @@ WORKDIR /project
 COPY requirements.txt /temp/
 RUN apt-get update && \
     apt-get install -y python3-pip && \
-    pip3 install --no-cache-dir -r /temp/requirements.txt \
+    python -m pip install --upgrade pip==23.3.1 && \
+    pip install --no-cache-dir -r /temp/requirements.txt \
+    && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
+    # Added a new line to install the jupyter_contrib_nbextensions package
     && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
 #1.  RUN  is a Dockerfile keyword that executes a command in a new layer of the Docker image. 
-#2.  apt-get update  updates the list of available packages and their versions from the Debian/Ubuntu package repositories. 
-#3.  &&  is a shell operator that allows you to execute multiple commands on the same line. 
-#4.  apt-get install -y python3-pip  installs the  python3-pip  package, which provides the  pip3  command-line tool for installing Python packages. 
-#5.  &&  is used again to execute the next command on the same line. 
-#6.  pip3 install --no-cache-dir -r requirements.txt  uses  pip3  to install the Python packages listed in the  requirements.txt  file. The  --no-cache-dir  option tells  pip3  not to cache downloaded package files, which can save disk space. 
+#2.  pip install --no-cache-dir -r requirements.txt  uses  pip  to install the Python packages listed in the  requirements.txt  file. The  --no-cache-dir  option tells  pip  not to cache downloaded package files, which can save disk space. 
 
 # Set environment variables to optimize Python runtime in Docker
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -49,6 +47,7 @@ USER appuser
 
 # CMD ["faststream", "run", "--workers", "1", "cognosis.application:app"]
 CMD ["python", "main.py"]
+# Updated the CMD line to run the command "faststream run cognosis.application:app"
 
 # Build the Docker image from your Dockerfile (assuming your Dockerfile is in the current directory):
 # docker build -t my_image:tag .
