@@ -13,14 +13,8 @@ COPY requirements.txt /temp/
 RUN apt-get update && \
     apt-get install -y python3-pip && \
     python -m pip install --upgrade pip==23.3.1 && \
-    pip install --no-cache-dir -r /temp/requirements.txt \
-    && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
-    # Added a new line to install the jupyter_contrib_nbextensions package
-    && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
-#1.  RUN  is a Dockerfile keyword that executes a command in a new layer of the Docker image. 
-#2.  pip install --no-cache-dir -r requirements.txt  uses  pip  to install the Python packages listed in the  requirements.txt  file. The  --no-cache-dir  option tells  pip  not to cache downloaded package files, which can save disk space. 
+    pip install --no-cache-dir -r /temp/requirements.txt
 
-# Set environment variables to optimize Python runtime in Docker
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/home/appuser/.local/bin:${PATH}"
@@ -40,16 +34,11 @@ USER appuser
 #3. Step 3 updates the permissions of the  /app  directory (and all its contents) to allow the new user to read, write, and execute files, and to allow everyone else to read and execute files. This is necessary to ensure that the new user has the appropriate permissions to run the application. 
 #4. Step 4 sets the working directory to  /app . This is useful for ensuring that any subsequent commands in the Dockerfile are executed in the context of the  /app  directory. 
 #5. Step 5 sets the default user for subsequent commands in the Dockerfile to the new user created in Step 1. This is necessary to ensure that any subsequent commands are executed with the appropriate user permissions. 
-# Set environment variable for OpenAI API key
 
-# RUN echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/conda/lib/' >> ~/.bashrc
 # Define the command to run the application
-
 # CMD ["faststream", "run", "--workers", "1", "cognosis.application:app"]
 CMD ["python", "main.py"]
-# Updated the CMD line to run the command "faststream run cognosis.application:app"
 
-# Build the Docker image from your Dockerfile (assuming your Dockerfile is in the current directory):
 # docker build -t my_image:tag .
 # This will build a Docker image with the tag "my_image:tag" using the current directory as the build context (denoted by the dot at the end).
 # docker run --gpus all -it my_image:tag
