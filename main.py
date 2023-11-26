@@ -17,11 +17,8 @@ import subprocess
 #! /usr/bin/env python3
 import sys
 import threading
-import unittest
 
 import requests
-import typer
-from cognosis.Chunk_ import TextChunker
 from cognosis.FSK_mono.mono import *
 from cognosis.FSK_mono.monoTypes import *
 from cognosis.UFS import *
