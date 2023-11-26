@@ -1,36 +1,46 @@
+# Cognosis Application Logic
 import asyncio
+from sys import sys
 
-from cognosis.application import main as application_main
-from cognosis.FSK_mono.mono import UUID
-from faststream import FastStream
-from faststream.kafka import KafkaBroker
-
-version = "0.1.10"
-title = "FSK_mono"
-description = "FastStream_Kafka_Monolith"
-# Basemodels: Name, UUID, tbd  # ========================>mono.py
-# Subscribers: bs_Name, bs_UUID, tbd  # ========================>mono.py
-# Publishers: to_Name, to_UUID, to_UFS, tbd  # ========================>mono.py
-# =====async-section============
-async def my_async_function(*args, **kwargs):
-    pass  # The decorated function is called when the application starts up.
+from main import PORT, argparse, logger, socketserver, unittest
 
 
-async def publish_UUID():
-    await broker.publish(UUID(uuid="1234567890"), "greetings")
-    pass  # The decorated function publishes a UUID object with the value "1234567890" to the "greetings" topic when the application starts up.
+def main():
+    # Main function of the program.
+    # Parses command line arguments, runs unit tests, and starts the static file server.
+    try:
+        parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
+        parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
+        args = parser.parse_args()
 
+        if not args.prompt:  # If the prompt is empty, provide a default
+            args.prompt.append('Hello world!')
 
-async def main(arg1, arg2):
-    await app.run()
+        # Construct the prompt as a single string
+        prompt = ' '.join(args.prompt).strip()  # Remove leading/trailing spaces
 
+        logger.info(f"Prompt: {prompt}")
 
-if __name__ == "__main__":
-    arg1 = {"hello", str}
-    arg2 = {"world", str}
-    asyncio.run(main(arg1, arg2))
+        # Run tests
+        test_suite = unittest.TestLoader().discover(start_dir='.', pattern='test_*.py')
+        result = unittest.TextTestRunner().run(test_suite)
 
-if __name__ == "__main__":
-    arg1 = {"hello", str}
-    arg2 = {"world", str}
-    asyncio.run(application_main(arg1, arg2))
+        if result.wasSuccessful():
+            logger.info("Tests passed successfully.")
+        else:
+            logger.error("Some tests failed.")
+            sys.exit(1)  # Exit if tests have failed
+
+        # API or other logic can be executed here
+        # NOTE: This section will only execute if tests pass
+        
+        # Start the static file server
+        def run_static_server():
+            with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
+                logger.info(f"Serving files and handling API requests on port {PORT}")
+                httpd.serve_forever()
+        run_static_server()
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        sys.exit(1)
+
