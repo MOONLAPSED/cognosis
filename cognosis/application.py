@@ -11,6 +11,33 @@ app = FastStream(  # Create the FastStream app with the broker
 =======
 import asyncio
 
+=================>mono.py
+# Subscribers: bs_Name, bs_UUID, tbd  # ========================>mono.py
+# Publishers: to_Name, to_UUID, to_UFS, tbd  # ========================>mono.py
+broker = KafkaBroker()  # Initialize KafkaBroker
+app = FastStream(  # Create the FastStream app with the broker
+    broker,
+    title=title,
+    version=version,
+    description=description,
+)  # The FastStream app instance provides the framework for defining subscribers, publishers, and other application components.
+from cognosis.application import *
+
+# Subscribers: bs_Name, bs_UUID, tbd  # ========================>mono.py
+# Publishers: to_Name, to_UUID, to_UFS, tbd  # ========================>mono.py
+broker = KafkaBroker()  # Initialize KafkaBroker
+app = FastStream(  # Create the FastStream app with the broker
+    broker,
+    title=title,
+    version=version,
+    description=description,
+)  # The FastStream app instance provides the framework for defining subscribers, publishers, and other application components.
+async def my_async_function(*args, **kwargs):
+    """
+    This is a detailed docstring for my_async_function.
+    """
+    pass  # The decorated function is called when the application starts up.
+=======
 from cognosis.FSK_mono.mono import UUID
 from faststream import FastStream
 from faststream.kafka import KafkaBroker
@@ -19,6 +46,31 @@ version = "0.1.10"
 title = "FSK_mono"
 description = "FastStream_Kafka_Monolith"
 # Basemodels: Name, UUID, tbd  # ========================>mono.py
+# Subscribers: bs_Name, bs_UUID, tbd  # ========================>mono.py
+# Publishers: to_Name, to_UUID, to_UFS, tbd  # ========================>mono.py
+broker = KafkaBroker()  # Initialize KafkaBroker
+app = FastStream(  # Create the FastStream app with the broker
+    broker,
+    title=title,
+    version=version,
+    description=description,
+)  # The FastStream app instance provides the framework for defining subscribers, publishers, and other application components.
+from cognosis.application import *
+
+# Subscribers: bs_Name, bs_UUID, tbd  # ========================>mono.py
+# Publishers: to_Name, to_UUID, to_UFS, tbd  # ========================>mono.py
+broker = KafkaBroker()  # Initialize KafkaBroker
+app = FastStream(  # Create the FastStream app with the broker
+    broker,
+    title=title,
+    version=version,
+    description=description,
+)  # The FastStream app instance provides the framework for defining subscribers, publishers, and other application components.
+async def my_async_function(*args, **kwargs):
+    """
+    This is a detailed docstring for my_async_function.
+    """
+    pass  # The decorated function is called when the application starts up.
 # Subscribers: bs_Name, bs_UUID, tbd  # ========================>mono.py
 # Publishers: to_Name, to_UUID, to_UFS, tbd  # ========================>mono.py
 broker = KafkaBroker()  # Initialize KafkaBroker
