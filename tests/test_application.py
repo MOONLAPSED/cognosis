@@ -9,8 +9,8 @@ from faststream.kafka import TestKafkaBroker
 
 import unittest
 from unittest.mock import patch
+import cognosis.main
 from main import Entity_, main, run_tests
-
 
 class EntityPublisherTestCasePublisher(unittest.TestCase):
     @patch("main.Entity_.publish")
