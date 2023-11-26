@@ -1,10 +1,11 @@
+asyncio
+jupyterlab
+ipykernel
+litellm
 numpy
 pandas
+pydantic
 requests
-openai
-ipykernel
-jupyterlab
-websockets
-asyncio
+sqlite3
 typer
-litellm
+websockets

@@ -1,17 +1,14 @@
-import argparse
-import logging
-import os
-import sys
-import unittest
-import socketserver
-
-# Import your modules here (make sure import paths are correct)
-from src.dbase.pydbase import *
-from src.utils.errors import *
-from src.utils.logutils import *
-from src.api.apidef import *
-from api import CustomHandler  # Import CustomHandler from api.py
-
+#! /usr/bin/env python3
+import sys, os, argparse, json, logging, asyncio, datetime, requests, sqlite3, socketserver, subprocess, re, threading, http.server, unittest, typer
+from cognosis.Chunk_ import TextChunker
+from cognosis.UFS import *
+from cognosis.FSK_mono.mono import *
+from logs.logdef import *
+# main.py is for orchestration and initialization of the FastStream application.
+# /cognosis/application.py is for the actual application logic.
+version = "0.1.10"
+title = "cognosis/FSK_mono"
+description = "cognosis RLHF kernel for FastStream_Kafka_Monolith"
 # Make sure the log file path is joining with the proper directory
 log_directory = 'logs'
 log_file_path = os.path.join(log_directory, 'app.log')
@@ -23,7 +20,6 @@ PORT = 8080
 server_main_url = 'http://localhost:{}'.format(PORT)
 
 class TestServerStatus(unittest.TestCase):
-
     def test_server_is_running(self):
         """ Test if the server is running and reachable """
         try:
@@ -35,6 +31,49 @@ class TestServerStatus(unittest.TestCase):
 def run_tests():
     unittest.main()
 
+entity_test_cases = [
+    {
+        "name": "Entity 1",
+        "description": "Description 1"
+    },
+    {
+        "name": "Entity 2",
+        "description": "Description 2"
+    }
+
+for test_case in entity_test_cases:
+    entity = Entity_(test_case["name"], test_case["description"])
+    class Entity_:
+        """
+        The Entity_ class represents a general entity with a name and a description.
+    
+        Attributes:
+        name (str): The name of the entity.
+        description (str): The description of the entity.
+        """
+        def __init__(self, name: str, description: str):
+            """
+            The constructor for the Entity_ class. It initializes the name and description attributes.
+    
+            Parameters:
+            name (str): The name of the entity.
+            description (str): The description of the entity.
+            """
+            self.name = name
+            self.description = description
+        def subscriber(self, topic: str):
+        """
+        The subscriber decorator for the Entity_ class. It subscribes the entity to a topic.
+        """
+        def decorator(func):
+        async def wrapper():
+        await func(self)
+        return wrapper
+        return decorator
+        def publisher(self, topic: str):
+        """
+        The publisher decorator for the Entity_ class. It publishes the entity to a topic.
+        """
 
 def main():
     """
@@ -76,7 +115,6 @@ def main():
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     rlhf = RLHF('rlhf.db')

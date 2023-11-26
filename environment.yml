@@ -1,4 +1,3 @@
-#! bin/python3/ ... /cognosis/main.py ... /cognosis/requirements.txt ... / ... /cognosis/setup.py
 name: jupyterjax
 channels:
 - conda-forge
