@@ -50,6 +50,10 @@ class TestServerStatus(unittest.TestCase):
 # A function to run all tests when this script is executed
 def run_tests():
     unittest.main()
+    """Execute all unit tests for the application."""
+    unittest.main()
+
+    unittest.main()
 
 entity_test_cases = [
     {
@@ -86,6 +90,7 @@ for test_case in entity_test_cases:
             The subscriber decorator for the Entity_ class. It subscribes the entity to a topic.
             """
         def decorator(func):
+            """A decorator that wraps a function to provide additional functionality."""
             async def wrapper():
                 await func(self)
             return wrapper
@@ -142,6 +147,7 @@ def main():
         
         # Start the static file server
         def run_static_server():
+            """Starts a static file server that can serve files and handle API requests on a specified port."""
             with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
                 logger.info(f"Serving files and handling API requests on port {PORT}")
                 httpd.serve_forever()
