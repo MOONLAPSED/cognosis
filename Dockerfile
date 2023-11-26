@@ -7,7 +7,7 @@ COPY requirements.txt .
 COPY start.sh /start.sh
 COPY app ./cognosis/app
 COPY main ./cognosis/main
-COPY src ./cognosis/src
+# COPY src ./cognosis/src
 SHELL ["/bin/bash", "-c"]
 WORKDIR /project
 COPY requirements.txt /temp/
