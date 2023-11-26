@@ -1,9 +1,25 @@
 #! /usr/bin/env python3
-import sys, os, argparse, json, logging, asyncio, datetime, requests, sqlite3, socketserver, subprocess, re, threading, http.server, unittest, typer
+import argparse
+import asyncio
+import datetime
+import http.server
+import json
+import logging
+import os
+import re
+import socketserver
+import sqlite3
+import subprocess
+import sys
+import threading
+import unittest
+
+import requests
+import typer
 from cognosis.Chunk_ import TextChunker
-from cognosis.UFS import *
-from cognosis.FSK_mono.monoTypes import *
 from cognosis.FSK_mono.mono import *
+from cognosis.FSK_mono.monoTypes import *
+from cognosis.UFS import *
 from logs.logdef import *
 
 # main.py is for orchestration and initialization of the FastStream application.
@@ -64,34 +80,6 @@ for test_case in entity_test_cases:
             self.name = name
             self.description = description
         def subscriber(self, topic: str):
-            """
-            The subscriber decorator for the Entity_ class. It subscribes the entity to a topic.
-            """
-        def decorator(func):
-            async def wrapper():
-                await func(self)
-            return wrapper
-            return decorator
-        def publisher(self, topic: str):
-            """
-            The publisher decorator for the Entity_ class. It publishes the entity to a topic.
-            """
-            async def wrapper(message: str):
-                print(f"Publishing message: {message}")
-                await self.publish(topic, message)
-                return wrapper
-            return wrapper
-        def publish(self, topic: str, message: str):
-            """
-            The publish method for the Entity_ class. It publishes the entity to a topic.
-
-            Parameters:
-            topic (str): The topic to publish to.
-            message (str): The message to publish.
-            """
-            print(f"Publishing message: {message}")
-            return None
-def main():
     """
     Main function of the program.
     Parses command line arguments, runs unit tests, and starts the static file server.
