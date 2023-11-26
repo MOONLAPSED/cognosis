@@ -1,1 +1,3 @@
-# Unable to create unit tests for test_application_test.py as corresponding file has no defined classes/functions.
+"""
+This function tests the functionality of the my_function() in the application module.
+"""
