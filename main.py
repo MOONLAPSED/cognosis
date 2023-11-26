@@ -2,8 +2,10 @@
 import sys, os, argparse, json, logging, asyncio, datetime, requests, sqlite3, socketserver, subprocess, re, threading, http.server, unittest, typer
 from cognosis.Chunk_ import TextChunker
 from cognosis.UFS import *
+from cognosis.FSK_mono.monoTypes import *
 from cognosis.FSK_mono.mono import *
 from logs.logdef import *
+
 # main.py is for orchestration and initialization of the FastStream application.
 # /cognosis/application.py is for the actual application logic.
 version = "0.1.10"
@@ -40,7 +42,7 @@ entity_test_cases = [
         "name": "Entity 2",
         "description": "Description 2"
     }
-
+]
 for test_case in entity_test_cases:
     entity = Entity_(test_case["name"], test_case["description"])
     class Entity_:
@@ -62,19 +64,33 @@ for test_case in entity_test_cases:
             self.name = name
             self.description = description
         def subscriber(self, topic: str):
-        """
-        The subscriber decorator for the Entity_ class. It subscribes the entity to a topic.
-        """
+            """
+            The subscriber decorator for the Entity_ class. It subscribes the entity to a topic.
+            """
         def decorator(func):
-        async def wrapper():
-        await func(self)
-        return wrapper
-        return decorator
+            async def wrapper():
+                await func(self)
+            return wrapper
+            return decorator
         def publisher(self, topic: str):
-        """
-        The publisher decorator for the Entity_ class. It publishes the entity to a topic.
-        """
+            """
+            The publisher decorator for the Entity_ class. It publishes the entity to a topic.
+            """
+            async def wrapper(message: str):
+                print(f"Publishing message: {message}")
+                await self.publish(topic, message)
+                return wrapper
+            return wrapper
+        def publish(self, topic: str, message: str):
+            """
+            The publish method for the Entity_ class. It publishes the entity to a topic.
 
+            Parameters:
+            topic (str): The topic to publish to.
+            message (str): The message to publish.
+            """
+            print(f"Publishing message: {message}")
+            return None
 def main():
     """
     Main function of the program.
