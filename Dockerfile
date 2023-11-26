@@ -11,7 +11,10 @@ COPY cognosis ./cognosis/
 SHELL ["/bin/bash", "-c"]
 WORKDIR /project
 COPY requirements.txt /temp/
-RUN pip install --no-cache-dir -r /temp/requirements.txt \
+RUN apt-get update && \
+    apt-get install -y python3-pip && \
+    python -m pip install --upgrade pip==23.3.1 && \
+    pip install --no-cache-dir -r /temp/requirements.txt \
     && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
 #1.  RUN  is a Dockerfile keyword that executes a command in a new layer of the Docker image. 
 #2.  pip install --no-cache-dir -r requirements.txt  uses  pip  to install the Python packages listed in the  requirements.txt  file. The  --no-cache-dir  option tells  pip  not to cache downloaded package files, which can save disk space. 
