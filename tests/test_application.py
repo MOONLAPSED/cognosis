@@ -1,6 +1,8 @@
 """
-This module contains tests for the `application` module in the cognosis project.
-It includes tests that verify the functionality of the application components, ensuring they perform as expected.
+Module Description
+------------------
+
+This module contains unit tests for the Application module.
 """
 import unittest
 from unittest.mock import patch
@@ -10,6 +12,7 @@ from cognosis.application import Entity_, broker
 from cognosis.FSK_mono.mono import UUID
 from faststream.kafka import TestKafkaBroker
 from main import Entity_, main, run_tests
+
 
 class EntityPublisherTestCasePublisher(unittest.TestCase):
     @patch("main.Entity_.publish")
