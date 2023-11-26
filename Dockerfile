@@ -46,7 +46,10 @@ USER appuser
 
 # RUN echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/conda/lib/' >> ~/.bashrc
 # Define the command to run the application
-CMD ["faststream", "run", "--workers", "1", "cognosis.application:app"]
+
+# CMD ["faststream", "run", "--workers", "1", "cognosis.application:app"]
+CMD ["python", "main.py"]
+
 # Build the Docker image from your Dockerfile (assuming your Dockerfile is in the current directory):
 # docker build -t my_image:tag .
 # This will build a Docker image with the tag "my_image:tag" using the current directory as the build context (denoted by the dot at the end).
