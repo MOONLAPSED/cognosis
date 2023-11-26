@@ -1,7 +1,4 @@
 #! /usr/bin/env python3
-"""
-This file contains the main orchestration and initialization logic for the FastStream application.
-"""
 import argparse
 import asyncio
 import datetime
@@ -16,15 +13,27 @@ import subprocess
 import sys
 import threading
 import unittest
-
 import requests
 import typer
 from cognosis.Chunk_ import TextChunker
 from cognosis.FSK_mono.mono import *
 from cognosis.FSK_mono.monoTypes import *
-from cognosis.UFS import *
+from faststream.kafka import KafkaBroker
 from logs.logdef import *
 
+version = "0.1.10"
+title = "cognosis/FSK_mono"
+description = "cognosis RLHF kernel for FastStream_Kafka_Monolith"
+# Basemodels: Name, UUID, tbd  # ========================>mono.py
+# Subscribers: bs_Name, bs_UUID, tbd  # ========================>mono.py
+# Publishers: to_Name, to_UUID, to_UFS, tbd  # ========================>mono.py
+broker = KafkaBroker()  # Initialize KafkaBroker
+app = FastStream(  # Create the FastStream app with the broker
+    broker,
+    title=title,
+    version=version,
+    description=description,
+)  # The FastStream app instance provides the framework for defining subscribers, publishers, and other application components.
 # main.py is for orchestration and initialization of the FastStream application.
 # /cognosis/application.py is for the actual application logic.
 version = "0.1.10"
@@ -74,4 +83,3 @@ entity_test_cases = [
 ]
 for test_case in entity_test_cases:
     entity = Entity_(test_case["name"], test_case["description"])
-    
