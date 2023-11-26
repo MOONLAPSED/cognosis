@@ -1,8 +1,4 @@
-
-"""
-This file contains the main orchestration and initialization logic for the FastStream application.
-"""
-
+#! /usr/bin/env python3
 import argparse
 import asyncio
 import datetime
@@ -14,21 +10,30 @@ import re
 import socketserver
 import sqlite3
 import subprocess
-#! /usr/bin/env python3
 import sys
 import threading
-
+import unittest
 import requests
 from cognosis.FSK_mono.mono import *
 from cognosis.FSK_mono.monoTypes import *
-from cognosis.UFS import *
+from faststream.kafka import KafkaBroker
 from logs.logdef import *
 
-# main.py is for orchestration and initialization of the FastStream application.
-# /cognosis/application.py is for the actual application logic.
 version = "0.1.10"
 title = "cognosis/FSK_mono"
 description = "cognosis RLHF kernel for FastStream_Kafka_Monolith"
+# Basemodels: Name, UUID, tbd  # ========================>mono.py
+# Subscribers: bs_Name, bs_UUID, tbd  # ========================>mono.py
+# Publishers: to_Name, to_UUID, to_UFS, tbd  # ========================>mono.py
+broker = KafkaBroker()  # Initialize KafkaBroker
+app = FastStream(  # Create the FastStream app with the broker
+    broker,
+    title=title,
+    version=version,
+    description=description,
+)  # The FastStream app instance provides the framework for defining subscribers, publishers, and other application components.
+# main.py is for orchestration and initialization of the FastStream application.
+# /cognosis/application.py is for the actual application logic.
 # Make sure the log file path is joining with the proper directory
 log_directory = 'logs'
 log_file_path = os.path.join(log_directory, 'app.log')
@@ -49,6 +54,16 @@ class TestServerStatus(unittest.TestCase):
             self.fail('Server is not running or not reachable.')
 # A function to run all tests when this script is executed
 def run_tests():
+    """
+    Runs all the unit tests.
+
+    Returns:
+    None
+    """
+    unittest.main()
+    """
+    Runs all the unit tests.
+    """
     unittest.main()
     """Execute all unit tests for the application."""
     unittest.main()
