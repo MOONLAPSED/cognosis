@@ -2,12 +2,12 @@ FROM ghcr.io/ai-dock/jupyter-pytorch:2.1.0-py3.9-cuda-12.1.0-cudnn8-devel-22.04
 
 ADD cognosis /project/cognosis
 COPY pyproject.toml /project/
-COPY .env.dev .
+COPY env.config .env
 COPY requirements.txt .
-COPY start.sh /start.sh
-COPY app ./cognosis/app
-COPY main ./cognosis/main
-COPY src ./cognosis/src
+# COPY start.sh /start.sh
+COPY cognosis ./cognosis/
+# COPY main ./cognosis/main
+# COPY src ./cognosis/src
 SHELL ["/bin/bash", "-c"]
 WORKDIR /project
 COPY requirements.txt /temp/
@@ -46,7 +46,10 @@ USER appuser
 
 # RUN echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/conda/lib/' >> ~/.bashrc
 # Define the command to run the application
-CMD ["faststream", "run", "--workers", "1", "cognosis.application:app"]
+
+# CMD ["faststream", "run", "--workers", "1", "cognosis.application:app"]
+CMD ["python", "main.py"]
+
 # Build the Docker image from your Dockerfile (assuming your Dockerfile is in the current directory):
 # docker build -t my_image:tag .
 # This will build a Docker image with the tag "my_image:tag" using the current directory as the build context (denoted by the dot at the end).
