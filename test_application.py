@@ -9,10 +9,9 @@ conditions. Each test case is named to reflect the specific feature
 or scenario it tests.
 
 .. module:: test_application
-   :platform: Unix, Windows
+   :platform: Unix
    :synopsis: Unit Tests for Application Module.
 
-.. moduleauthor:: Your Name <your.email@example.com>
-
+.. moduleauthor:: MOONLAPSED <MOONLAPSED@gmail.com>
 """
 
