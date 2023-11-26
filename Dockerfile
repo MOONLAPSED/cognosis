@@ -2,8 +2,7 @@ FROM ghcr.io/ai-dock/jupyter-pytorch:2.1.0-py3.9-cuda-12.1.0-cudnn8-devel-22.04
 
 ADD cognosis /project/cognosis
 COPY pyproject.toml /project/
-COPY .env .
-# remember to rename env.config
+COPY env.config .env
 COPY requirements.txt .
 # COPY start.sh /start.sh
 COPY cognosis ./cognosis/
