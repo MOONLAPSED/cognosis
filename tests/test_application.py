@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 # Import the Entity_ class from the correct location
 from cognosis.main import Entity_
-from main import Entity_, main, run_tests
+from main import main, run_tests
 
 
 class EntityPublisherTestCasePublisher(unittest.TestCase):
