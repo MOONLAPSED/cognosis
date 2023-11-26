@@ -1,271 +1,180 @@
+import unittest
 from time import time
+from unittest import TestCase, mock
+from unittest.mock import patch
 
-import pandas as pd
+from cognosis.FSK_mono.monoTypes import Entity_, Kerneltuple_
 
 
-class Entity_:
-    """
-    The Entity class represents a general entity with a name and a description.
+class KerneltupleTestCase(TestCase):
+    @mock.patch("time.sleep")
+    def test_get_values(self, mock_sleep):
+        # Set up the mock return value
+        mock_sleep.return_value = None
 
-    Attributes:
-    name (str): The name of the entity.
-    description (str): The description of the entity.
-    """
-    def __init__(self, name, description):
-        """
-        The constructor for the Entity class. It initializes the name and description attributes.
+        # Create an instance of Kerneltuple_
+        kerneltuple = Kerneltuple_()
 
-        Parameters:
-        name (str): The name of the entity.
-        description (str): The description of the entity.
-        """
-        self.name = name
-        self.description = description
+        # Call the get_values method
+        values = kerneltuple.get_values()
 
-    def __str__(self):
-        """
-        Returns a string representation of the Entity_ object.
+        # Assert the expected behavior
+        self.assertEqual(values, kerneltuple.values)
 
-        Returns:
-        str: A string representation of the Entity_ object.
-        """
-        return self.name
+    @patch("time.sleep")
+    def test_get_values_with_different_values(self, mock_sleep):
+        # Set up the mock return value
+        mock_sleep.return_value = None
 
-    def __repr__(self):
-        """
-        Returns a string representation of the Entity_ object.
+        # Create an instance of Kerneltuple_
+        values = [1, 2, 3]
+        kerneltuple = Kerneltuple_(values=values)
 
-        Returns:
-        str: A string representation of the Entity_ object.
-        """
-        return "Entity_(name='{}', description='{}')".format(self.name, self.description)
+        # Call the get_values method
+        result = kerneltuple.get_values()
 
-class Kerneltuple_:
-    """
-    The Kerneltuple_ class represents a kernel tuple with attributes and values.
+        # Assert the expected behavior
+        self.assertEqual(result, values)
 
-    Attributes:
-    attributes (list): The list of attributes.
-    values (list): The list of values.
-    """
-    def __init__(self, **kwargs):
-        self.attributes = kwargs.keys()
-        self.values = kwargs.values()
+    @patch("time.sleep")
+    def test_get_values_with_empty_values(self, mock_sleep):
+        # Set up the mock return value
+        mock_sleep.return_value = None
 
-    def __str__(self):
-        """
-        Returns a string representation of the Kerneltuple_ object.
+        # Create an instance of Kerneltuple_
+        values = []
+        kerneltuple = Kerneltuple_(values=values)
 
-        Returns:
-        str: A string representation of the Kerneltuple_ object.
-        """
-        return str(self.values)
+        # Call the get_values method
+        result = kerneltuple.get_values()
 
-    def __repr__(self):
-        """
-        Returns a string representation of the Kerneltuple_ object.
+        # Assert the expected behavior
+        self.assertEqual(result, values)
 
-        Returns:
-        str: A string representation of the Kerneltuple_ object.
-        """
-        if self.values == []:
-            return "Kerneltuple_()"
-        else:
-            return "Kerneltuple_({})".format(str(self.values)[1:-1])
-    
-    def create_instance(self, **kwargs):
-        """
-        Creates a new instance of the Kerneltuple_ class.
+    @patch("time.sleep")
+    def test_get_values_with_retry(self, mock_sleep):
+        # Set up the mock return value
+        mock_sleep.return_value = None
 
-        Parameters:
-        kwargs: Keyword arguments for the attributes and values.
+        # Create an instance of Kerneltuple_
+        values = [1, 2, 3]
+        kerneltuple = Kerneltuple_(values=values)
 
-        Returns:
-        Kerneltuple_: A new instance of the Kerneltuple_ class.
-        """
-        retry_count = 0
-        while retry_count < MAX_RETRIES:
-            try:
-                return Kerneltuple_(**kwargs)
-            except Exception as e:
-                retry_count += 1
-                time.sleep(2 ** retry_count)
-        # Handle failure case here
-        return None
+        # Set up the mock return value for the retry loop
+        mock_kerneltuple = mock.Mock(side_effect=[Exception(), kerneltuple])
+        with patch("cognosis.FSK_mono.monoTypes.Kerneltuple_", mock_kerneltuple):
+            # Call the get_values method
+            result = kerneltuple.get_values()
 
-    def get_attributes(self):
-        """
-        Returns the attributes of the Kerneltuple_ object.
+        # Assert the expected behavior
+        self.assertEqual(result, values)
+        self.assertEqual(mock_kerneltuple.call_count, 2)
+        mock_sleep.assert_called_with(2)
 
-        Returns:
-        list: The attributes of the Kerneltuple_ object.
-        """
-        return self.attributes
 
-    def get_values(self):
-        """
-        Returns the values of the Kerneltuple_ object.
+class EntityTestCaseRepr(unittest.TestCase):
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.name", "mock name")
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.description", "mock description")
+    def test_entity_repr(self):
+        entity = Entity_()
+        repr_str = entity.__repr__()
+        self.assertEqual(
+            repr_str, "Entity_(name='mock name', description='mock description')"
+        )
 
-        Returns:
-        list: The values of the Kerneltuple_ object.
-        """
-        return self.values
-        retry_count = 0
-        while retry_count < MAX_RETRIES:
-            try:
-                return Kerneltuple_(**kwargs)
-            except Exception as e:
-                retry_count += 1
-                time.sleep(2 ** retry_count)
-        # Handle failure case here
-        return None
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.name", "mock name")
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.description", "mock description")
+    def test_entity_repr(self):
+        entity = Entity_()
+        repr_str = entity.__repr__()
+        self.assertEqual(
+            repr_str, "Entity_(name='mock name', description='mock description')"
+        )
 
-class Attribute_(Entity_):
-    """
-    The Attribute_ class represents an attribute with a name and a description.
-    Attributes:
-    name (str): The name of the attribute.
-    description (str): The description of the attribute.
-    """
-    def __init__(self, name, description):
-        """
-        The constructor for the Attribute_ class. It initializes the name and description attributes.
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.name", "another mock name")
+    @patch(
+        "cognosis.FSK_mono.monoTypes.Entity_.description", "another mock description"
+    )
+    def test_entity_repr_different_values(self):
+        entity = Entity_()
+        repr_str = entity.__repr__()
+        self.assertEqual(
+            repr_str,
+            "Entity_(name='another mock name', description='another mock description')",
+        )
 
-        Parameters:
-        name (str): The name of the attribute.
-        description (str): The description of the attribute.
-        """
-        super().__init__(name, description)
-    """
-    This module defines specific data types as subclasses of the Attribute class. 
-    These data types include TEXT, INTEGER, REAL, BLOB, and VARCHAR. 
-    Each data type is represented as a separate class with its own initialization and string representation methods.
-    """
-class VARCHAR(Attribute_):
-    """
-    This class represents a VARCHAR data type attribute. It is a subclass of the Attribute_ class.
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.name", "")
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.description", "")
+    def test_entity_repr_empty_values(self):
+        entity = Entity_()
+        repr_str = entity.__repr__()
+        self.assertEqual(repr_str, "Entity_(name='', description='')")
 
-    Attributes:
-    name (str): The name of the attribute.
-    length (int): The length of the VARCHAR.
-    """
 
-    def __init__(self, name, length):
-        """
-        The constructor for the VARCHAR class.
+class TestEntityStr(unittest.TestCase):
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.name")
+    def test_entity_str(self, mock_name):
+        mock_name.return_value = "mocked name"
+        entity = Entity_()
+        self.assertEqual(str(entity), "mocked name")
 
-        Parameters:
-        name (str): The name of the attribute.
-        length (int): The length of the VARCHAR.
-        """
-        super().__init__(name, f"VARCHAR({length})")
-        self.length = length
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.name")
+    def test_entity_str(self, mock_name):
+        mock_name.return_value = "mocked name"
+        entity = Entity_()
+        self.assertEqual(str(entity), "mocked name")
 
-    def __str__(self):
-        """
-        This method returns a string representation of the VARCHAR object.
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.name")
+    def test_entity_str_empty_name(self, mock_name):
+        mock_name.return_value = ""
+        entity = Entity_()
+        self.assertEqual(str(entity), "")
 
-        Returns:
-        str: A string representation of the VARCHAR object in the format "name: VARCHAR(length)".
-        """
-        return f"{self.name}: VARCHAR({self.length})"
+    @patch("cognosis.FSK_mono.monoTypes.Entity_.name")
+    def test_entity_str_long_name(self, mock_name):
+        mock_name.return_value = "a" * 1000
+        entity = Entity_()
+        self.assertEqual(str(entity), "a" * 1000)
 
-class TEXT(Attribute_):
-    """
-    This class represents a TEXT data type attribute. It is a subclass of the Attribute class.
-    
-    Attributes:
-    name (str): The name of the attribute.
-    """
-    def __init__(self, name):
-        """
-        The constructor for the TEXT class.
 
-        Parameters:
-        name (str): The name of the attribute.
-        """
-        super().__init__(name, "TEXT")
+class TestEntity___str__Str(unittest.TestCase):
+    @patch("cognosis.FSK_mono.monoTypes.Attribute_.name")
+    def test_Entity___str__(self, mock_name):
+        mock_name.return_value = "mocked name"
 
-    def __str__(self):
-        """
-        This method returns a string representation of the TEXT object.
+        attribute = Attribute_("test_attribute", "Test attribute")
+        result = attribute.__str__()
 
-        Returns:
-        str: A string representation of the TEXT object in the format "name: TEXT".
-        """
-        return "{}: TEXT".format(self.name)
+        self.assertEqual(result, "mocked name")
 
-class INTEGER(Attribute_):
-    """
-    This class represents an INTEGER data type attribute. It is a subclass of the Attribute_ class.
+    @patch("cognosis.FSK_mono.monoTypes.Attribute_.name")
+    def test_Attribute___str__(self, mock_name):
+        mock_name.return_value = "mocked name"
 
-    Attributes:
-    name (str): The name of the attribute.
-    """
-    def __init__(self, name):
-        """
-        The constructor for the INTEGER class.
+        attribute = Attribute_("test_attribute", "Test attribute")
+        result = attribute.__str__()
 
-        Parameters:
-        name (str): The name of the attribute.
-        """
-        super().__init__(name, "INTEGER")
+        self.assertEqual(result, "mocked name")
 
-    def __str__(self):
-        """
-        This method returns a string representation of the INTEGER object.
+    @patch("cognosis.FSK_mono.monoTypes.Attribute_.name")
+    def test_Attribute___str__EmptyName(self, mock_name):
+        mock_name.return_value = ""
 
-        Returns:
-        str: A string representation of the INTEGER object in the format "name: INTEGER".
-        """
-        return "{}: INTEGER".format(self.name)
+        attribute = Attribute_("test_attribute", "Test attribute")
+        result = attribute.__str__()
 
-class REAL(Attribute_):
-    """
-    This class represents a REAL data type attribute. It is a subclass of the Attribute_ class.
+        self.assertEqual(result, "")
 
-    Attributes:
-    name (str): The name of the attribute.
-    """
-    def __init__(self, name):
-        """
-        The constructor for the REAL class.
+    @patch("cognosis.FSK_mono.monoTypes.Attribute_.name")
+    def test_Attribute___str__WhitespaceName(self, mock_name):
+        mock_name.return_value = "   "
 
-        Parameters:
-        name (str): The name of the attribute.
-        """
-        super().__init__(name, "REAL")
+        attribute = Attribute_("test_attribute", "Test attribute")
+        result = attribute.__str__()
 
-    def __str__(self):
-        """
-        This method returns a string representation of the REAL object.
+        self.assertEqual(result, "   ")
 
-        Returns:
-        str: A string representation of the REAL object in the format "name: REAL".
-        """
-        return "{}: REAL".format(self.name)
 
-class BLOB(Attribute_):
-    """
-    This class represents a BLOB data type attribute. It is a subclass of the Attribute_ class.
+if __name__ == "__main__":
+    unittest.main()
 
-    Attributes:
-    name (str): The name of the attribute.
-    """
-    def __init__(self, name):
-        """
-        The constructor for the BLOB class.
-
-        Parameters:
-        name (str): The name of the attribute.
-        """
-        super().__init__(name, "BLOB")
-
-    def __str__(self):
-        """
-        This method returns a string representation of the BLOB object.
-
-        Returns:
-        str: A string representation of the BLOB object in the format "name: BLOB".
-        """
-        return "{}: BLOB".format(self.name)
