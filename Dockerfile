@@ -13,8 +13,7 @@ WORKDIR /project
 COPY requirements.txt /temp/
 RUN apt-get update && \
     apt-get install -y python3-pip && \
-    pip3 install --no-cache-dir -r /temp/requirements.txt \
-    && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
+    python -m pip install --upgrade pip==23.3.1
 #1.  RUN  is a Dockerfile keyword that executes a command in a new layer of the Docker image. 
 #2.  apt-get update  updates the list of available packages and their versions from the Debian/Ubuntu package repositories. 
 #3.  &&  is a shell operator that allows you to execute multiple commands on the same line. 
