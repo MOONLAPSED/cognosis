@@ -2,13 +2,13 @@
 This module contains tests for the `application` module in the cognosis project.
 It includes tests that verify the functionality of the application components, ensuring they perform as expected.
 """
+import unittest
+from unittest.mock import patch
+
 import pytest
 from cognosis.application import broker
 from cognosis.FSK_mono.mono import UUID
 from faststream.kafka import TestKafkaBroker
-
-import unittest
-from unittest.mock import patch
 from main import Entity_, main, run_tests
 
 
@@ -33,6 +33,21 @@ class EntityPublisherTestCasePublisher(unittest.TestCase):
 
     @patch("cognosis.main.Entity_.publish")
     def test_publisher(self, mock_publish):
+        entity = Entity_()
+        topic = "test_topic"
+        message = "test_message"
+
+        mock_publish.return_value = None
+
+        # Call the publisher method
+        publisher = entity.publisher(topic)
+        result = publisher(message)
+
+        # Assert that the publish method was called with the correct arguments
+        mock_publish.assert_called_once_with(topic, message)
+
+        # Assert that the result is None
+        self.assertIsNone(result)
         entity = Entity_()
         topic = "test_topic"
         message = "test_message"
