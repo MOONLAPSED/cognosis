@@ -60,6 +60,9 @@ line-length = 88
 target-version = ['py38']
 include = '\.pyi?$'
 
+[tool.mypy_cache]
+directory = "mypy_cache"
+
 [tool.ruff]
 fix = true
 line-length = 88
@@ -82,3 +85,30 @@ ignore = [
 convention = "google"
 
 [tool.bandit]
+include = '\.pyi?$'
+
+[tool.ruff]
+fix = true
+line-length = 88
+target-version = "py38"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "Q",  # flake8-quotes
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "C901",  # too complex
+]
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.bandit]
+
+[tool.mypy_cache]
+directory = "mypy_cache"
