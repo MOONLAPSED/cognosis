@@ -1,8 +1,7 @@
-
+#! /usr/bin/env python3
 """
 This file contains the main orchestration and initialization logic for the FastStream application.
 """
-
 import argparse
 import asyncio
 import datetime
@@ -14,7 +13,6 @@ import re
 import socketserver
 import sqlite3
 import subprocess
-#! /usr/bin/env python3
 import sys
 import threading
 import unittest
@@ -52,6 +50,16 @@ class TestServerStatus(unittest.TestCase):
             self.fail('Server is not running or not reachable.')
 # A function to run all tests when this script is executed
 def run_tests():
+    """
+    Runs all the unit tests.
+
+    Returns:
+    None
+    """
+    unittest.main()
+    """
+    Runs all the unit tests.
+    """
     unittest.main()
 
 entity_test_cases = [
@@ -66,95 +74,4 @@ entity_test_cases = [
 ]
 for test_case in entity_test_cases:
     entity = Entity_(test_case["name"], test_case["description"])
-    class Entity_:
-        """
-        The Entity_ class represents a general entity with a name and a description.
     
-        Attributes:
-        name (str): The name of the entity.
-        description (str): The description of the entity.
-        """
-        def __init__(self, name: str, description: str):
-            """
-            The constructor for the Entity_ class. It initializes the name and description attributes.
-    
-            Parameters:
-            name (str): The name of the entity.
-            description (str): The description of the entity.
-            """
-            self.name = name
-            self.description = description
-        def subscriber(self, topic: str):
-            """
-            The subscriber decorator for the Entity_ class. It subscribes the entity to a topic.
-            """
-        def decorator(func):
-            async def wrapper():
-                await func(self)
-            return wrapper
-            return decorator
-        def publisher(self, topic: str):
-            """
-            The publisher decorator for the Entity_ class. It publishes the entity to a topic.
-            """
-            async def wrapper(message: str):
-                print(f"Publishing message: {message}")
-                await self.publish(topic, message)
-                return wrapper
-            return wrapper
-        def publish(self, topic: str, message: str):
-            """
-            The publish method for the Entity_ class. It publishes the entity to a topic.
-
-            Parameters:
-            topic (str): The topic to publish to.
-            message (str): The message to publish.
-            """
-            print(f"Publishing message: {message}")
-            return None
-def main():
-    """
-    Main function of the program.
-    Parses command line arguments, runs unit tests, and starts the static file server.
-    """
-    try:
-        parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
-        parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
-        args = parser.parse_args()
-
-        if not args.prompt:  # If the prompt is empty, provide a default
-            args.prompt.append('Hello world!')
-
-        # Construct the prompt as a single string
-        prompt = ' '.join(args.prompt).strip()  # Remove leading/trailing spaces
-
-        logger.info(f"Prompt: {prompt}")
-
-        # Run tests
-        test_suite = unittest.TestLoader().discover(start_dir='.', pattern='test_*.py')
-        result = unittest.TextTestRunner().run(test_suite)
-
-        if result.wasSuccessful():
-            logger.info("Tests passed successfully.")
-        else:
-            logger.error("Some tests failed.")
-            sys.exit(1)  # Exit if tests have failed
-
-        # API or other logic can be executed here
-        # NOTE: This section will only execute if tests pass
-        
-        # Start the static file server
-        def run_static_server():
-            with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
-                logger.info(f"Serving files and handling API requests on port {PORT}")
-                httpd.serve_forever()
-        run_static_server()
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    rlhf = RLHF('rlhf.db')
-    rlhf.dbinitcall()
-    run_tests()
-    main()
