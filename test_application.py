@@ -19,5 +19,13 @@ or scenario it targets. This enhances the maintainability of the test suite and 
 diagnostic processes when identifying and addressing potential issues.
 
 :platform: Unix.
+
+Add documentation for the architecture-wide APIs, explaining their purpose, usage, and any important considerations.
+Include a reference to the SQLite3 database documentation in the appropriate section.
+"""
+or scenario it targets. This enhances the maintainability of the test suite and facilitates
+diagnostic processes when identifying and addressing potential issues.
+
+:platform: Unix.
 """
 
