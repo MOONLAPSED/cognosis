@@ -17,5 +17,7 @@ The tests are structured to cover:
 Each test function within this module is named to clearly indicate the specific functionality
 or scenario it targets. This enhances the maintainability of the test suite and facilitates
 diagnostic processes when identifying and addressing potential issues.
+
+:platform: Unix
 """
 
