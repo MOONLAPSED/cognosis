@@ -157,10 +157,6 @@ for test_case in entity_test_cases:
             return None
 
 def main():
-
-                                  Main function of the program.
-                                  Parses command line arguments, runs unit tests, and starts the static file server.
-                                  
     """
     Main function of the program.
     Parses command line arguments, runs unit tests, and starts the static file server.
@@ -186,6 +182,10 @@ def main():
         unittest.main()
         result = unittest.TextTestRunner().run(test_suite)
         if result.wasSuccessful():
+    """
+    Main function of the program.
+    Parses command line arguments, runs unit tests, and starts the static file server.
+    """
             logger.info("Tests passed successfully.")
         else:
             logger.error("Some tests failed.")
