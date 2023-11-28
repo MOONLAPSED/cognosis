@@ -158,19 +158,6 @@ for test_case in entity_test_cases:
             return wrapper
         def publisher(self, topic: str):
             """
-        def publish(self, topic: str, message: str):
-            """
-            The publish method for the Entity_ class. It publishes the entity to a topic.
-
-            Parameters:
-            topic (str): The topic to publish to.
-            message (str): The message to publish.
-
-            Returns:
-            None
-            """
-            print(f"Publishing message: {message}")
-            return None
             The publisher decorator for the Entity_ class. It publishes the entity to a topic.
             """
             async def wrapper(message: str):
@@ -185,11 +172,23 @@ for test_case in entity_test_cases:
             print(f"Publishing message: {message}")
             return None
 
-def main():
-    """
-    Main function of the program.
-    Parses command line arguments, runs unit tests, and starts the static file server.
-    """
+
+    The main function serves as the application's entry point. It handles several critical operations 
+    to set up and run the application:
+
+    1. Command-Line Argument Parsing: It parses arguments provided via the command line using the argparse module. 
+       These arguments determine the behavior of the application at runtime.
+
+    2. Unit Testing: Prior to application startup, the function executes a suite of unit tests to ensure the 
+       integrity and correctness of the application's logic.
+
+    3. Static File Server Initialization: After successful completion of unit tests, the main function
+       initializes a static file server which listens for incoming requests and serves static files. This 
+       server also handles any predefined API requests.
+
+    The function encapsulates these steps in a try-except block to gracefully handle any unexpected errors during 
+    execution.
+    
     try:
         parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
         parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
@@ -233,17 +232,7 @@ def main():
         logger.error(f"An error occurred: {e}")
         sys.exit(1)
 
-def main():
-    """
-    This function acts as the primary entry point of the program.
 
-    It parses command-line arguments, runs unit tests, starts the static file server, and contains
-    the core execution logic required to initialize and run the application.
-    """
-    try:
-        parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
-        parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
-        args = parser.parse_args()
 
         if not args.prompt:  # If the prompt is empty, provide a default
             args.prompt.append('Hello world!')
