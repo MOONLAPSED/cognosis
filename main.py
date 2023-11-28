@@ -172,23 +172,11 @@ for test_case in entity_test_cases:
             print(f"Publishing message: {message}")
             return None
 
-
-    The main function serves as the application's entry point. It handles several critical operations 
-    to set up and run the application:
-
-    1. Command-Line Argument Parsing: It parses arguments provided via the command line using the argparse module. 
-       These arguments determine the behavior of the application at runtime.
-
-    2. Unit Testing: Prior to application startup, the function executes a suite of unit tests to ensure the 
-       integrity and correctness of the application's logic.
-
-    3. Static File Server Initialization: After successful completion of unit tests, the main function
-       initializes a static file server which listens for incoming requests and serves static files. This 
-       server also handles any predefined API requests.
-
-    The function encapsulates these steps in a try-except block to gracefully handle any unexpected errors during 
-    execution.
-    
+def main():
+    """
+    Main function of the program.
+    Parses command line arguments, runs unit tests, and starts the static file server.
+    """
     try:
         parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
         parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
@@ -219,10 +207,16 @@ for test_case in entity_test_cases:
         # Start the static file server
         def run_static_server():
             """
-            Launches a static file server which listens on a designated port, serving files as well as
-            handling API requests.
-        
-            This server runs indefinitely once activated and logs its presence and available port to the terminal.
+            Starts a static file server that listens on a configurable port for incoming HTTP requests.
+            It serves static files from a specified directory and also provides functionality to handle API requests.
+            
+            Once started, the server will continue running indefinitely, processing incoming requests and serving
+            resources. Each request is logged to provide visibility into the server's activity. The server can be stopped
+            by interrupting the process (e.g., CTRL+C in the terminal).
+            
+            The designated port and resource directory can be configured to suit deployment needs. It's important to
+            note that runtime behavior such as caching, request limits, or concurrent handling might depend on the
+            underlying HTTP server implementation used and how it's configured.
             """
             with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
                 logger.info(f"Serving files and handling API requests on port {PORT}")
@@ -232,7 +226,17 @@ for test_case in entity_test_cases:
         logger.error(f"An error occurred: {e}")
         sys.exit(1)
 
+def main():
+    """
+    This function acts as the primary entry point of the program.
 
+    It parses command-line arguments, runs unit tests, starts the static file server, and contains
+    the core execution logic required to initialize and run the application.
+    """
+    try:
+        parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
+        parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
+        args = parser.parse_args()
 
         if not args.prompt:  # If the prompt is empty, provide a default
             args.prompt.append('Hello world!')
