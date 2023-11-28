@@ -215,6 +215,51 @@ def main():
         logger.error(f"An error occurred: {e}")
         sys.exit(1)
 
+def main():
+    """
+    This function acts as the primary entry point of the program.
+
+    It parses command-line arguments, runs unit tests, starts the static file server, and contains
+    the core execution logic required to initialize and run the application.
+    """
+    try:
+        parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
+        parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
+        args = parser.parse_args()
+
+        if not args.prompt:  # If the prompt is empty, provide a default
+            args.prompt.append('Hello world!')
+
+        # Construct the prompt as a single string
+        prompt = ' '.join(args.prompt).strip()  # Remove leading/trailing spaces
+
+        logger.info(f"Prompt: {prompt}")
+
+        # Run tests
+        test_suite = unittest.TestLoader().discover(start_dir='.', pattern='test_*.py')
+        """
+        Runs all the unit tests.
+        """
+        unittest.main()
+        result = unittest.TextTestRunner().run(test_suite)
+        if result.wasSuccessful():
+            logger.info("Tests passed successfully.")
+        else:
+            logger.error("Some tests failed.")
+            sys.exit(1)  # Exit if tests have failed
+        # API or other logic can be executed here
+        # NOTE: This section will only execute if tests pass
+        # Start the static file server
+        def run_static_server():
+            """Starts a static file server that can serve files and handle API requests on a specified port."""
+            with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
+                logger.info(f"Serving files and handling API requests on port {PORT}")
+                httpd.serve_forever()
+        run_static_server()
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        sys.exit(1)
+
 if __name__ == "__main__":
     rlhf = RLHF('rlhf.db')
     rlhf.dbinitcall()
