@@ -206,7 +206,12 @@ def main():
         # NOTE: This section will only execute if tests pass
         # Start the static file server
         def run_static_server():
-            """Starts a static file server that can serve files and handle API requests on a specified port."""
+            """
+            Launches a static file server which listens on a designated port, serving files as well as
+            handling API requests.
+        
+            This server runs indefinitely once activated and logs its presence and available port to the terminal.
+            """
             with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
                 logger.info(f"Serving files and handling API requests on port {PORT}")
                 httpd.serve_forever()
