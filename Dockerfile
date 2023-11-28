@@ -1,28 +1,20 @@
-FROM ghcr.io/ai-dock/jupyter-pytorch:2.1.0-py3.9-cuda-12.1.0-cudnn8-devel-22.04
+FROM python:3.9.18
 
 ADD cognosis /project/cognosis
-COPY pyproject.toml /project/
-COPY .env.dev .
+COPY env.config .env
 COPY requirements.txt .
-COPY start.sh /start.sh
-COPY app ./cognosis/app
-COPY main ./cognosis/main
-COPY src ./cognosis/src
+# COPY start.sh /start.sh
+COPY cognosis ./cognosis/
+# COPY main ./cognosis/main
+# COPY src ./cognosis/src
 SHELL ["/bin/bash", "-c"]
 WORKDIR /project
 COPY requirements.txt /temp/
 RUN apt-get update && \
     apt-get install -y python3-pip && \
-    pip3 install --no-cache-dir -r /temp/requirements.txt \
-    && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install
-#1.  RUN  is a Dockerfile keyword that executes a command in a new layer of the Docker image. 
-#2.  apt-get update  updates the list of available packages and their versions from the Debian/Ubuntu package repositories. 
-#3.  &&  is a shell operator that allows you to execute multiple commands on the same line. 
-#4.  apt-get install -y python3-pip  installs the  python3-pip  package, which provides the  pip3  command-line tool for installing Python packages. 
-#5.  &&  is used again to execute the next command on the same line. 
-#6.  pip3 install --no-cache-dir -r requirements.txt  uses  pip3  to install the Python packages listed in the  requirements.txt  file. The  --no-cache-dir  option tells  pip3  not to cache downloaded package files, which can save disk space. 
+    python -m pip install --upgrade pip==23.3.1 && \
+    pip install --no-cache-dir -r /temp/requirements.txt
 
-# Set environment variables to optimize Python runtime in Docker
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/home/appuser/.local/bin:${PATH}"
@@ -42,12 +34,11 @@ USER appuser
 #3. Step 3 updates the permissions of the  /app  directory (and all its contents) to allow the new user to read, write, and execute files, and to allow everyone else to read and execute files. This is necessary to ensure that the new user has the appropriate permissions to run the application. 
 #4. Step 4 sets the working directory to  /app . This is useful for ensuring that any subsequent commands in the Dockerfile are executed in the context of the  /app  directory. 
 #5. Step 5 sets the default user for subsequent commands in the Dockerfile to the new user created in Step 1. This is necessary to ensure that any subsequent commands are executed with the appropriate user permissions. 
-# Set environment variable for OpenAI API key
 
-# RUN echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/conda/lib/' >> ~/.bashrc
 # Define the command to run the application
-CMD ["faststream", "run", "--workers", "1", "cognosis.application:app"]
-# Build the Docker image from your Dockerfile (assuming your Dockerfile is in the current directory):
+# CMD ["faststream", "run", "--workers", "1", "cognosis.application:app"]
+CMD ["python", "main.py"]
+
 # docker build -t my_image:tag .
 # This will build a Docker image with the tag "my_image:tag" using the current directory as the build context (denoted by the dot at the end).
 # docker run --gpus all -it my_image:tag
