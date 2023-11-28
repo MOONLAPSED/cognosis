@@ -174,60 +174,6 @@ for test_case in entity_test_cases:
 
 def main():
     """
-    Main function of the program.
-    Parses command line arguments, runs unit tests, and starts the static file server.
-    """
-    try:
-        parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
-        parser.add_argument('prompt', nargs='*', help='Enter the prompt here')
-        args = parser.parse_args()
-
-        if not args.prompt:  # If the prompt is empty, provide a default
-            args.prompt.append('Hello world!')
-
-        # Construct the prompt as a single string
-        prompt = ' '.join(args.prompt).strip()  # Remove leading/trailing spaces
-
-        logger.info(f"Prompt: {prompt}")
-
-        # Run tests
-        test_suite = unittest.TestLoader().discover(start_dir='.', pattern='test_*.py')
-        """
-        Runs all the unit tests.
-        """
-        unittest.main()
-        result = unittest.TextTestRunner().run(test_suite)
-        if result.wasSuccessful():
-            logger.info("Tests passed successfully.")
-        else:
-            logger.error("Some tests failed.")
-            sys.exit(1)  # Exit if tests have failed
-        # API or other logic can be executed here
-        # NOTE: This section will only execute if tests pass
-        # Start the static file server
-        def run_static_server():
-            """
-            Starts a static file server that listens on a configurable port for incoming HTTP requests.
-            It serves static files from a specified directory and also provides functionality to handle API requests.
-            
-            Once started, the server will continue running indefinitely, processing incoming requests and serving
-            resources. Each request is logged to provide visibility into the server's activity. The server can be stopped
-            by interrupting the process (e.g., CTRL+C in the terminal).
-            
-            The designated port and resource directory can be configured to suit deployment needs. It's important to
-            note that runtime behavior such as caching, request limits, or concurrent handling might depend on the
-            underlying HTTP server implementation used and how it's configured.
-            """
-            with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
-                logger.info(f"Serving files and handling API requests on port {PORT}")
-                httpd.serve_forever()
-        run_static_server()
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        sys.exit(1)
-
-def main():
-    """
     This function acts as the primary entry point of the program.
 
     It parses command-line arguments, runs unit tests, starts the static file server, and contains
