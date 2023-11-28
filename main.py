@@ -131,9 +131,6 @@ for test_case in entity_test_cases:
             """
             The subscriber decorator for the Entity_ class. It subscribes the entity to a topic.
             """
-            """
-            The subscriber decorator for the Entity_ class. It subscribes the entity to a topic.
-            """
             def decorator(func):
                 """A decorator that wraps a function to provide additional functionality."""
                 async def wrapper():
@@ -158,11 +155,8 @@ for test_case in entity_test_cases:
             """
             print(f"Publishing message: {message}")
             return None
-        def main():
-            """
-            Main function of the program.
-            Parses command line arguments, runs unit tests, and starts the static file server.
-            """
+
+def main():
     """
     Main function of the program.
     Parses command line arguments, runs unit tests, and starts the static file server.
@@ -182,20 +176,18 @@ for test_case in entity_test_cases:
 
         # Run tests
         test_suite = unittest.TestLoader().discover(start_dir='.', pattern='test_*.py')
-    Runs all the unit tests.
-    """
-    unittest.main()
+        """
+        Runs all the unit tests.
+        """
+        unittest.main()
         result = unittest.TextTestRunner().run(test_suite)
-
         if result.wasSuccessful():
             logger.info("Tests passed successfully.")
         else:
             logger.error("Some tests failed.")
             sys.exit(1)  # Exit if tests have failed
-
         # API or other logic can be executed here
         # NOTE: This section will only execute if tests pass
-        
         # Start the static file server
         def run_static_server():
             """Starts a static file server that can serve files and handle API requests on a specified port."""
