@@ -24,7 +24,7 @@ rules:
 
 branch: 'main'
 gha_enabled: True
-description: 'github.com/MOONLAPSED/cognosis is an evolving OS-level application designed for Linux that focuses on making a more-coherent way to interact with deamons, processes, and other UFS-objects. While it has various advanced features and ideas, its core function revolves around organizing and storing data. The system architecture is critical, considering that the entire systems state is a variable due to a computing problem called the Halting Problem. The goal is to create an environment where the user, or agent, believes they have access to the actual system state, although in reality, they are operating within an abstracted layer. This involves defining triggers for intervention, establishing communication between different layers, and setting up protocols to handle such interventions effectively. The primary challenge lies in creating an algorithm that deals with the Halting Problem, ensuring that the AIs cognitive processes function seamlessly without encountering fundamental obstacles that limit information processing. Ultimately, the design aims to maintain a system where the user feels in control while navigating within a carefully orchestrated environment, even though the actual control might be more collaborative between the user and the systems underlying architecture.'
+description: 'github.com/MOONLAPSED/cognosis is an evolving OS-level application designed for Linux that focuses on making a more-coherent way to interact with deamons, processes, and other UFS-objects.'
 draft: False
 blocked_dirs: "/logs/"
 docs:
