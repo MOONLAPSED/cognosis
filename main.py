@@ -148,6 +148,22 @@ for test_case in entity_test_cases:
         def publish(self, topic: str, message: str):
             """
             The publish method for the Entity_ class. It publishes the entity to a topic.
+        def publisher(self, topic: str):
+            """
+            The publisher decorator for the Entity_ class. It publishes the entity to a topic.
+            """
+            async def wrapper(message: str):
+                print(f"Publishing message: {message}")
+                await self.publish(topic, message)
+            return wrapper
+        def publisher(self, topic: str):
+            """
+            The publisher decorator for the Entity_ class. It publishes the entity to a topic.
+            """
+            async def wrapper(message: str):
+                print(f"Publishing message: {message}")
+                await self.publish(topic, message)
+            return wrapper
         
             Parameters:
             topic (str): The topic to publish to.
