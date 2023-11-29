@@ -1,7 +1,7 @@
 FROM ghcr.io/ai-dock/jupyter-pytorch:2.1.0-py3.9-cuda-12.1.0-cudnn8-devel-22.04
 
 ADD cognosis /project/cognosis
-COPY .env.example .env
+COPY .env .
 COPY requirements.txt .
 COPY cognosis ./cognosis/
 SHELL ["/bin/bash", "-c"]
