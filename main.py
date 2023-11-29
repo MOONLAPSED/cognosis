@@ -148,6 +148,22 @@ for test_case in entity_test_cases:
         def publish(self, topic: str, message: str):
             """
             The publish method for the Entity_ class. It publishes the entity to a topic.
+        def publisher(self, topic: str):
+            """
+            The publisher decorator for the Entity_ class. It publishes the entity to a topic.
+            """
+            async def wrapper(message: str):
+                print(f"Publishing message: {message}")
+                await self.publish(topic, message)
+            return wrapper
+        def publisher(self, topic: str):
+            """
+            The publisher decorator for the Entity_ class. It publishes the entity to a topic.
+            """
+            async def wrapper(message: str):
+                print(f"Publishing message: {message}")
+                await self.publish(topic, message)
+            return wrapper
         
             Parameters:
             topic (str): The topic to publish to.
@@ -158,8 +174,10 @@ for test_case in entity_test_cases:
 
 def main():
     """
-    Main function of the program.
-    Parses command line arguments, runs unit tests, and starts the static file server.
+    This function acts as the primary entry point of the program.
+
+    It parses command-line arguments, runs unit tests, starts the static file server, and contains
+    the core execution logic required to initialize and run the application.
     """
     try:
         parser = argparse.ArgumentParser(description='cognosis by MOONLAPSED@gmail.com MIT License')
