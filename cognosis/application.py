@@ -1,4 +1,6 @@
 import asyncio
+import os
+import sys
 from cognosis.FSK_mono.mono import UUID
 from faststream import FastStream
 from faststream.kafka import KafkaBroker
@@ -59,3 +61,10 @@ async def my_async_function(*args, **kwargs):
 async def publish_UUID():
     await broker.publish(UUID(uuid="1234567890"), "greetings")
     pass  # The decorated function publishes a UUID object with the value "1234567890" to the "greetings" topic when the application starts up.
+
+
+dir = '/cognosis/data/test_data.md'
+for data_ in os.listdir(os.path.join(dir)):
+    if data_.endswith(".md"):
+        with open(os.path.join(dir, data_)) as f:
+            print(f.read())
