@@ -544,7 +544,7 @@ print(sys.path)
 ```
 ${{key}}: Declares a variable or input value. Usually evaluated at runtime.
 {{key}}: Represents a variable or input value. Usually evaluated at runtime.
-KEYWORDS: NOT, AND, NAND, OR, NEVER, SHALL, MAY, MUST, IF, THEN, ELSE, WHEN, FOR, STEP, UNTIL, RETURN, BREAK, CONTINUE, LOOP, FOREACH, FUNCTION='fn'
+KEYWORDS: NOT, AND, NAND, OR, NEVER, SHALL, MAY, MUST, IF, THEN, ELSE, WHEN, FOR, STEP, UNTIL, RETURN, BREAK, CONTINUE, LOOP, EACH, FUNCTION='fn'
 ?{{key1}}:{{key2}}: Represents conditional expressions.
 fn(?{{key1}}:{{key2}}): Includes key2 based on the condition specified by key1.
 contains({{key}}): Specifies a key that must be present.
