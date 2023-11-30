@@ -1,4 +1,8 @@
-```
+<!---
+File: wsl_install_guide.md
+Description: Guide for installing and setting up the Windows Subsystem for Linux (WSL).
+Note: Follow the steps meticulously for successful installation.
+-->
 - wsl -d Ubuntu-22.04
 cd ~
 sudo apt-get update && sudo apt-get upgrade
@@ -82,4 +86,3 @@ cp your-model.bin models/
 docker-compose up -d --pull always
 // docker-compose down --volumes - periodically 
 // docker run --rm -ti --gpus all -p 8080:8080 -e DEBUG=true -e MODELS_PATH=/models -e PRELOAD_MODELS='[{"url": "github:go-skynet/model-gallery/openllama_7b.yaml", "name": "gpt-3.5-turbo", "overrides": { "f16":true, "gpu_layers": 35, "mmap": true, "batch": 512 } } ]' -e THREADS=1 -e BUILD_TYPE=cublas -v $PWD/models:/models quay.io/go-skynet/local-ai:v0.19.0-cublas-cuda12
-```
