@@ -3,6 +3,7 @@ File: wsl_install_guide.md
 Description: Guide for installing and setting up the Windows Subsystem for Linux (WSL).
 Note: Follow the steps meticulously for successful installation.
 -->
+<!--- Initial WSL Setup Commands-->
 - wsl -d Ubuntu-22.04
 cd ~
 sudo apt-get update && sudo apt-get upgrade
@@ -79,9 +80,6 @@ cp libbitsandbytes_cuda120.so libbitsandbytes_cpu.so
 cd -
 python server.py --listen --model llama2.7b.llongma.ggml_v3.q4_K_M.bin --lora alpaca-lora-7b  --load-in-8bit
 # ---
-# Advanced Docker Setup
-# The Docker commands provided at the end of this document are for setting up a containerized environment for local AI development.
-# These commands should only be used if you require Docker integration with WSL for developing AI models.
 // https://localai.io/basics/getting_started/
 git clone https://github.com/go-skynet/LocalAI
 cd LocalAI
@@ -89,4 +87,3 @@ cp your-model.bin models/
 docker-compose up -d --pull always
 // docker-compose down --volumes - periodically 
 // docker run --rm -ti --gpus all -p 8080:8080 -e DEBUG=true -e MODELS_PATH=/models -e PRELOAD_MODELS='[{"url": "github:go-skynet/model-gallery/openllama_7b.yaml", "name": "gpt-3.5-turbo", "overrides": { "f16":true, "gpu_layers": 35, "mmap": true, "batch": 512 } } ]' -e THREADS=1 -e BUILD_TYPE=cublas -v $PWD/models:/models quay.io/go-skynet/local-ai:v0.19.0-cublas-cuda12
-# End of advanced setup and usage
