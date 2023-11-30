@@ -1,3 +1,11 @@
+# Windows Subsystem for Linux (WSL) Installation Guide
+
+This document is a step-by-step guide for installing WSL on Windows systems.
+
+Note: The instructions in this document are for Ubuntu 22.04 on WSL.
+
+---
+
 <!---
 File: wsl_install_guide.md
 Description: Guide for installing and setting up the Windows Subsystem for Linux (WSL).
