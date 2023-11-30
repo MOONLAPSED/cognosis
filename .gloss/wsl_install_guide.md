@@ -1,7 +1,12 @@
 <!---
-File: wsl_install_guide.md
-Description: Guide for installing and setting up the Windows Subsystem for Linux (WSL).
-Note: Follow the steps meticulously for successful installation.
+Title: WSL Installation and Setup Guide
+Author(s): Engineering Team
+Creation/Last Update Date: April 20, 2023
+Summary: This document provides detailed instructions on how to install and configure
+         the Windows Subsystem for Linux (WSL) on a Windows machine. It covers initial
+         setup, installation of essential packages and tools, and additional configurations
+         for optimal performance.
+-->
 -->
 - wsl -d Ubuntu-22.04
 cd ~
