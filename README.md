@@ -1,1 +1,2 @@
-my mind was rent asunder when I started making a custom data broker for kernel --> db --> runtime_agent_loop so I'm investigating faststream over hardcoding something crappy like stomp and rather than committing to vmware or microsoft ampq/etc.
+# cognosis
+

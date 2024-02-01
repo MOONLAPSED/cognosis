@@ -1,25 +1,18 @@
 import argparse
-import logging
 import os
+import requests
 import sys
 import unittest
 import socketserver
 
-# Import your modules here (make sure import paths are correct)
-from src.dbase.pydbase import *
+
 from src.utils.errors import *
 from src.utils.logutils import *
-from src.api.apidef import *
-from api import CustomHandler  # Import CustomHandler from api.py
+from src.api.api import CustomHandler
 
-# Make sure the log file path is joining with the proper directory
-log_directory = 'logs'
-log_file_path = os.path.join(log_directory, 'app.log')
-# Initialize logging
-logger = init_logging(log_directory, log_file_path)
 
 # Server configuration
-PORT = 8080
+PORT = 8069
 server_main_url = 'http://localhost:{}'.format(PORT)
 
 class TestServerStatus(unittest.TestCase):
@@ -31,9 +24,6 @@ class TestServerStatus(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
         except requests.ConnectionError as e:
             self.fail('Server is not running or not reachable.')
-# A function to run all tests when this script is executed
-def run_tests():
-    unittest.main()
 
 
 def main():
@@ -79,7 +69,4 @@ def main():
 
 
 if __name__ == "__main__":
-    rlhf = RLHF('rlhf.db')
-    rlhf.dbinitcall()
-    run_tests()
     main()
