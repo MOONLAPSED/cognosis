@@ -1,74 +1,92 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
+import os
+import queue
 import logging
 from logging.config import dictConfig
-from logging.handlers import RotatingFileHandler 
-import os
-LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'default': {
-            'format': '[%(levelname)s]%(asctime)s||%(name)s: %(message)s',
-            'datefmt': '%Y-%m-%d~%H:%M:%S%z'
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'default',
-        },
-        'file': {
-            'level': 'INFO',
-            'formatter': 'default',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': 'app.log',
-            'maxBytes': 10485760,
-            'backupCount': 10
+from logging.handlers import QueueHandler, QueueListener
+
+class LoggerManager:
+    def __init__(self, log_file_path: str, branch_name: str = 'branch', leaf_name: str = None):
+        self.log_file_path = log_file_path
+        self.branch_name = branch_name
+        self.leaf_name = leaf_name
+        self.LOGGING_CONFIG = {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'formatters': {
+                'default': {
+                    'format': '[%(levelname)s]%(asctime)s||%(name)s: %(message)s',
+                    'datefmt': '%Y-%m-%d~%H:%M:%S%z'
+                },
+            },
+            'handlers': {
+                'console': {
+                    'level': 'INFO',
+                    'class': 'logging.StreamHandler',
+                    'formatter': 'default',
+                },
+                'file': {
+                    'level': 'INFO',
+                    'formatter': 'default',
+                    'class': 'logging.handlers.RotatingFileHandler',
+                    'filename': self.log_file_path,
+                    'maxBytes': 10485760,
+                    'backupCount': 10
+                },
+                'queue': {
+                    'class': 'logging.handlers.QueueHandler',
+                    'queue': queue.Queue(-1),
+                }
+            },
+            'loggers': {
+                '': {
+                    'level': 'DEBUG',
+                    'handlers': ['queue'],
+                    'propagate': True
+                },
+                self.branch_name: {
+                    'level': 'DEBUG',
+                    'handlers': [],
+                    'propagate': True
+                },
+                f'{self.branch_name}.{self.leaf_name}': {
+                    'level': 'DEBUG',
+                    'handlers': [],
+                    'propagate': True  
+                }
+            },
+            'root': {
+                'level': 'INFO',
+                'handlers': ['console', 'file']
+            }
         }
-    },
-    'loggers': {
-        'branch': {
-            'level': 'DEBUG',
-            'handlers': ['console', 'file'],
-            'propagate': True
-        },
-        'branch.leaf': {
-            'level': 'DEBUG',
-            'handlers': ['console', 'file'],
-            'propagate': True  
-        }
-    },
-    'root': {
-        'level': 'INFO',
-        'handlers': ['console', 'file']
-    }
-}
 
-def init_logging(log_directory: str, log_file_path: str):
-    """
-    Initialize the logging system.
+    def init_logging(self):
+        # Ensure log directory exists
+        log_directory = os.path.dirname(self.log_file_path)
+        if not os.path.exists(log_directory):
+            try:
+                os.makedirs(log_directory)
+            except OSError as e:
+                print(f"Error creating log directory: {e}")
+                raise
 
-    Args:
-    - log_directory: The path to the log directory.
-    - log_file_path: The path to the log file.
+        # Apply the logging configuration
+        dictConfig(self.LOGGING_CONFIG)
 
-    Returns:
-    - Tuple of logger instances (root_logger, sub_logger, tertiary_logger).
-    """
-    if not os.path.exists(log_directory):
-        os.makedirs(log_directory)
-        os.chmod(log_directory, 0o777)
-    
-    # Update the 'file' handler to use the provided `log_file_path`
-    LOGGING_CONFIG['handlers']['file']['filename'] = log_file_path
-    
-    # Configure the logging using the config dictionary
-    logging.config.dictConfig(LOGGING_CONFIG)
-    
-    # Create loggers
-    root_logger = logging.getLogger()  # root logger
-    sub_logger = logging.getLogger('branch')
-    tertiary_logger = logging.getLogger('branch.leaf')
-    return root_logger, sub_logger, tertiary_logger
+        # Create a listener for the queue
+        queue_listener = QueueListener(
+            self.LOGGING_CONFIG['handlers']['queue']['queue'], 
+            self.LOGGING_CONFIG['handlers']['console'], 
+            self.LOGGING_CONFIG['handlers']['file'],
+            respect_handler_level=True
+        )
+
+        # Start the listener
+        queue_listener.start()
+
+        # Return the loggers
+        root_logger = logging.getLogger()
+        branch_logger = logging.getLogger(self.branch_name)
+        leaf_logger = logging.getLogger(f"{self.branch_name}.{self.leaf_name}")
+
+        return root_logger, branch_logger, leaf_logger
