@@ -46,29 +46,36 @@ LOGGING_CONFIG = {
     }
 }
 
-def init_logging(log_directory: str, log_file_path: str):
+def init_logging(log_file_path: str):
     """
     Initialize the logging system.
-
     Args:
-    - log_directory: The path to the log directory.
-    - log_file_path: The path to the log file.
+    - log_file_path: The path to the log file where logs will be stored.
 
     Returns:
-    - Tuple of logger instances (root_logger, sub_logger, tertiary_logger).
+    - Logger instances (root_logger).
     """
+    ROOT_LOGGER_NAME = 'root'
+    
+    # Ensure log directory exists
+    log_directory = os.path.dirname(log_file_path)
     if not os.path.exists(log_directory):
-        os.makedirs(log_directory)
-        os.chmod(log_directory, 0o777)
+        try:
+            os.makedirs(log_directory)
+            # os.chmod(log_directory, 0o755)  # Reconsidered permissions for security reasons
+        except OSError as e:
+            print(f"Error creating log directory: {e}")
+            raise
     
-    # Update the 'file' handler to use the provided `log_file_path`
     LOGGING_CONFIG['handlers']['file']['filename'] = log_file_path
+    dictConfig(LOGGING_CONFIG)
     
-    # Configure the logging using the config dictionary
-    logging.config.dictConfig(LOGGING_CONFIG)
+    root_logger = logging.getLogger(ROOT_LOGGER_NAME)
     
-    # Create loggers
-    root_logger = logging.getLogger()  # root logger
-    sub_logger = logging.getLogger('branch')
-    tertiary_logger = logging.getLogger('branch.leaf')
-    return root_logger, sub_logger, tertiary_logger
+    return root_logger
+
+# Usage:
+log_directory = '/path/to/log/directory'
+log_file_path = os.path.join(log_directory, 'app.log')
+root_logger = init_logging(log_file_path)
+# Now any other modules can simply use logging.getLogger() to inherit this setup configuration.
