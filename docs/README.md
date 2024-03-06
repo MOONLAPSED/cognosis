@@ -1,5 +1,10 @@
 # Guidelines for Creating Informative and Self-contained {Prompt} Objects
 
+```md
+>see also: [Prompt Objects](/docs/prompt.json)
+>see also: [Meta Prompting](/docs/meta_prompt.yaml)
+```
+
 ## Introduction
 
 The purpose of this document is to provide comprehensive guidelines for creating informative and self-contained {prompt} objects for various alternative purposes. The focus is on producing {prompt} objects that are tailored to specific tasks or domains and can be used effectively in generating AI chatbot responses with instructions and constraints. The use of structured data formats like JSON is encouraged to enhance interactions and improve the consistency of messages, fostering clearer conversations and facilitating easier recall of key details.
