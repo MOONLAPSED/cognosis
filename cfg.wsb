@@ -1,0 +1,27 @@
+<!-- This file contains the configuration for a Windows Sandbox which has a dev-env repository calle cognOS in the directory it inhabits which is copied to the desktop of the sandbox -->
+
+<Configuration>
+    <vGPU>Enable</vGPU>
+    <Networking>Default</Networking>
+    <AudioInput>Enable</AudioInput>
+    <VideoInput>Disable</VideoInput>
+    <PrinterRedirection>Disable</PrinterRedirection>
+    <ClipboardRedirection>Default</ClipboardRedirection>
+    <ProtectedClient>Disable</ProtectedClient>
+    <MemoryInMB>8192</MemoryInMB>
+    <MappedFolders>
+        <MappedFolder>
+            <HostFolder>C:\Users\tp\cognosis</HostFolder>
+            <SandboxFolder>C:\Users\WDAGUtilityAccount\Desktop</SandboxFolder>
+            <ReadOnly>false</ReadOnly>
+        </MappedFolder>
+        <MappedFolder>
+            <HostFolder>D:\2023dir</HostFolder>
+            <SandboxFolder>C:\Users\WDAGUtilityAccount\Desktop\2023dir</SandboxFolder>
+            <ReadOnly>false</ReadOnly>
+        </MappedFolder>
+    </MappedFolders>
+    <LogonCommand>
+        <Command>powershell.exe -ExecutionPolicy Bypass -Command "Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')"</Command>
+    </LogonCommand>
+</Configuration>

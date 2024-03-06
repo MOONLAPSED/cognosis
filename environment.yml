@@ -1,28 +1,19 @@
-#! bin/python3/env
 name: jupyterjax
 channels:
 - conda-forge
 dependencies:
 - python=3.11
+- nodejs
+- golang
 - jax
 - numpy
 - xonsh
 - ipykernel
 - jupyterlab
 - cudatoolkit
+- jupyterlab_myst
+- chromium
+- chromedriver
+- jupyterlab_widgets
 - pip:
   - -r file:requirements.txt
-env:
-ENV_DICT: []
-ENV_KEYS: []
-ENV_VALUES: []
-ENV_PROMISES: []
-ENV_worker_status: ""
-ENV_workerid: ""
-ENV_task_status: ""
-ENV_taskid: ""
-ENV_credentials: []
-ENV_launch_type: "init"
-ENV_launch_directive: "debug"
-ENV_launch_file: "src/launch.py"
-ENV_launch_args: ''
