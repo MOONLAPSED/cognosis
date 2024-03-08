@@ -63,15 +63,6 @@ def __starter():
 def main():
     __starter()
     logging.info("Main function started.")
-
-    # A globally defined lock (_lock) is used when setting the logging
-    # configuration to prevent other threads from interfering with this process.
-    # Once the configuration is set, you should not need to use the lock for
-    # regular logging operations as the logging module itself handles thread
-    # safety during message logging. Thus, messages logged from submodules or
-    # from different threads will still be passed to their parent loggers
-    # and eventually up to the root logger, and the messages will be safely
-    # written to the console or file as specified in the configuration.
     _lock = threading.Lock()
     with _lock:
         try:

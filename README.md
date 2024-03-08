@@ -11,7 +11,10 @@ kb = "knowledge base":
 
 \#<|currently@'/README.md'|>:
 
+
 ### ::__Instructions__::
+[youtube video link](https://www.youtube.com/watch?v=-rGRMM7jZhA)
+
     ```
     - `cd {{app_dir}}`
     - conda activate {{env_name}}
