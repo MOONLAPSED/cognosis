@@ -69,11 +69,13 @@ def main():
            while True:
               logging.info("main runtime achieved.")
               time.sleep(1)
-              text = "main runtime achieved."
-              for char in text:
-                    logging.info(char)
-                    print(char, end="", flush=True)
-                    time.sleep(0.05)
+              text = "main runtime achieved.\n"
+              for i in range(10):
+                  for char in text:
+                      logging.info(char)
+                      print(char, end="", flush=True)
+                      time.sleep(0.05)
+              break
         except Exception:
             logging.error("Error setting up logging", exc_info=True)
             raise SystemExit(1)
