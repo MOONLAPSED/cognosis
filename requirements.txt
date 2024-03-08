@@ -10,3 +10,4 @@ spacy
 errbot
 tiktoken
 open-interpreter
+click
