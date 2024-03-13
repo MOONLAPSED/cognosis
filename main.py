@@ -6,6 +6,10 @@ import sys
 import subprocess
 import threading
 import time
+
+from src.app.classdef import MetaPoint  # pydanter and validizer
+from src.app.clicker import Clicker  # CLIcker and pydanter
+
 # flow: 
 # 1) This notes section, _lock function
 # 2) _init_basic_logging
@@ -48,9 +52,13 @@ def _initialize_paths():
         ])
     except Exception as e:
         logging.error("Error setting up paths", exc_info=True)
-        raise SystemExit(1)
+        return False
     finally:
         logging.info("Paths initialized.")
+    if __name__ == '__main__':
+        logging.info(f"{__name__} running as main.")
+    else:
+        logging.info(f"{__name__} running as submodule.")
 
 def __starter():
     """Platform-agnostic .env initialization"""  # agnostic but only works on windows, lol
