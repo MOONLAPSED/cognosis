@@ -9,6 +9,9 @@ import click
 from click import command, option, argument
 import dataclasses
 from dataclasses import dataclass, field
+import asyncio
+import aiofiles
+
 
 logger=logging.getLogger(__name__)
 
@@ -74,6 +77,11 @@ class MetaPoint(Classdef):  # a spacetime diagram for the morphisim between a (l
         logger = logging.getLogger(self.logger_name or f"metapoint_{id(self)}")
         logger.info(f"{event_type}: {message}")
 
+    async def log_message(self, filename, message, queue: asyncio.Queue = None):
+        async with aiofiles.open(filename, mode='a') as f:
+            await f.write(message + '\n')
+        if queue:
+            await queue.put(message)  # Optionally report to a queue 
     # --- CLI Integration with Click ---
     @click.command()
     @click.option('--content', required=True, help="Content of the MetaPoint")
@@ -82,6 +90,13 @@ class MetaPoint(Classdef):  # a spacetime diagram for the morphisim between a (l
     @click.option('--id', help="ID of the MetaPoint")
     def cli_command(content, logger_name, timestamp, id):
         meta_point = MetaPoint(content=content, logger_name=logger_name, timestamp=timestamp, id=id)
-        log_event = meta_point.log_event("CLI", "MetaPoint created")
+        meta_point.log_event("CLI", "MetaPoint created")
 
     cli_command()
+
+    @click.command()
+    async def cli_async_command(filename, message):
+        meta_point = MetaPoint(content="Async CLI")
+        await meta_point.log_message(filename, message)
+
+    cli_async_command()
