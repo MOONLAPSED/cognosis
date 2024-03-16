@@ -1,0 +1,47 @@
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "cognosis"
+description = "cognosis -- namespace and filesystem interface; obsidian kb"
+authors = [{ name = "MOONLAPSED", email = "MOONLAPSED@gmail.com" }]
+version = "0.1.0"
+requires-python = ">= 3.11"
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.api.readme]
+file = "src/api/README.md"
+content-type = "text/markdown"
+
+[project.app.readme]
+file = "src/app/README.md"
+content-type = "text/markdown"
+
+[project.dependencies]
+jax = "*"
+jupyter = "*"
+ipykernel = "*"
+numpy = "*"
+pandas = "*"
+typing = "*"
+xonsh = "*"
+litellm = "*"
+pydantic = "*"
+pytest = "*"
+httpx = "*"
+docker = "*"
+
+[build-system.backends.go]
+name = "go"
+requires = ["go>=1.16"]
+
+[build-system.backends.npm]
+name = "npm"
+requires = ["npm>10.4.0"]
+
+[project.scripts]
+main = "main.py:main"
