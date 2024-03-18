@@ -1,13 +1,8 @@
 pandas
 requests
-typer
 litellm
 pydantic
 python-dotenv
 httpx
-instructor
 spacy
-errbot
-tiktoken
 open-interpreter
-click

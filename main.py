@@ -7,9 +7,6 @@ import subprocess
 import threading
 import time
 
-from src.app.classdef import MetaPoint  # pydanter and validizer
-from src.app.clicker import Clicker  # CLIcker and pydanter
-
 # flow: 
 # 1) This notes section, _lock function
 # 2) _init_basic_logging
@@ -19,8 +16,8 @@ from src.app.clicker import Clicker  # CLIcker and pydanter
 # 6)
 
 
-# A globally defined lock (_lock) is used when setting the logging
-# configuration to prevent other threads from interfering with this process.
+# configuration to prevent other threads from interfering with this process, especially during setup and teardown.
+# A globally defined lock (_lock) is used when setting the logging:
 _lock = threading.Lock()
 
 def _init_basic_logging():
@@ -55,12 +52,53 @@ def _initialize_paths():
         logging.info(f"{__name__} running as submodule.")
 
 def __starter():
-    """Platform-agnostic .env initialization"""  # agnostic but only works on windows, lol
-    if os.name == 'nt':
-        subprocess.run('copy /Y .env.example .env', shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    subprocess.run('pip install -r requirements.txt', shell=True, check=True)
-    _initialize_paths()
-    return True
+    with _lock:
+        logging.info("Ensuring Rust and GCC are correctly installed and configured.")
+    """Platform-agnostic .env initialization, dependency setup, and ensuring Rust and GCC are available for builds"""
+    success = False  # Initialize success flag
+    try:
+        subprocess.run('curl --proto \'=https\' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y', shell=True, check=True)
+        env_example_path = os.path.join(os.path.dirname(__file__), '.env.example')
+        bashrc = os.path.join(os.path.dirname(__file__), 'docs', '.bashrc')
+        if os.path.exists(env_example_path):
+            if os.name == 'nt':
+                subprocess.run(f'copy /Y {env_example_path} .env', shell=True, check=True)
+                subprocess.run(f'copy /Y {bashrc} %USERPROFILE%\\.bashrc', shell=True, check=True)
+                subprocess.run('source %USERPROFILE%\\.bashrc', shell=True, check=True)
+            elif os.name == 'posix':
+                subprocess.run(f'cp -f {env_example_path} .env', shell=True, check=True)
+                subprocess.run(f'cp -f {bashrc} ~/.bashrc && source ~/.bashrc', shell=True, check=True)
+        else:
+            logging.error("Error: .env.example file does not exist.")
+            return False  # Exit the function early if .env.example file is missing
+        subprocess.run('pip install --upgrade pip', shell=True, check=True)
+        subprocess.run('pip install pdm', shell=True, check=True)
+
+        _initialize_paths()  # Set up paths
+
+        # Attempt to install dependencies with PDM
+        try:
+            subprocess.run('pdm install', shell=True, check=True)
+            success = True  # Set success flag if PDM install succeeds
+        except subprocess.CalledProcessError as e:
+            logging.error("PDM installation failed with error: {}".format(e), exc_info=True)
+            success = False  # Explicitly set success to False to indicate failure
+
+        # If PDM install fails, fall back to pip
+        if not success:
+            logging.warning("PDM setup failed, falling back to pip")
+            subprocess.run('pip install -r requirements.txt', shell=True, check=True)
+    except Exception as e:
+        logging.critical("Critical error during setup: {}".format(e), exc_info=True)
+        success = False  # Ensure success is False after a critical error
+    finally:
+        if success:
+            logging.info("Dependencies installed successfully with PDM.")
+        else:
+            logging.error("Failed to install dependencies with PDM, attempted to utilize pip instead. This may have unknown consequences.")
+
+__starter()
+
 
 def main():
     __starter()
@@ -68,21 +106,20 @@ def main():
     _lock = threading.Lock()
     with _lock:
         try:
-           while True:
-              logging.info("main runtime achieved.")
+          while True:
+              logging.info("Main runtime achieved.")
               time.sleep(1)
-              text = "main runtime achieved.\n"
+              text = "Main runtime achieved.\n"
               for i in range(10):
                   for char in text:
                       logging.info(char)
                       print(char, end="", flush=True)
                       time.sleep(0.05)
               break
-        except Exception:
-            logging.error("Error setting up logging", exc_info=True)
+        except Exception as e:
+            logging.error("Error during main function execution: {}".format(e), exc_info=True)
             raise SystemExit(1)
         finally:
-            logging.info("Logging initialized.")
-
+            logging.info("Main function execution completed successfully.")
 if __name__ == "__main__":
     main()
