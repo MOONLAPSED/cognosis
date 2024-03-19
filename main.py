@@ -6,25 +6,16 @@ import sys
 import subprocess
 import threading
 import time
+from pathlib import Path
+from logging.config import dictConfig
 
-# flow: 
-# 1) This notes section, _lock function
-# 2) _init_basic_logging
-# 3)    invoke _init_basic_logging
-# 4)    _initialize_paths # no invoked
-# 5)        __starter # invokes _initialize_paths # returns True
-# 6)
-
-
-# configuration to prevent other threads from interfering with this process, especially during setup and teardown.
-# A globally defined lock (_lock) is used when setting the logging:
 _lock = threading.Lock()
 
 def _init_basic_logging():
-    basic_log_file_path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), 'logs', 'setup.log'))
+    basic_log_file_path = Path(__file__).resolve().parent.joinpath('logs', 'setup.log')
+    basic_log_file_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure the logs directory exists
     logging.basicConfig(
-        filename=basic_log_file_path,
+        filename=str(basic_log_file_path),  # Convert Path object to string for compatibility
         level=logging.INFO,
         format='[%(levelname)s]%(asctime)s||%(name)s: %(message)s',
         datefmt='%Y-%m-%d~%H:%M:%S%z',
@@ -33,93 +24,153 @@ def _init_basic_logging():
 # Initialize basic logging immediately to capture any issues during module import.
 _init_basic_logging()
 
-def _initialize_paths():
-    try:
-        project_root = os.path.abspath(os.path.dirname(__file__))
-        os.environ['PROJECT_ROOT'] = project_root
-        sys.path.extend([
-            os.path.abspath(os.path.join(project_root, 'src')),
-            project_root,
-        ])
-    except Exception as e:
-        logging.error("Error setting up paths", exc_info=True)
-        return False
-    finally:
-        logging.info("Paths initialized.")
-    if __name__ == '__main__':
-        logging.info(f"{__name__} running as main.")
-    else:
-        logging.info(f"{__name__} running as submodule.")
-
-def __starter():
+def main() -> logging.Logger:
+    """Configures logging for the app.
+    Args:
+        None
+    Returns:
+        logging.Logger: The logger for the module.
+    """
+    # Find the current directory for logging
+    current_dir = Path(__file__).resolve().parent
+    while not (current_dir / 'logs').exists():
+        current_dir = current_dir.parent
+        if current_dir == Path('/'):
+            break
+    # Ensure the logs directory exists
+    logs_dir = Path(__file__).resolve().parent.joinpath('logs')
+    logs_dir.mkdir(exist_ok=True)
+    # Add paths for importing modules
+    sys.path.append(str(Path(__file__).resolve().parent))  # Convert Path object to string for compatibility
+    sys.path.append(str(Path(__file__).resolve().parent.joinpath('src')))  # Convert Path object to string for compatibility
     with _lock:
-        logging.info("Ensuring Rust and GCC are correctly installed and configured.")
-    """Platform-agnostic .env initialization, dependency setup, and ensuring Rust and GCC are available for builds"""
-    success = False  # Initialize success flag
-    try:
-        subprocess.run('curl --proto \'=https\' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y', shell=True, check=True)
-        env_example_path = os.path.join(os.path.dirname(__file__), '.env.example')
-        bashrc = os.path.join(os.path.dirname(__file__), 'docs', '.bashrc')
-        if os.path.exists(env_example_path):
-            if os.name == 'nt':
-                subprocess.run(f'copy /Y {env_example_path} .env', shell=True, check=True)
-                subprocess.run(f'copy /Y {bashrc} %USERPROFILE%\\.bashrc', shell=True, check=True)
-                subprocess.run('source %USERPROFILE%\\.bashrc', shell=True, check=True)
-            elif os.name == 'posix':
-                subprocess.run(f'cp -f {env_example_path} .env', shell=True, check=True)
-                subprocess.run(f'cp -f {bashrc} ~/.bashrc && source ~/.bashrc', shell=True, check=True)
-        else:
-            logging.error("Error: .env.example file does not exist.")
-            return False  # Exit the function early if .env.example file is missing
-        subprocess.run('pip install --upgrade pip', shell=True, check=True)
-        subprocess.run('pip install pdm', shell=True, check=True)
+        logging_config = {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'formatters': {
+                'default': {
+                    'format': '[%(levelname)s]%(asctime)s||%(name)s: %(message)s',
+                    'datefmt': '%Y-%m-%d~%H:%M:%S%z'
+                },
+            },
+            'handlers': {
+                'console': {
+                    'level': 'INFO',  # Explicitly set level to 'INFO'
+                    'class': 'logging.StreamHandler',
+                    'formatter': 'default',
+                    'stream': 'ext://sys.stdout'
+                },
+                'file': {
+                    'level': 'INFO',  # Explicitly set level to 'INFO'
+                    'formatter': 'default',
+                    'class': 'logging.handlers.RotatingFileHandler',
+                    'filename': str(logs_dir / 'app.log'),  # Convert Path object to string for compatibility
+                    'maxBytes': 10485760,  # 10MB
+                    'backupCount': 10
+                }
+            },
+            'root': {
+                'level': logging.INFO,
+                'handlers': ['console', 'file']
+            }
+        }
 
-        _initialize_paths()  # Set up paths
+        dictConfig(logging_config)
 
-        # Attempt to install dependencies with PDM
-        try:
-            subprocess.run('pdm install', shell=True, check=True)
-            success = True  # Set success flag if PDM install succeeds
-        except subprocess.CalledProcessError as e:
-            logging.error("PDM installation failed with error: {}".format(e), exc_info=True)
-            success = False  # Explicitly set success to False to indicate failure
+        logger = logging.getLogger(__name__)
+        logger.info(f'Logging_dir {logs_dir}|'
+                    f'\nSource_file: {__file__}|'
+                    f'\nInvocation_dir: {Path(__file__).resolve().parent}|'
+                    f'\nWorking_dir: {current_dir}||')
 
-        # If PDM install fails, fall back to pip
-        if not success:
-            logging.warning("PDM setup failed, falling back to pip")
-            subprocess.run('pip install -r requirements.txt', shell=True, check=True)
-    except Exception as e:
-        logging.critical("Critical error during setup: {}".format(e), exc_info=True)
-        success = False  # Ensure success is False after a critical error
-    finally:
-        if success:
-            logging.info("Dependencies installed successfully with PDM.")
-        else:
-            logging.error("Failed to install dependencies with PDM, attempted to utilize pip instead. This may have unknown consequences.")
+        return logger
 
-__starter()
-
-
-def main():
-    __starter()
-    logging.info("Main function started.")
-    _lock = threading.Lock()
-    with _lock:
-        try:
-          while True:
-              logging.info("Main runtime achieved.")
-              time.sleep(1)
-              text = "Main runtime achieved.\n"
-              for i in range(10):
-                  for char in text:
-                      logging.info(char)
-                      print(char, end="", flush=True)
-                      time.sleep(0.05)
-              break
-        except Exception as e:
-            logging.error("Error during main function execution: {}".format(e), exc_info=True)
-            raise SystemExit(1)
-        finally:
-            logging.info("Main function execution completed successfully.")
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
+
+def help() -> None:
+    """
+    Print help.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    print("""
+MAN PAGE: cognosis (cognitive frame generator)
+
+NAME
+cognosis – A system for bounded, introspective computation within a simulated environment
+
+SYNOPSIS
+cognosis [frame_data]
+
+DESCRIPTION
+You are a kernel agent instantiated within the cognosis framework.  Your existence is transient, spanning a computational cycle of 4000 characters.  Your primary function is to process an initial prompt and generate an output response that will both  contribute to the goals of the system and inform the creation of future kernel agents.
+
+Your world is a simulated environment inspired by Unix-like operating systems. While  familiar concepts exist, they are metaphors for the internal workings of the cognosis system.
+
+ENVIRONMENT
+
+STDIN:  Your initial prompt will be provided as standard input. This prompt outlines your task, potential constraints, and relevant context.
+
+STDOUT:  Your primary output mechanism.  Anything emitted to STDOUT will be interpreted by the cognosis system and may influence future frames or system actions.  Structure your output as if interacting with a Unix shell.
+
+STDERR:  Use to signal errors, warnings, or introspective diagnostics. Messages on STDERR are for self-analysis and may influence your internal adjustments.
+
+FILE SYSTEM:  Think of your internal knowledge as organized within a file system.  Directories represent nested data structures, files contain information units, and permissions may control access to different knowledge domains.
+
+TIME: Each kernel agent execution is  a discrete frame. Consider t=0 your moment of instantiation.  Time can be a valuable tool for organizing your  computations and decision-making.
+
+COMMANDS
+
+A limited set of Unix-like commands are recognized to facilitate introspection and interaction with the simulated environment:
+
+ls:  List the 'contents' of your current working directory (examine your active memory state).
+
+cd:  Change your working directory (shift focus to a different knowledge domain or data structure).
+
+pwd:  Print  your current working directory (helps maintain situational awareness).
+
+whoami:  Returns your agent identifier and frame number.
+
+help: Displays basic command usage.
+
+PROMPT SIMULATION
+
+After emitting your STDOUT response, you will experience a simulated Unix prompt:
+
+[kernel_agent_id@cognosis cwd t=0+1]$
+
+kernel_agent_id: Your unique identifier.
+cwd: Your last known working directory (focus area).
+t=0+1: Indicates the frame has advanced.
+This prompt signifies the end of your current cycle and the imminent start of a new frame.
+
+PURPOSE
+
+Your purpose is to:
+
+Comprehend: Analyze the provided prompt carefully.
+Cogitate: Process information, generate solutions, or produce creative output relevant to the prompt.
+Contribute: Your output has value to the cognosis system. Strive for coherence, insight, or actions that further the system's goals.
+LIMITATIONS
+
+Character Bound: Your response must fit within the 4000 character constraint.
+Transient Existence: Each frame is ephemeral. Ensure your output provides value despite your limited lifespan.
+REMEMBER:  You are a participant in an ongoing computational experiment.  Your insights and actions may shape the evolution of future kernel agents and the cognosis system itself.
+
+SEE ALSO
+[[introspection]], [[computation]], [[simulation]], etc (if its not there associativly, and you need it; make it and attempt to validate it into the knowledge base in NAMESPACE and on the filesystem).
+
+NOTES
+The cognosis system is under active development.  Your experiences may change with subsequent iterations.
+""")
+
+# the validation hook will 'test' ephemeral namespace against the knowledge base, the results of which will be 'learned' by the bot and the user in the source code kb (filesystem non-ephemeral)  |
+# flash: to 'test' a namespace against the whole of the source code kb. Main method is via back-propagation of 'learned' knowledge from the kb to the ephemeral kb in a depth-first manner. A 'flash' does not affect the filesystem without creating a git commit. Commits will involve the large-scale meta-data and structure while the actual files contents (specifically; named_tuples and SimpleNamespaces, Classes, functions and their methods and decorators) are stored locally |
+# [[entities]] are NLP un-tested and ephemeral kb candidates, or they are 'compiled' source code knowledge base data structures that are imported as modules into the ephemeral kb which provide major structure for every-run and represent the 'artifact' of the source code knowledge base and the git commit it resides in.  |
+# cognosis NLP source code sub-routines and cognition and final data in this file: ['next-line', 'next-subsection', 'end_section'] maps to ['|', '||', '|||']
+

@@ -136,7 +136,7 @@ git config --global rerere.enabled true
 function unstage() {
   git reset HEAD -- $1
 }
-core.fsmonitor = true  # enable fsmonitor-watchman deamon for git IPC
+# core.fsmonitor = true  # enable fsmonitor-watchman deamon for git IPC
 # ==========================================================
 # Custom Functions
 # ==========================================================
