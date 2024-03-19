@@ -15,6 +15,8 @@ kb = "knowledge base":
 ### ::video instructions::
 [youtube video link](https://www.youtube.com/watch?v=-rGRMM7jZhA)
 
+`Jensen @ GTC 2024: The next industrial revolution is here; NIM for knowledge, i/o and morphological source code. ISAAC for linguistic robotic perception, conception, and cognition. Universal Scene Description and omniverse for modeling world-scale systems cognitively. This is the call to action we've been waiting for and we will be fully adopting the cuda robotics revolution.`
+
 ## setup
 
 + micromamba - via environment.yaml (any hypervisor/os):

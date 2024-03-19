@@ -1,6 +1,5 @@
 *.scratch
 /scratch/
-/logs/
 *.vs
 /apps/
 /src/app/agent_env/
