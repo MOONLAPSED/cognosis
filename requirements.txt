@@ -5,4 +5,4 @@ pydantic
 python-dotenv
 httpx
 spacy
-open-interpreter
+python-frontmatter

@@ -1,4 +1,5 @@
-# cognosis - cognitive coherence coroutines - NLP + LLM + KB
+# cognosis - Cognitive Coherence Coroutines
+NLP + LLM + KB for lifelong learning and development
 ## MIT license - MOONLAPSED@gmail.com + MOONLAPSED@github
 
 
@@ -6,16 +7,34 @@
 
 \!#currently: @`/README.md`
 
-```pseudocode
-kb = "knowledge base":
-    an abstract data class for logging disparate cognition into a lifelong artifact for learning and development.
-```
+cognosis is an experimental framework that explores the dynamic evolution of software architectures during runtime. It aims to combine the fluidity of live interactions with the stability of traditional code.  At its core lies the concept of "Morphological Source Code," where code adapts and changes in response to user interactions, particularly those leveraging natural language processing (NLP).
+
+Key Concepts
+
+Knowledge Base (KB): A repository for storing diverse cognitive insights, forming a foundation for continuous learning.
+Cognitive Systems: Modular units that encapsulate knowledge and reasoning capabilities. Cognitive systems can be dynamically created or reoriented within larger cognitive structures. They communicate using namespaces, syntaxes, and by passing other cognitive systems as parameters.
+Morphological Source Code: A paradigm shift where source code is not static but actively adapts in response to interactions with users and the environment.
+
+
+There is an assumption inherint in the project that a neural network is a cognitive system. The assumption is that there IS some THING for this cognitive system to DO in any-given situation, and that it is the cognitive system's job to figure out what that THING is. Upon location of its head/parent it either orients itself within a cognitive system, or it creates a new cognitive system. Cognitive systems pass as parameters namespaces, syntaxes, and cognitive systems. Namespaces and syntaxes are in the form of key-value pairs. Cognitive systems are also in the form of key-value pairs, but the values are cognitive systems. **kwargs are used to pass these parameters.
+
+Imagine a software architecture that dynamically evolves during runtime, encapsulating the fluidity of live interactions while ensuring persistence and the rigidity of conventional code. This system, let's call it the "Morphological Source Code" framework, is an innovative take on the traditional lifecycle of software development and deployment. It merges the concepts of static source code with a dynamic runtime environment that not only serves content but also adapts and changes based on user interaction, particularly with sophisticated features like NLP (Natural Language Processing).
+
+In a nutshell, "Morphological Source Code" is a paradigm in which the source code adapts and morphs in response to real-world interactions, governed by the principles of dynamic runtime configuration and contextual locking mechanisms. The-described is an architecture, only. The kernel agents themselves are sophisticated LLM trained-on ELFs, LLVM compiler code, systemd and unix, python, and C. It will utilize natural language along with the abstraction of time to process cognosis frames and USDs.
+
+The challenge (of this architecture) lies in the 'cognitive lambda calculus' needed to bring these runtimes into existence and evolve them, not the computation itself. Cognosis is designed for consumer hardware and extreme scalability via self-distribution of cognitive systems (amongst constituent [[subscribers|asynchronous, stake-holders]]) peer-to-peer.
+
+A core component of cognosis, cognOS establishes a hyper-interface designed to manage the evolution of cognitive algorithms. It focuses on:
+
+Meta-versioning: Tracking and managing the evolution of code over time.
+Pre-commit Hooks and Validation: Ensuring code quality and integrity. Meta CICD.
+Hardware Provisioning: Allocation of computational resources.
+Time Abstraction: Modeling cognition beyond the constraint of a fixed present (t=0).
 
 
 ### ::video instructions::
 [youtube video link](https://www.youtube.com/watch?v=-rGRMM7jZhA)
 
-`Jensen @ GTC 2024: The next industrial revolution is here; NIM for knowledge, i/o and morphological source code. ISAAC for linguistic robotic perception, conception, and cognition. Universal Scene Description and omniverse for modeling world-scale systems cognitively. This is the call to action we've been waiting for and we will be fully adopting the cuda robotics revolution.`
 
 ## setup
 
@@ -73,3 +92,4 @@ kb = "knowledge base":
 
     ```
 
+Jensen @ GTC 2024: The next industrial revolution is here; NIM for knowledge, i/o (and [[morphological source code]]). ISAAC for linguistic robotic perception, conception, and cognition. Universal Scene Description and omniverse for modeling world-scale systems cognitively. This is the call to action I've been waiting for and I will be fully supporting the cuda robotics revolution. (but im not a fanboy, I just happen to be into gaming and ML and simulation).
