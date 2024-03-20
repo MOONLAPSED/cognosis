@@ -7,14 +7,15 @@ NLP + LLM + KB for lifelong learning and development
 
 \!#currently: @`/README.md`
 
+### ::Key Concepts::
+
 cognosis is an experimental framework that explores the dynamic evolution of software architectures during runtime. It aims to combine the fluidity of live interactions with the stability of traditional code.  At its core lies the concept of "Morphological Source Code," where code adapts and changes in response to user interactions, particularly those leveraging natural language processing (NLP).
 
-Key Concepts
+    Knowledge Base (KB): A repository for storing diverse cognitive insights, forming a foundation for continuous learning.
 
-Knowledge Base (KB): A repository for storing diverse cognitive insights, forming a foundation for continuous learning.
-Cognitive Systems: Modular units that encapsulate knowledge and reasoning capabilities. Cognitive systems can be dynamically created or reoriented within larger cognitive structures. They communicate using namespaces, syntaxes, and by passing other cognitive systems as parameters.
-Morphological Source Code: A paradigm shift where source code is not static but actively adapts in response to interactions with users and the environment.
+    Cognitive Systems: Modular units that encapsulate knowledge and reasoning capabilities. Cognitive systems can be dynamically created or reoriented within larger cognitive structures. They communicate using namespaces, syntaxes, and by passing other cognitive systems as parameters.
 
+    Morphological Source Code: A paradigm shift where source code is not static but actively adapts in response to interactions with users and the environment.
 
 There is an assumption inherint in the project that a neural network is a cognitive system. The assumption is that there IS some THING for this cognitive system to DO in any-given situation, and that it is the cognitive system's job to figure out what that THING is. Upon location of its head/parent it either orients itself within a cognitive system, or it creates a new cognitive system. Cognitive systems pass as parameters namespaces, syntaxes, and cognitive systems. Namespaces and syntaxes are in the form of key-value pairs. Cognitive systems are also in the form of key-value pairs, but the values are cognitive systems. **kwargs are used to pass these parameters.
 
@@ -26,17 +27,19 @@ The challenge (of this architecture) lies in the 'cognitive lambda calculus' nee
 
 A core component of cognosis, cognOS establishes a hyper-interface designed to manage the evolution of cognitive algorithms. It focuses on:
 
-Meta-versioning: Tracking and managing the evolution of code over time.
-Pre-commit Hooks and Validation: Ensuring code quality and integrity. Meta CICD.
-Hardware Provisioning: Allocation of computational resources.
-Time Abstraction: Modeling cognition beyond the constraint of a fixed present (t=0).
+    Meta-versioning: Tracking and managing the evolution of code over time.
 
+    Pre-commit Hooks and Validation: Ensuring code quality and integrity. Meta CICD.
+
+    Hardware Provisioning: Allocation of computational resources.
+
+    Time Abstraction: Modeling cognition beyond the constraint of a fixed present (t=0).
 
 ### ::video instructions::
 [youtube video link](https://www.youtube.com/watch?v=-rGRMM7jZhA)
 
 
-## setup
+### ::setup::
 
 + micromamba - via environment.yaml (any hypervisor/os):
     ```

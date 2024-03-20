@@ -18,7 +18,6 @@ dependencies = [
     "typing-extensions",
     "xonsh",
     "litellm",
-    "pydantic",
     "pytest",
     "httpx",
     "docker",
