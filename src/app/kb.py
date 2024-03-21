@@ -46,3 +46,25 @@ files_data = [
     {'title': 'Article 2', 'content': 'Content of article 2'}
     # If 'date' is omitted, the current date and time will be used
 ]
+# Generate a Python module based on a markdown file
+def create_python_module_from_markdown(markdown_path: Path):
+    markdown_content = markdown_path.read_text()
+    title_search = re.search(r'^title: (.+)$', markdown_content, re.MULTILINE)
+    if title_search:
+        title = title_search.group(1).strip()
+        python_module_name = title.replace(' ', '_') + '.py'
+    else:
+        raise ValueError('Title not found in markdown front matter')
+
+    related_notes = re.findall(r'\[\[(.+?)\]\]', markdown_content)
+    python_imports = '\n'.join(f'import {note.replace(" ", "_")}' for note in related_notes)
+
+    python_module_path = vault_path / python_module_name
+    python_module_content = f'""" Generated module for: {title} """\n\n{python_imports}\n\n# Your code here...'
+    python_module_path.write_text(python_module_content)
+    print(f'Module {python_module_name} created.')
+
+# Example usage
+markdown_files = list(vault_path.glob('*.md'))
+for md_path in markdown_files:
+    create_python_module_from_markdown(md_path)

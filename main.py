@@ -8,6 +8,9 @@ import threading
 import time
 from pathlib import Path
 from logging.config import dictConfig
+from threading import Thread, current_thread, Semaphore
+import src.app.context as context
+from src.app.context import MyThreadSafeContextManager, worker
 
 _lock = threading.Lock()
 
@@ -87,7 +90,16 @@ def main() -> logging.Logger:
 
 if __name__ == '__main__':
     main()
-
+    filepath = sys.argv[1] if len(sys.argv) > 1 else None
+    if filepath is not None:
+        semaphore = threading.Semaphore(10)
+        with semaphore:  # Acquire the semaphore
+            # Code that needs to be executed in a controlled manner
+            worker(filepath, MyThreadSafeContextManager(), Semaphore) 
+        # process_file(filepath, MyThreadSafeContextManager())
+else:
+        help()
+        sys.exit(0)
 def help() -> None:
     """
     Print help.
