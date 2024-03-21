@@ -56,7 +56,7 @@ jobs:
               
       - name: Run main python app
         run: |
-          python main.py 2>&1 | tee -a logs/app.log logs/python-app.log
+          python main.py . 2>&1 | tee -a logs/app.log logs/python-app.log
       - name: Archive test output as artifact
         if: always()
         uses: actions/upload-artifact@v2
