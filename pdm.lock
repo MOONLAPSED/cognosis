@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:d8b0e48b7745bb423259d9b602e9596da8fc87a17750da9436cc37b75e844953"
+content_hash = "sha256:8cb176bfa3817ac4ec857b5492ae72b36b705f5f3641053bc0c22af81890dbed"
 
 [[package]]
 name = "aiohttp"
@@ -688,7 +688,7 @@ files = [
 
 [[package]]
 name = "importlib-metadata"
-version = "7.0.2"
+version = "7.1.0"
 requires_python = ">=3.8"
 summary = "Read metadata from Python packages"
 groups = ["default"]
@@ -696,8 +696,8 @@ dependencies = [
     "zipp>=0.5",
 ]
 files = [
-    {file = "importlib_metadata-7.0.2-py3-none-any.whl", hash = "sha256:f4bc4c0c070c490abf4ce96d715f68e95923320370efb66143df00199bb6c100"},
-    {file = "importlib_metadata-7.0.2.tar.gz", hash = "sha256:198f568f3230878cb1b44fbd7975f87906c22336dba2e4a7f05278c281fbd792"},
+    {file = "importlib_metadata-7.1.0-py3-none-any.whl", hash = "sha256:30962b96c0c223483ed6cc7280e7f0199feb01a0e40cfae4d4450fc6fab1f570"},
+    {file = "importlib_metadata-7.1.0.tar.gz", hash = "sha256:b78938b926ee8d5f020fc4772d487045805a55ddbad2ecf21c6d60938dc7fcd2"},
 ]
 
 [[package]]
@@ -1150,8 +1150,8 @@ files = [
 
 [[package]]
 name = "litellm"
-version = "1.32.1"
-requires_python = ">=3.8, !=2.7.*, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, !=3.6.*, !=3.7.*"
+version = "1.32.9"
+requires_python = "!=2.7.*,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,!=3.7.*,>=3.8"
 summary = "Library to easily interface with LLM API providers"
 groups = ["default"]
 dependencies = [
@@ -1166,8 +1166,8 @@ dependencies = [
     "tokenizers",
 ]
 files = [
-    {file = "litellm-1.32.1-py3-none-any.whl", hash = "sha256:f93878ec1571c2259c205d8a898d8555e5f70b42425661041b691e1cd87a1820"},
-    {file = "litellm-1.32.1.tar.gz", hash = "sha256:0f45dda4cfa684c2332116862803b8c7c697b2b4ccc5565ae9e9e1aa07d8054a"},
+    {file = "litellm-1.32.9-py3-none-any.whl", hash = "sha256:eb0d1dcd2dfe379b632003a14301f71d3d426a65afcffe5d47abffe24c7c37b5"},
+    {file = "litellm-1.32.9.tar.gz", hash = "sha256:1bf39faa707d8977620592334a385137b0251a65581d7c68cbf9387276ca7d66"},
 ]
 
 [[package]]
@@ -1446,7 +1446,7 @@ files = [
 
 [[package]]
 name = "openai"
-version = "1.14.1"
+version = "1.14.2"
 requires_python = ">=3.7.1"
 summary = "The official Python library for the openai API"
 groups = ["default"]
@@ -1460,8 +1460,8 @@ dependencies = [
     "typing-extensions<5,>=4.7",
 ]
 files = [
-    {file = "openai-1.14.1-py3-none-any.whl", hash = "sha256:f9322b0bf3b82bbd06930fad535369a023f35a3a96d3ef0b827644a15d7aae97"},
-    {file = "openai-1.14.1.tar.gz", hash = "sha256:1fab5dd623cdc0c7c6e7da5d8d11fa6900f94191c2dfb6510d7eac33195fa175"},
+    {file = "openai-1.14.2-py3-none-any.whl", hash = "sha256:a48b3c4d635b603952189ac5a0c0c9b06c025b80eb2900396939f02bb2104ac3"},
+    {file = "openai-1.14.2.tar.gz", hash = "sha256:e5642f7c02cf21994b08477d7bb2c1e46d8f335d72c26f0396c5f89b15b5b153"},
 ]
 
 [[package]]
