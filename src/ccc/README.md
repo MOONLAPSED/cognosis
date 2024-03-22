@@ -1,8 +1,12 @@
 # cognitive coherence coroutines
 
  -/hyde/ - is the home of all ruby gems and jekyll files
+
  -/src/ - is the home of all python application files
+ 
  -/api/ - api-def and README.md
+
+ -/chat/ - chat ops and user interface (chat ops is how bot interacts with the runtime)
 
 The repo is beginning to sprawl, allow ccc to converge the dispirate parts into a coherent whole. ccc will orchestrate the static 'runtime' mutable files 'testing' against the immutable 'knowledge graph' which, at this stage, will always take the form of an unsorted directory full of files with contents and at its most-basic; amounts to a directory tree of dirs and files which are visible at runtime.
 
@@ -13,17 +17,19 @@ The repo is beginning to sprawl, allow ccc to converge the dispirate parts into 
  
  -we init python logging for the build-out as-fast as possible in main.py
  
- -we init ruby gems and jekyll build environment using bundler
- 
  -we init (not yet implemented) python api
  
- -we init (not yet implemented) GO server
+ -we init (not yet implemented) GO chatops server
 
 \# -we init rust via rustup for future Rust needs
 
 \# -we init node via NPM and JDK vía SDKMAN! for future JavaScript and Java needs
 
 \# -we init docker and kubernetes routines and coroutines including iteration etc. (not yet implemented)
+
+ -we init (not yet implemented) rust/GO chat/static/ops interface
+
+ -we init ruby gems and jekyll build environment using bundler
 
  -we utilize python to populate our static runtime files (jekyll, markdown etc) using jinja templates and markdown filters - creating a 'traversable' artifact (for ai agents) as we go
 
