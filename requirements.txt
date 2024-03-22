@@ -6,3 +6,4 @@ python-dotenv
 httpx
 spacy
 python-frontmatter
+pyYAML

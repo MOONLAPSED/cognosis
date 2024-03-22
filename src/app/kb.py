@@ -4,6 +4,17 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 
+def KnowledgeBase(vault_path):
+    kb = {}
+
+    for file_path in vault_path.glob('*.md'):
+        with file_path.open() as f:
+            metadata = json.loads(f.readline())
+            kb[metadata['title']] = {
+    'path': str(file_path),
+    'metadata': metadata
+}
+
 @dataclass
 class MetaDataClass:
     title: str

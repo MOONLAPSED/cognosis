@@ -1,4 +1,29 @@
-# claude2_cognosis
+# src/app
+> kb.py defines obsidian .md files
+> jake.py defines jekyllified .md files
+  - jekyll static sites are all runtime has to work with - it will never have progrommatic access to the knowledge graph (obsidian files) directly. Instead, it can only query the knowledge graph indirectly through the conversion engine.
+> jina.py defines the conversion engine class
+> context.py defines the context manager
+
+
+## ruby_install: https://jekyllrb.com/docs/structure/
+I'm going to commit to jekyll static site generation and I am going to count on it (ruby) playing-well with any new features, in the future. Ruby on rails is a good platform, anyways.
+
+rubyinstaller-devkit-3.2.3-1-x64 - options = [1, 2, 3]
+- gem install jekyll bundler
+- cd /cognosis/hyde/
+- bundle update
+- jekyll -v / (new, in /cognosis/) jekyll new hyde
+- bundle exec jekyll serve --host 0.0.0.0 (first time) // jekyll serve
+```
+pacman -Syuu -Y
+pacman -S ruby
+pacman -S ruby-ridk
+pacman -S base-devel
+```
+
+
+## claude2_cognosis
 
 ```(me):
 ﻿{ "parameters": {}, "provide_key_value_pairs": true, "action": "track_entities", "notation": "hashtag", "primary_node": "user_entity", "graph_data_structure": true, "action": "treat_user_as_static_entity" } }
