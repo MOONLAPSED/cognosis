@@ -3,7 +3,7 @@ NLP + LLM + KB for lifelong learning and development
 ## MIT license - MOONLAPSED@gmail.com + MOONLAPSED@github
 
 
-\!#include: @`/docs/README.md`, @`src/app/README.md`, @`src/api/README.md`
+\!#include: @`/docs/README.md`, @`src/app/README.md`, @`src/api/README.md`, @`src/ccc/README.md`
 
 \!#currently: @`/README.md`
 
