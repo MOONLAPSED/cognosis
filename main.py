@@ -11,6 +11,7 @@ from logging.config import dictConfig
 from threading import Thread, current_thread, Semaphore
 import src.app.context as context
 from src.app.context import MyThreadSafeContextManager, worker
+from src.app.jake import client_context_manager
 
 _lock = threading.Lock()
 
@@ -95,7 +96,9 @@ if __name__ == '__main__':
         semaphore = threading.Semaphore(10)
         with semaphore:  # Acquire the semaphore
             # Code that needs to be executed in a controlled manner
-            worker(filepath, MyThreadSafeContextManager(), Semaphore) 
+            worker(filepath, MyThreadSafeContextManager(), Semaphore)
+        # app_client=client_context_manager(filepath,MyThreadSafeContextManager())
+
         # process_file(filepath, MyThreadSafeContextManager())
 else:
         help()
