@@ -25,6 +25,28 @@ output_path = Path(__file__).parent / "output"
 output_path.mkdir(parents=True, exist_ok=True)
 
 @dataclass
+class KnowledgeItem:
+    title: str
+    content: str
+    tags: list[str]
+    created: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
+    references: list[str] = None
+
+    def write_to_vault(self, vault_path: Path):
+        front_matter = f"""---
+title: {self.title}
+tags: {', '.join(self.tags)}
+created: {self.created.isoformat()}
+---
+
+"""
+
+        body = '\n\n'.join([self.content] + [f'[[{ref}]]' for ref in self.references or []])
+
+        file_path = vault_path / (self.title.replace(' ', '_') + '.md')
+        file_path.write_text(front_matter + body)
+
+@dataclass
 class MetaDataClass:
     title: str
     content: str
