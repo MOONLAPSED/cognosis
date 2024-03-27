@@ -94,5 +94,3 @@ A core component of cognosis, cognOS establishes a hyper-interface designed to m
     [[loopback|local host]]::Ollama binds 127.0.0.1 port 11434 by default. Change the bind address with the OLLAMA_HOST environment variable.
 
     ```
-
-Jensen @ GTC 2024: The next industrial revolution is here; NIM for knowledge, i/o (and [[morphological source code]]). ISAAC for linguistic robotic perception, conception, and cognition. Universal Scene Description and omniverse for modeling world-scale systems cognitively. This is the call to action I've been waiting for and I will be fully supporting the cuda robotics revolution. (but im not a fanboy, I just happen to be into gaming and ML and simulation).
