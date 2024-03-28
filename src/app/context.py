@@ -4,10 +4,11 @@ import threading
 import logging
 import queue
 import json
-import openai as OpenAI
+import openai
+from openai import OpenAI
 import os
 from typing import Optional
-from src.utils.gettree import gettree
+from src.utils.gettree import get_project_tree
 
 class MyBaseContextManager(ABC):
     """
@@ -77,6 +78,7 @@ def worker(q: queue.Queue, filepath: str, semaphore: threading.Semaphore):
 
 
 class client_context_manager(MyThreadSafeContextManager):
+    """c_c_m is the LM-Studio client context manager"""
     def __init__(self, client):
         self.client = client
     reset_color = "\033[0m"
