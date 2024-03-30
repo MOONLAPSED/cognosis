@@ -13,7 +13,7 @@
 #   1. Encodes high-dimensional data into a binary representation.
 #   2. Applies signal processing techniques to the binary data for analysis and feature extraction.
 
-# Utilizing informal methods (NLP, machine learning, algorithms, etc.) is a runtime phenomenon that may also adorn source code as comments, for temporal and agentic clarity and consistency. Once an object (with stateful binary representation) is testable, it can be refactored into a formal method and added to the artifact and/or repository.
+# Utilizing informal methods (NLP, machine learning, runtime libraries, etc.) is a runtime phenomenon that may also adorn source code as comments, for temporal and agentic clarity and consistency. Once an object (with stateful binary representation) is testable, it can be refactored into a formal method and added to the artifact and/or repository.
 """
 from typing import Union, List
 from dataclasses import dataclass
