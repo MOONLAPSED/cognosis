@@ -202,16 +202,24 @@ if __name__ == '__main__':
     filepath = sys.argv[1] if len(sys.argv) > 1 else None
     helped()
     wizard()
-    if filepath is not None:
-        semaphore = threading.Semaphore(10)
-        with semaphore:  # Acquire the semaphore
-            # Code that needs to be executed in a controlled manner
-            worker(filepath, MyThreadSafeContextManager(), Semaphore)
-        # app_client=client_context_manager(filepath,MyThreadSafeContextManager())
+    try:
+        if filepath is not None:
+            semaphore = threading.Semaphore(10)
+            with semaphore:  # Acquire the semaphore
+                # Code that needs to be executed in a controlled manner
+                worker(filepath, MyThreadSafeContextManager(), Semaphore)
+            # app_client=client_context_manager(filepath,MyThreadSafeContextManager())
 
-        # process_file(filepath, MyThreadSafeContextManager())
+            # process_file(filepath, MyThreadSafeContextManager())
+
+    except Exception as e:
+        sys.stderr.write(f"Error: {str(e)}\n")
+        sys.exit(1)
+    finally:
+        sys.exit(0)
 else:
-        help()
+        helped()
+        wizard()
         sys.exit(0)
 
 
