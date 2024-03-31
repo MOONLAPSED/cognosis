@@ -89,21 +89,7 @@ def main() -> logging.Logger:
 
         return logger
 
-if __name__ == '__main__':
-    mainlogger = main()
-    filepath = sys.argv[1] if len(sys.argv) > 1 else None
-    if filepath is not None:
-        semaphore = threading.Semaphore(10)
-        with semaphore:  # Acquire the semaphore
-            # Code that needs to be executed in a controlled manner
-            worker(filepath, MyThreadSafeContextManager(), Semaphore)
-        # app_client=client_context_manager(filepath,MyThreadSafeContextManager())
-
-        # process_file(filepath, MyThreadSafeContextManager())
-else:
-        help()
-        sys.exit(0)
-def help() -> None:
+def helped() -> None:
     """
     Print help.
 
@@ -183,6 +169,51 @@ SEE ALSO
 NOTES
 The cognosis system is under active development.  Your experiences may change with subsequent iterations.
 """)
+
+def wizard() -> None:
+    print(r"""
+                    ____ 
+                  .'* *.'
+               __/_*_*(_
+              / _______ \
+             _\_)/___\(_/_ 
+            / _((\- -/))_ \
+            \ \())(-)(()/ /
+             ' \(((()))/ '
+            / ' \)).))/ ' \
+           / _ \ - | - /_  \
+          (   ( .;''';. .'  )
+          _\"__ /    )\ __"/_
+            \/  \   ' /  \/
+             .'  '...' ' )
+              / /  |  \ \
+             / .   .   . \
+            /   .     .   \
+           /   /   |   \   \
+         .'   /    q    '.  '.
+     _.-'    /     Qq     '-. '-._ 
+ _.-'       |      QQq       '-.  '-. 
+(_________/_|____.qQQQq.________)____)
+    """)
+
+
+if __name__ == '__main__':
+    mainlogger = main()
+    filepath = sys.argv[1] if len(sys.argv) > 1 else None
+    helped()
+    wizard()
+    if filepath is not None:
+        semaphore = threading.Semaphore(10)
+        with semaphore:  # Acquire the semaphore
+            # Code that needs to be executed in a controlled manner
+            worker(filepath, MyThreadSafeContextManager(), Semaphore)
+        # app_client=client_context_manager(filepath,MyThreadSafeContextManager())
+
+        # process_file(filepath, MyThreadSafeContextManager())
+else:
+        help()
+        sys.exit(0)
+
 
 # the validation hook will 'test' ephemeral namespace against the knowledge base, the results of which will be 'learned' by the bot and the user in the source code kb (filesystem non-ephemeral)  |
 # flash: to 'test' a namespace against the whole of the source code kb. Main method is via back-propagation of 'learned' knowledge from the kb to the ephemeral kb in a depth-first manner. A 'flash' does not affect the filesystem without creating a git commit. Commits will involve the large-scale meta-data and structure while the actual files contents (specifically; named_tuples and SimpleNamespaces, Classes, functions and their methods and decorators) are stored locally |
