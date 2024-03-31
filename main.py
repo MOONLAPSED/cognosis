@@ -9,7 +9,6 @@ import time
 from pathlib import Path
 from logging.config import dictConfig
 from threading import Thread, current_thread, Semaphore
-import src.app.context as context
 from src.app.context import MyThreadSafeContextManager, worker
 from src.utils.gettree import get_project_tree
 
@@ -196,14 +195,15 @@ def wizard() -> None:
 (_________/_|____.qQQQq.________)____)
     """)
 
-
+def main():
+    helped()
+    wizard()
 if __name__ == '__main__':
     mainlogger = main()
     filepath = sys.argv[1] if len(sys.argv) > 1 else None
-    helped()
-    wizard()
     try:
         if filepath is not None:
+            main()
             semaphore = threading.Semaphore(10)
             with semaphore:  # Acquire the semaphore
                 # Code that needs to be executed in a controlled manner
@@ -213,14 +213,13 @@ if __name__ == '__main__':
             # process_file(filepath, MyThreadSafeContextManager())
 
     except Exception as e:
-        sys.stderr.write(f"Error: {str(e)}\n")
+        mainlogger.error(f"Error: {str(e)}\n")
         sys.exit(1)
     finally:
         sys.exit(0)
 else:
-        helped()
-        wizard()
-        sys.exit(0)
+        main()
+        sys.exit(1)
 
 
 # the validation hook will 'test' ephemeral namespace against the knowledge base, the results of which will be 'learned' by the bot and the user in the source code kb (filesystem non-ephemeral)  |
