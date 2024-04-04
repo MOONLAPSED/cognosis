@@ -1,18 +1,19 @@
 import logging
 import logging.config
 import logging.handlers
-import os
 import sys
-import subprocess
 import threading
-import time
 from pathlib import Path
 from logging.config import dictConfig
 from threading import Thread, current_thread, Semaphore
-from src.app.context import MyThreadSafeContextManager, worker
-from src.utils.gettree import get_project_tree
 
+# Setup paths
+vault_path = Path(__file__).parent / "my_vault"  # Your knowledge base directory
+templates_path = Path(__file__).parent / "templates"
+output_path = Path(__file__).parent / "output"
+output_path.mkdir(parents=True, exist_ok=True)
 _lock = threading.Lock()
+
 
 def _init_basic_logging():
     basic_log_file_path = Path(__file__).resolve().parent.joinpath('logs', 'setup.log')
@@ -23,6 +24,7 @@ def _init_basic_logging():
         format='[%(levelname)s]%(asctime)s||%(name)s: %(message)s',
         datefmt='%Y-%m-%d~%H:%M:%S%z',
     )
+
 
 # Initialize basic logging immediately to capture any issues during module import.
 _init_basic_logging()
@@ -44,8 +46,10 @@ def main() -> logging.Logger:
     logs_dir = Path(__file__).resolve().parent.joinpath('logs')
     logs_dir.mkdir(exist_ok=True)
     # Add paths for importing modules
-    sys.path.append(str(Path(__file__).resolve().parent))  # Convert Path object to string for compatibility
-    sys.path.append(str(Path(__file__).resolve().parent.joinpath('src')))  # Convert Path object to string for compatibility
+    sys.path.append(str(Path(__file__).resolve().parent))
+    sys.path.append(str(Path(__file__).resolve().parent.joinpath('src')))
+    wizard()
+    helped()
     with _lock:
         logging_config = {
             'version': 1,
@@ -87,6 +91,7 @@ def main() -> logging.Logger:
                     f'\nWorking_dir: {current_dir}||')
 
         return logger
+
 
 def helped() -> None:
     """
@@ -169,6 +174,7 @@ NOTES
 The cognosis system is under active development.  Your experiences may change with subsequent iterations.
 """)
 
+
 def wizard() -> None:
     print(r"""
                     ____ 
@@ -195,35 +201,20 @@ def wizard() -> None:
 (_________/_|____.qQQQq.________)____)
     """)
 
-def main():
-    helped()
-    wizard()
+
 if __name__ == '__main__':
-    mainlogger = main()
+    logger = main()
     filepath = sys.argv[1] if len(sys.argv) > 1 else None
     try:
         if filepath is not None:
             main()
-            semaphore = threading.Semaphore(10)
-            with semaphore:  # Acquire the semaphore
-                # Code that needs to be executed in a controlled manner
-                worker(filepath, MyThreadSafeContextManager(), Semaphore)
-            # app_client=client_context_manager(filepath,MyThreadSafeContextManager())
 
-            # process_file(filepath, MyThreadSafeContextManager())
 
     except Exception as e:
-        mainlogger.error(f"Error: {str(e)}\n")
+        logger.error(f"Error: {str(e)}\n")
         sys.exit(1)
     finally:
         sys.exit(0)
 else:
-        main()
-        sys.exit(1)
-
-
-# the validation hook will 'test' ephemeral namespace against the knowledge base, the results of which will be 'learned' by the bot and the user in the source code kb (filesystem non-ephemeral)  |
-# flash: to 'test' a namespace against the whole of the source code kb. Main method is via back-propagation of 'learned' knowledge from the kb to the ephemeral kb in a depth-first manner. A 'flash' does not affect the filesystem without creating a git commit. Commits will involve the large-scale meta-data and structure while the actual files contents (specifically; named_tuples and SimpleNamespaces, Classes, functions and their methods and decorators) are stored locally |
-# [[entities]] are NLP un-tested and ephemeral kb candidates, or they are 'compiled' source code knowledge base data structures that are imported as modules into the ephemeral kb which provide major structure for every-run and represent the 'artifact' of the source code knowledge base and the git commit it resides in.  |
-# cognosis NLP source code sub-routines and cognition and final data in this file: ['next-line', 'next-subsection', 'end_section'] maps to ['|', '||', '|||']
-
+    main()
+    sys.exit(1)
