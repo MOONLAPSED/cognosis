@@ -427,3 +427,11 @@ class TokenSpace(ABC):
 # Concrete implementations of BaseRuntime and TokenSpace must be provided to utilize
 # these abstract classes. They form the basis of specialized runtime environments and
 # token management systems within an application.
+
+
+if __name__ == '__main__':
+    import sys
+    import os
+
+    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    sys.path.append(PROJECT_ROOT)
