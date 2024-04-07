@@ -365,7 +365,8 @@ class TokenSpace(ABC):
     The semantics and behavior of the token space, such as whether it operates as a
     stack, queue, or other structure, are determined by the concrete subclass
     implementations.
-
+    """
+    """
     Examples
     --------
     >>> class MyTokenSpace(TokenSpace):

@@ -6,10 +6,7 @@ from pathlib import Path
 from typing import List, Optional
 import logging
 from jinja2 import Environment, FileSystemLoader
-
-# Base classes previously discussed
-from src.app.space import BaseRuntime
-from src.app.space import BaseContextManager
+from src.app.abstract import BaseContextManager, BaseRuntime, BaseProtocol, TokenSpace
 
 # Setup paths
 vault_path = Path(__file__).parent / "my_vault"  # Your knowledge base directory
@@ -33,28 +30,6 @@ class FileContextManager(BaseContextManager):
     def __exit__(self, exc_type, exc_value, traceback):
         if self.file:
             self.file.close()
-
-
-# Main Runtime class for static site generation
-class StaticSiteRuntime(BaseRuntime):
-    def __init__(self, logger: Logger):
-        self.logger = logger
-
-    def start(self):
-        self.logger.log("Starting static site generator runtime.")
-
-    def stop(self):
-        self.logger.log("Stopping static site generator runtime.")
-
-    def execute(self, task, **kwargs):
-        try:
-            task(**kwargs)
-        except Exception as e:
-            self.logger.log(f"An error occurred: {e}", "ERROR")
-
-    def schedule(self, task, trigger):
-        # For demo purposes, this method won't implement any scheduling logic.
-        pass
 
 
 @dataclass
@@ -98,6 +73,7 @@ created_at: {self.created_at.isoformat()}
 
 # Entry point for the script
 if __name__ == '__main__':
-    logger = SimpleLogger()
-    static_site_runtime = StaticSiteRuntime(logger)
-    # Vaults, templates, output directories setup and other tasks go here
+     # Create a new knowledge base
+    knowledge_base = TokenSpace()
+    protocol = BaseProtocol()
+    runtime = BaseRuntime()
