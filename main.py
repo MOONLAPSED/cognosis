@@ -3,6 +3,7 @@ import logging.config
 import logging.handlers
 import sys
 import threading
+import os
 from pathlib import Path
 from logging.config import dictConfig
 from threading import Thread, current_thread, Semaphore
@@ -29,6 +30,7 @@ def _init_basic_logging():
 # Initialize basic logging immediately to capture any issues during module import.
 _init_basic_logging()
 
+
 def main() -> logging.Logger:
     """Configures logging for the app.
     Args:
@@ -48,8 +50,9 @@ def main() -> logging.Logger:
     # Add paths for importing modules
     sys.path.append(str(Path(__file__).resolve().parent))
     sys.path.append(str(Path(__file__).resolve().parent.joinpath('src')))
-    wizard()
-    helped()
+    run_id = os.getenv("GITHUB_RUN_ID")
+    if run_id:
+        print(f"Workflow run ID: {run_id}")
     with _lock:
         logging_config = {
             'version': 1,
@@ -203,18 +206,6 @@ def wizard() -> None:
 
 
 if __name__ == '__main__':
-    logger = main()
-    filepath = sys.argv[1] if len(sys.argv) > 1 else None
-    try:
-        if filepath is not None:
-            main()
-
-
-    except Exception as e:
-        logger.error(f"Error: {str(e)}\n")
-        sys.exit(1)
-    finally:
-        sys.exit(0)
-else:
     main()
-    sys.exit(1)
+    helped()
+    wizard()
