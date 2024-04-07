@@ -1,10 +1,10 @@
-import re
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 import logging
+import sys
+import os
 from jinja2 import Environment, FileSystemLoader
 from src.app.abstract import BaseContextManager, BaseRuntime, BaseProtocol, TokenSpace
 
@@ -73,7 +73,10 @@ created_at: {self.created_at.isoformat()}
 
 # Entry point for the script
 if __name__ == '__main__':
+    # Add the project root to the Python path
+    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    sys.path.append(PROJECT_ROOT)
      # Create a new knowledge base
-    knowledge_base = TokenSpace()
-    protocol = BaseProtocol()
-    runtime = BaseRuntime()
+    # space = TokenSpace()
+    # protocol = BaseProtocol()
+    # runtime = BaseRuntime()
