@@ -3,6 +3,7 @@
 *.vs
 /apps/
 *.idea/
+/.idea/*
 /output/*
 
 # Byte-compiled / optimized / DLL files
