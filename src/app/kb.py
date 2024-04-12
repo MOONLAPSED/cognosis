@@ -34,15 +34,22 @@ class FileContextManager(BaseContextManager):
 
 @dataclass
 class KnowledgeItem:
+    def __init__(self):
+        self.name: str
+        self.description: str
+        self.category: str
+        self.author: str
+        self.date: datetime
+        self.url_symlink: str
     title: str
     content: str
     description: Optional[str] = None
     tags: List[str] = field(default_factory=list)
     created_at: datetime = field(default_factory=lambda: datetime.now())
 
-    def write_to_vault(self, vault_path: Path):
+    def write_to_vault(self, vault_url_symlink: Path):
         filename = f"{self.created_at.strftime('%Y-%m-%d')}-{self.title.replace(' ', '-')}.md"
-        file_path = vault_path / filename
+        file_path = vault_url_symlink / filename
         front_matter = f"""---
 title: {self.title}
 description: {self.description}
@@ -54,7 +61,7 @@ created_at: {self.created_at.isoformat()}
         with FileContextManager(file_path, 'w') as file:
             file.write(body)
 
-    def to_html(self, template_path: Path, output_path: Path):
+    def to_html(self, template_path: Path, output_url_symlink: Path):
         env = Environment(loader=FileSystemLoader(template_path))
         template = env.get_template("post.html")  # Assuming a post.html template
         metadata = {
@@ -66,7 +73,7 @@ created_at: {self.created_at.isoformat()}
         html_content = template.render(metadata=metadata, content=self.content)
 
         filename = f"{self.created_at.strftime('%Y-%m-%d')}-{self.title.replace(' ', '-')}.html"
-        output_file = output_path / filename
+        output_file = output_url_symlink / filename
         with FileContextManager(output_file, 'w') as file:
             file.write(html_content)
 
