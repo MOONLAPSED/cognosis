@@ -50,6 +50,12 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
     Returns:
         logging.Logger: The logger for the module.
     """
+    for arg in args:
+        print(arg)
+        pass
+    for arg in kwargs:
+        print(arg)
+        pass
     # Find the current directory for logging
     current_dir = Path(__file__).resolve().parent
     while not (current_dir / 'logs').exists():

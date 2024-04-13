@@ -1,27 +1,3 @@
-# src/app
-> kb.py defines obsidian .md files
-> jake.py defines jekyllified .md files
-  - jekyll static sites are all runtime has to work with - it will never have progrommatic access to the knowledge graph (obsidian files) directly. Instead, it can only query the knowledge graph indirectly through the conversion engine.
-> jina.py defines the conversion engine class
-> context.py defines the context manager
-
-
-## ruby_install: https://jekyllrb.com/docs/structure/
-I'm going to commit to jekyll static site generation and I am going to count on it (ruby) playing-well with any new features, in the future. Ruby on rails is a good platform, anyways.
-
-rubyinstaller-devkit-3.2.3-1-x64 - options = [1, 2, 3]
-- gem install jekyll bundler
-- cd /cognosis/hyde/
-- bundle update
-- jekyll -v / (new, in /cognosis/) jekyll new hyde
-- bundle exec jekyll serve --host 0.0.0.0 (first time) // jekyll serve
-```
-pacman -Syuu -Y
-pacman -S ruby
-pacman -S ruby-ridk
-pacman -S base-devel
-```
-
 ### positioning metadata
 ```"""
 ## ${{positioning}}
@@ -109,9 +85,9 @@ Implement request
 #Conclusion I have completed the user's request to the best of my abilities. My train of thought has been serialized throughout the process.
 ```
 
-...
 
-```(claude2):
+
+```
 # Key Concepts
 
 - **Cognition** - The mechanisms and processes involved in acquiring knowledge and understanding through thought, experience, and the senses. This includes attention, memory, learning, reasoning, problem solving, decision making.
