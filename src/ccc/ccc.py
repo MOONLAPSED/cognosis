@@ -2,7 +2,7 @@ import operator
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from functools import partial, reduce
-from typing import Any, Callable, TypeVar, Generic, Optional
+from typing import Any, Callable, TypeVar, Generic
 
 T = TypeVar('T')
 
@@ -11,10 +11,10 @@ class FormalTheory(Generic[T]):
     """
     Represents a formal theory with basic properties and operations.
     """
-    reflexivity: Callable[[T], bool] = operator.eq
-    symmetry: Callable[[T, T], bool] = operator.eq
-    transitivity: Callable[[T, T, T], bool] = lambda x, y, z: (x == y) and (y == z) and (x == z)
-    transparency: Callable[[Callable[..., T], T, T], T] = lambda f, x, y: f(x) if x == y else None
+    reflexivity: Callable[[T], bool] = field(default=operator.eq)
+    symmetry: Callable[[T, T], bool] = field(default=operator.eq)
+    transitivity: Callable[[T, T, T], bool] = field(default=lambda x, y, z: (x == y) and (y == z) and (x == z))
+    transparency: Callable[[Callable[..., T], T, T], T] = field(default=lambda f, x, y: f(x) if x == y else None)
     case_base: dict[str, Callable[[T, T], T]] = field(default_factory=dict)
 
     def __post_init__(self):
