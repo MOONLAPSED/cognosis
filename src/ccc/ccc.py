@@ -11,10 +11,10 @@ class FormalTheory(Generic[T]):
     """
     Represents a formal theory with basic properties and operations.
     """
-    reflexivity: Callable[[T], bool] = field(default=operator.eq)
-    symmetry: Callable[[T, T], bool] = field(default=operator.eq)
-    transitivity: Callable[[T, T, T], bool] = field(default=lambda x, y, z: (x == y) and (y == z) and (x == z))
-    transparency: Callable[[Callable[..., T], T, T], T] = field(default=lambda f, x, y: f(x) if x == y else None)
+    reflexivity: Callable[[T], bool] = operator.eq
+    symmetry: Callable[[T, T], bool] = operator.eq
+    transitivity: Callable[[T, T, T], bool] = lambda x, y, z: (x == y) and (y == z) and (x == z)
+    transparency: Callable[[Callable[..., T], T, T], T] = lambda f, x, y: f(x) if x == y else None
     case_base: dict[str, Callable[[T, T], T]] = field(default_factory=dict)
 
     def __post_init__(self):
@@ -23,6 +23,12 @@ class FormalTheory(Generic[T]):
             '⊥': lambda _, y: y,
             'a': partial(self.if_else, a=True)
         }
+
+    def __str__(self):
+        return f"FormalTheory({self.reflexivity.__name__}, {self.symmetry.__name__}, {self.transitivity.__name__}, {self.transparency.__name__}, {self.case_base})"
+
+    def __repr__(self):
+        return str(self)
 
     @staticmethod
     def if_else(a: bool, x: T, y: T) -> T:
@@ -134,6 +140,12 @@ class Operations(ABC, Generic[T]):
         """
         pass
 
+    def __str__(self):
+        return f"{self.__class__.__name__}()"
+
+    def __repr__(self):
+        return str(self)
+
 
 class DefaultOperations(Operations[Any]):
     """
@@ -175,5 +187,7 @@ formal_theory = FormalTheory()
 operations = DefaultOperations()
 
 x, y, z = 1, 2, 3
+print(operations)
+print(formal_theory)
 print(operations.equality(x, y))
 print(operations.greater_than(y, x))
