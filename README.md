@@ -98,6 +98,7 @@ A core component of cognosis, cognOS establishes a hyper-interface designed to m
 
 references to 'Hehner' are to Dr. Hehner and/or APTOP: http://www.cs.toronto.edu/~hehner/aPToP/
 
+```aPToP_elemental_ops
 # Number Systems
 integers
 rational_numbers
@@ -175,3 +176,4 @@ sequences_and_series
 trigonometric_functions
 calculus (differentiation, integration)
 probability_and_statistics
+```
