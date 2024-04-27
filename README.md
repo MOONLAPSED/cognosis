@@ -38,9 +38,40 @@ A core component of cognosis, cognOS establishes a hyper-interface designed to m
 ### ::video instructions::
 [youtube video link](https://www.youtube.com/watch?v=-rGRMM7jZhA)
 
+### Setup Instructions
 
-### ::setup::
+#### Docker Client Setup
+Start by initializing the Docker environment, which hosts the client components.
 
+
+FROM ghcr.io/ai-dock/comfyui:latest
+
+For more detailed documentation and configuration options, visit AI Dock + ComfyUI + PyTorch Documentation. <https://github.com/ai-dock/base-image/wiki>
+
+The Caddy web server acts as a reverse proxy, allowing services within the Docker container to listen for connections at 0.0.0.0, granting flexibility for interacting with your instance.
+
+Client Components:
+
+AI Dock: A robust environment including Caddy, PyTorch, Stable Diffusion, etc., for running AI models.
+ComfyUI: A user interface layer for model interaction, visualization, and orchestration.
+
+Server Setup:
+
+Establish a secure and isolated server environment using a hypervisor:Windows Sandbox (cfg.wsb) or WSL2 with an Ubuntu 22.04 image (docker-compose.yml).
+
+Integration and Orchestration:
+
+Utilize ComfyUI for orchestrating your cognitive system from the moment of initialization (t=0) and beyond.
+
+AI Dock + PyTorch + ComfyUI collectively form the agent 'runtime' or 'server' environment.
+
+The hypervisor functions as an isolated 'brain' for the agent.
+
+Please follow the respective setup procedures for Docker and your chosen hypervisor to ensure proper environment initialization.
+
+<!-- More Setup Instructions -->
+
+### windows sandbox version
 + micromamba - via environment.yaml (any hypervisor/os):
     ```
     - `cd {{app_dir}}`

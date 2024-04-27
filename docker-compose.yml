@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  cognosis:
+    image: cognosis
+    build:
+      context: .
+      dockerfile: ./Dockerfile
