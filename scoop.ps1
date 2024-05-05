@@ -1,3 +1,6 @@
+# for windows:
+# https://github.com/valinet/ExplorerPatcher
+
 # Install Git and update Scoop buckets
 scoop bucket add versions
 scoop bucket add extras
@@ -26,21 +29,26 @@ try {
 }
 
 # Define the RunCommand function
-function RunCommand($command) {
+function RunCommand($command, [bool]$yesToAll = $false) {
     Write-Host "Running command: $command"
 
-    # Confirmation prompt
-    while ($true) {
-        $confirmation = Read-Host -Prompt "Proceed with installation? (Y/N)"
-        if ($confirmation -eq "Y") {
-            break  # Proceed with execution
-        } elseif ($confirmation -eq "N") {
-            Write-Host "Installation skipped."
-            return  # Exit the function
-        } else {
-            Write-Host "Invalid input. Please enter 'Y' or 'N'."
+    if (-not $yesToAll) {
+        # Confirmation prompt
+        while ($true) {
+            $confirmation = Read-Host -Prompt "Proceed with installation? (Y/N/A)"
+            if ($confirmation -eq "Y") {
+                break  # Proceed with execution
+            } elseif ($confirmation -eq "N") {
+                Write-Host "Installation skipped."
+                return  # Exit the function
+            } elseif ($confirmation -eq "A") {
+                $yesToAll = $true
+                break  # Proceed with execution for all subsequent commands
+            } else {
+                Write-Host "Invalid input. Please enter 'Y', 'N', or 'A'."
+            }
         }
-    } 
+    }
 
     # Execute the command and handle potential errors
     try {
@@ -52,36 +60,41 @@ function RunCommand($command) {
 }
 
 # Update Scoop
-RunCommand "scoop update"
+RunCommand "scoop install git" $true  # Running "scoop install git" without confirmation
+RunCommand "scoop update" $true  # Running "scoop update" without confirmation
 
-# Install required packages
-RunCommand "scoop install extras/okular"
-RunCommand "scoop install extras/irfanview-lean"
-RunCommand "scoop install extras/mpc-hc-fork"
-# RunCommand "scoop install main/sourcegraph-cli"
-RunCommand "scoop install main/frp"
-RunCommand "scoop install extras/carapace-bin"
-RunCommand "scoop install main/yq"
-RunCommand "scoop install main/jc"
-RunCommand "scoop install extras/chatall"
-RunCommand "scoop install main/fq"
-RunCommand "scoop install main/zoxide"
-RunCommand "scoop install main/nu"
-# RunCommand "scoop install main/windows-application-driver"
-RunCommand "scoop install extras/texteditorpro"
-RunCommand "scoop install main/miller"
-RunCommand "scoop install main/clink"
-RunCommand "scoop install main/clink-flex-prompt"
-RunCommand "scoop bucket add nerd-fonts"
-RunCommand "scoop install nerd-fonts/FiraMono-NF-Mono"
-RunCommand "scoop install nerd-fonts/FiraCode-NF"
-RunCommand "scoop install main/fx"
-RunCommand "scoop install main/yedit"
-RunCommand "scoop install main/bison"
-# RunCommand "scoop install main/hurl"
-RunCommand "scoop install main/fselect"
-RunCommand "scoop install main/rcc"
-RunCommand "scoop install main/cheat"
-RunCommand "scoop install main/navi"
-
-
+# Setting yesToAll to true for all subsequent commands
+$yesToAll = $true  
+RunCommand "scoop bucket add nerd-fonts" $yesToAll
+RunCommand "scoop bucket add extras" $yesToAll
+RunCommand "scoop bucket add versions" $yesToAll
+RunCommand "scoop install extras/x64dbg" $yesToAll
+RunCommand "scoop install main/curl" $yesToAll
+RunCommand "install versions/openssl-light" $yesToAll
+RunCommand "scoop install extras/okular" $yesToAll
+RunCommand "scoop install extras/irfanview-lean" $yesToAll
+RunCommand "scoop install extras/mpc-hc-fork" $yesToAll
+RunCommand "scoop install main/frp" $yesToAll
+RunCommand "scoop install extras/carapace-bin" $yesToAll
+RunCommand "scoop install main/yq" $yesToAll
+RunCommand "scoop install main/jc" $yesToAll
+RunCommand "scoop install extras/chatall" $yesToAll
+RunCommand "scoop install main/fq" $yesToAll
+RunCommand "scoop install main/zoxide" $yesToAll
+RunCommand "scoop install main/nu" $yesToAll
+RunCommand "scoop install main/windows-application-driver" $yesToAll
+RunCommand "scoop install extras/texteditorpro" $yesToAll
+RunCommand "scoop install main/miller" $yesToAll
+RunCommand "scoop install main/clink" $yesToAll
+RunCommand "scoop install main/clink-flex-prompt" $yesToAll
+RunCommand "scoop bucket add nerd-fonts" $yesToAll
+RunCommand "scoop install nerd-fonts/FiraMono-NF-Mono" $yesToAll
+RunCommand "scoop install nerd-fonts/FiraCode-NF" $yesToAll
+RunCommand "scoop install main/fx" $yesToAll
+RunCommand "scoop install main/yedit" $yesToAll
+RunCommand "scoop install main/bison" $yesToAll
+RunCommand "scoop install main/hurl" $yesToAll
+RunCommand "scoop install main/fselect" $yesToAll
+RunCommand "scoop install main/rcc" $yesToAll
+RunCommand "scoop install main/cheat" $yesToAll
+RunCommand "scoop install main/navi" $yesToAll
