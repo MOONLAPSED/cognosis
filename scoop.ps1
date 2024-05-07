@@ -51,41 +51,36 @@ function RunCommand {
     Runs a command and handles user confirmation and error handling.
 
     .DESCRIPTION
-    The RunCommand function prompts the user for confirmation before executing a command. If the user chooses to proceed with all subsequent commands, the function executes the command without further confirmation. The function also logs the command output to a file named "scoop_log.txt" and handles any errors that may occur during command execution.
+    The RunCommand function prompts the user for confirmation before executing a command. If the user chooses to proceed with all subsequent commands, the function executes the remaining commands without further confirmation. The function also logs the command output to a file named "scoop_log.txt" and handles any errors that may occur during command execution.
 
     .PARAMETER command
     The command to be executed.
 
-    .PARAMETER yesToAll
-    A switch parameter that determines whether to execute all subsequent commands without confirmation.
-
     .EXAMPLE
     RunCommand "scoop install git"
-    RunCommand "scoop update" $true
+    RunCommand "scoop update"
     #>
     param (
         [Parameter(Mandatory = $true)]
-        [string]$command,
-        [switch]$yesToAll = $false
+        [string]$command
     )
 
     Write-Host "Running command: $command"
 
-    if (-not $yesToAll) {
-        # Confirmation prompt
-        while ($true) {
-            $confirmation = Read-Host -Prompt "Proceed with installation? (Y/N/A)"
-            if ($confirmation -eq "Y") {
-                break  # Proceed with execution
-            } elseif ($confirmation -eq "N") {
-                Write-Host "Installation skipped."
-                return  # Exit the function
-            } elseif ($confirmation -eq "A") {
-                $yesToAll = $true
-                break  # Proceed with execution for all subsequent commands
-            } else {
-                Write-Host "Invalid input. Please enter 'Y', 'N', or 'A'."
-            }
+    # Prompt for confirmation
+    $yesToAll = $false
+    while ($true) {
+        $confirmation = Read-Host -Prompt "Proceed with installation? (Y/N/A)"
+        if ($confirmation -eq "Y") {
+            break  # Proceed with execution
+        } elseif ($confirmation -eq "N") {
+            Write-Host "Installation skipped."
+            return  # Exit the function
+        } elseif ($confirmation -eq "A") {
+            $yesToAll = $true
+            break  # Proceed with execution for all subsequent commands
+        } else {
+            Write-Host "Invalid input. Please enter 'Y', 'N', or 'A'."
         }
     }
 
@@ -96,25 +91,28 @@ function RunCommand {
         Write-Error "Command execution failed: $command"
         Write-Error $_.Exception.Message 
     }
+
+    # Return the yesToAll value for subsequent commands
+    return $yesToAll
 }
 
 # Update Scoop
-RunCommand "scoop install git" $true  # Running "scoop install git" without confirmation
-RunCommand "scoop update" $true  # Running "scoop update" without confirmation
+$yesToAll = RunCommand "scoop install git"  # Prompt for confirmation
+$yesToAll = RunCommand "scoop update" -or $yesToAll  # Prompt for confirmation if not already set
 
-# Setting yesToAll to true for all subsequent commands
-$yesToAll = $true  
-RunCommand "scoop bucket add nerd-fonts" $yesToAll
-RunCommand "scoop bucket add extras" $yesToAll
-RunCommand "scoop bucket add versions" $yesToAll
-RunCommand "scoop install extras/x64dbg" $yesToAll
-RunCommand "scoop install main/curl" $yesToAll
-RunCommand "install versions/openssl-light" $yesToAll
-RunCommand "scoop install extras/okular" $yesToAll
-RunCommand "scoop install extras/irfanview-lean" $yesToAll
-RunCommand "scoop install extras/mpc-hc-fork" $yesToAll
-RunCommand "scoop install extras/carapace-bin" $yesToAll
-RunCommand "scoop install main/zoxide" $yesToAll
-RunCommand "scoop bucket add nerd-fonts" $yesToAll
-RunCommand "scoop install nerd-fonts/FiraMono-NF-Mono" $yesToAll
-RunCommand "scoop install nerd-fonts/FiraCode-NF" $yesToAll
+# Execute remaining commands based on the yesToAll value
+if ($yesToAll) {
+    RunCommand "scoop bucket add nerd-fonts"
+    RunCommand "scoop bucket add extras"
+    RunCommand "scoop bucket add versions"
+    RunCommand "scoop install extras/x64dbg"
+    RunCommand "scoop install main/curl"
+    RunCommand "install versions/openssl-light"
+    RunCommand "scoop install extras/okular"
+    RunCommand "scoop install extras/irfanview-lean"
+    RunCommand "scoop install extras/mpc-hc-fork"
+    RunCommand "scoop install extras/carapace-bin"
+    RunCommand "scoop install main/zoxide"
+    RunCommand "scoop install nerd-fonts/FiraMono-NF-Mono"
+    RunCommand "scoop install nerd-fonts/FiraCode-NF"
+}
