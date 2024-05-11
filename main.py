@@ -103,7 +103,9 @@ def function_application(f: Callable[[T], T], x: T) -> T:
     return f(x)
 
 def composition(f: Callable[[T], T], g: Callable[[T], T]) -> Callable[[T], T]:
-    return lambda x: f(g(x))
+    def composed(x: T) -> T:
+        return f(g(x))
+    return composed
 
 # Setup paths
 vault_path = Path(__file__).parent / "my_vault"  # Your knowledge base directory
@@ -111,7 +113,6 @@ templates_path = Path(__file__).parent / "templates"
 output_path = Path(__file__).parent / "output"
 output_path.mkdir(parents=True, exist_ok=True)
 _lock = threading.Lock()
-
 
 def _init_basic_logging():
     basic_log_file_path = Path(__file__).resolve().parent.joinpath('logs', 'setup.log')
@@ -125,10 +126,8 @@ def _init_basic_logging():
     logging.info(f'Logging initialized for {__name__}')
     return logging.getLogger(__name__)
 
-
 # Initialize basic logging immediately to capture any issues during module import.
 _init_basic_logging()
-
 
 def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
     """Configures logging for the app.

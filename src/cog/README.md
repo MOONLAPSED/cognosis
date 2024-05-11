@@ -76,7 +76,7 @@ if __name__ == "__main__":
 # In a real-world scenario, you would execute this script and pipe the output to both STDOUT and STDERR as appropriate.
 Save this as main.py and you can run it using the command given in your example which pipes output to STDOUT and appends to log files:
 
-Copy code
+
 python main.py 2>&1 | tee -a logs/app.log logs/python-app.log
 Keep in mind that as your cognitive frame generator cognosis becomes more sophisticated, you will need to continually refine and adapt this code. You'd include features like state persistence between invocations, more complex command parsing, actual NLP capabilities, and proper integration with a version control system like Git so that each agent's codebase could be tagged with a unique version corresponding to its 'lifetime.' Integration with an NLP model such as OpenAI's would allow the agent to generate human-like responses to prompts.
 
