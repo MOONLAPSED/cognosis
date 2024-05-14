@@ -1,13 +1,11 @@
-from typing import List
+from typing import List, Union, TypeVar
 import struct
-from typing import TypeVar, List, Union
+import sys
+import io
+from abc import abstractmethod, ABC
 
-# This describes a system with a Python runtime that leverages a shell script to interact with the environment in a structured and semantically meaningful way, allowing for complex operations governed by simplified interfaces exposed to the Python layer.
-
-# TypeVar for generic types
 T = TypeVar('T')
 
-# Bytes (Streams)
 class ByteSerializer:
     @staticmethod
     def serialize(data: Union[str, bytes]) -> bytes:
@@ -21,7 +19,6 @@ class ByteSerializer:
         """Deserialize bytes to a string."""
         return data.decode()
 
-# Embeddings (Unix File System Objects)
 class EmbeddingSerializer:
     @staticmethod
     def serialize(embedding: List[float], file_path: str) -> None:
@@ -42,6 +39,61 @@ class EmbeddingSerializer:
                 value = struct.unpack("f", data)[0]
                 embedding.append(value)
         return embedding
+
+class Atom(ABC):
+    """Base class for atomic units."""
+    @abstractmethod
+    def __repr__(self):
+        """Return a canonical representation of the atomic unit."""
+        pass
+
+class ByteStream(Atom):
+    """Class representing a byte stream."""
+    def __init__(self):
+        self.stream = io.BytesIO()
+
+    def __repr__(self):
+        return f"ByteStream({self.stream.getvalue()})"
+
+class STDIO(Atom):
+    """Class representing standard input/output."""
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return f"STDIN: {sys.stdin}, STDOUT: {sys.stdout}, STDERR: {sys.stderr}"
+
+class BitField(Atom):
+    """Atomic unit representing a bit field."""
+
+    def __init__(self, value: int, length: int):
+        self.value = value
+        self.length = length
+
+    def __and__(self, other: Union["BitField", int]) -> "BitField":
+        """Bitwise AND operation."""
+        if isinstance(other, BitField):
+            value = self.value & other.value
+            length = max(self.length, other.length)
+        else:
+            value = self.value & other
+            length = self.length
+        return BitField(value, length)
+
+    def __or__(self, other: Union["BitField", int]) -> "BitField":
+        """Bitwise OR operation."""
+        if isinstance(other, BitField):
+            value = self.value | other.value
+            length = max(self.length, other.length)
+        else:
+            value = self.value | other
+            length = self.length
+        return BitField(value, length)
+
+    def __repr__(self):
+        """Return a canonical representation of the bit field."""
+        return f"{self.value:0>{self.length}b}"
+
 
 # Internet Protocol Stack-Frames
 class EthernetFrame:
@@ -99,7 +151,7 @@ class IPv6Header:
             header_repr += "Extension Headers: " + ", ".join(str(ext_header) for ext_header in self.extension_headers) + "\n"
 
         ascii_repr = (
-            "   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1\n"
+            "  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1\n"
             " +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n"
             f" |Version| Traffic Class |           Flow Label                  |\n"
             " +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n"
@@ -108,7 +160,7 @@ class IPv6Header:
             f" |                                                               |\n"
             f" +                                                               +\n"
             f" |                                                               |\n"
-            f" +                      {self.source_address:<38}   +\n"
+            f" +                      {self.source_address:<38}  +\n"
             f" |                                                               |\n"
             f" +                                                               +\n"
             f" |                                                               |\n"
@@ -116,7 +168,7 @@ class IPv6Header:
             f" |                                                               |\n"
             f" +                                                               +\n"
             f" |                                                               |\n"
-            f" +                      {self.destination_address:<38}   +\n"
+            f" +                      {self.destination_address:<38}  +\n"
             f" |                                                               |\n"
             f" +                                                               +\n"
             f" |                                                               |\n"
@@ -145,6 +197,15 @@ class TCPSegment:
         self.urgent_pointer = urgent_pointer
         self.payload = payload
 
+    def __repr__(self):
+        return (f"TCPSegment(source_port={self.source_port}, dest_port={self.dest_port}, "
+                f"seq_num={self.seq_num}, ack_num={self.ack_num}, "
+                f"data_offset={self.data_offset}, reserved={self.reserved}, "
+                f"flags={self.flags}, window_size={self.window_size}, "
+                f"checksum={self.checksum}, urgent_pointer={self.urgent_pointer}, "
+                f"payload={self.payload})")
+
+
 class HTTPRequest:
     def __init__(self, method: str, uri: str, headers: dict, body: bytes):
         self.method = method
@@ -152,24 +213,80 @@ class HTTPRequest:
         self.headers = headers
         self.body = body
 
+    def __repr__(self):
+        return (f"HTTPRequest(method='{self.method}', uri='{self.uri}', "
+                f"headers={self.headers}, body={self.body})")
+
 
 def main():
-    header = IPv6Header(
+    # Example usage of classes
+    byte_stream = ByteStream()
+    print("Byte Stream:", byte_stream)
+
+    stdio = STDIO()
+    print("STDIO:", stdio)
+
+    bit_field = BitField(10, 8)
+    print("Bit Field:", bit_field)
+
+    # Example serialization and deserialization
+    data_to_serialize = "Hello, world!"
+    serialized_data = ByteSerializer.serialize(data_to_serialize)
+    print("Serialized Data:", serialized_data)
+    
+    deserialized_data = ByteSerializer.deserialize(serialized_data)
+    print("Deserialized Data:", deserialized_data)
+
+    # Example embedding serialization and deserialization
+    embedding = [1.0, 2.0, 3.0]
+    embedding_file = "embedding.bin"
+    EmbeddingSerializer.serialize(embedding, embedding_file)
+    deserialized_embedding = EmbeddingSerializer.deserialize(embedding_file)
+    print("Deserialized Embedding:", deserialized_embedding)
+
+    # Example usage of EthernetFrame
+    ethernet_frame = EthernetFrame("00:11:22:33:44:55", "AA:BB:CC:DD:EE:FF", "Payload data")
+    print("Ethernet Frame:", ethernet_frame)
+    print("Generated Frame:", ethernet_frame.generate_frame())
+    print("Parsed Frame:", EthernetFrame.parse_frame(b""))
+
+    # Example usage of IPv6Header
+    ipv6_header = IPv6Header(
         version=6,
         traffic_class=0,
-        flow_label=0x12345,
-        payload_length=64,
-        next_header=6,  # TCP
+        flow_label=123,
+        payload_length=100,
+        next_header=17,
         hop_limit=64,
-        source_address="2001:db8::1",
-        destination_address="2001:db8::2",
-        extension_headers=[0, 1, 2]
+        source_address="2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+        destination_address="2001:0db8:85a3:0000:0000:8a2e:0370:7335",
+        extension_headers=[],
+        payload=None
     )
-    print(repr(header))
-    eth_frame = EthernetFrame("00:11:22:33:44:55", "66:77:88:99:AA:BB", "Payload data")
-    eth_frame.generate_frame()
-    eth_frame.display()
-    print(eth_frame)
+    print("IPv6 Header:", ipv6_header)
 
-if __name__ == "__main__":
-    main()
+    # Example usage of TCPSegment
+    tcp_segment = TCPSegment(
+        source_port=1234,
+        dest_port=5678,
+        seq_num=1000,
+        ack_num=2000,
+        data_offset=5,
+        reserved=0,
+        flags=2,
+        window_size=100,
+        checksum=12345,
+        urgent_pointer=0,
+        payload=b"TCP Payload"
+    )
+    print("TCP Segment:", tcp_segment)
+
+    # Example usage of HTTPRequest
+    http_request = HTTPRequest(
+        method="GET",
+        uri="/index.html",
+        headers={"Content-Type": "text/html"},
+        body=b"HTTP Request Body"
+    )
+    print("HTTP Request:", http_request)
+

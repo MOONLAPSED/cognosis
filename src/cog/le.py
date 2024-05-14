@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Union, TypeVar, Generic
 import struct
-from typing import TypeVar, List, Union
-
-# This describes a system with a Python runtime that leverages a shell script to interact with the environment in a structured and semantically meaningful way, allowing for complex operations governed by simplified interfaces exposed to the Python layer.
+import sys
+import io
+from abc import abstractmethod, ABC
 
 # TypeVar for generic types
 T = TypeVar('T')
@@ -42,6 +42,71 @@ class EmbeddingSerializer:
                 value = struct.unpack("f", data)[0]
                 embedding.append(value)
         return embedding
+
+# Atomic Units
+# Define the Atom abstract class
+class Atom(ABC):
+    """Base class for atomic units."""
+    @abstractmethod
+    def __repr__(self):
+        """Return a canonical representation of the atomic unit."""
+        pass
+
+class AtomicUnit(Atom):
+    """Base class for atomic units."""
+
+    def __repr__(self):
+        """Return a canonical representation of the atomic unit."""
+        raise NotImplementedError
+
+# Define a class for Byte Stream using io.BytesIO
+class ByteStream(Atom):
+    """Class representing a byte stream."""
+    def __init__(self):
+        self.stream = io.BytesIO()
+
+    def __repr__(self):
+        return f"ByteStream({self.stream.getvalue()})"
+
+# Define a class for STDIO using sys.stdin, sys.stdout, sys.stderr
+class STDIO(Atom):
+    """Class representing standard input/output."""
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return f"STDIN: {sys.stdin}, STDOUT: {sys.stdout}, STDERR: {sys.stderr}"
+
+class BitField(AtomicUnit):
+    """Atomic unit representing a bit field."""
+
+    def __init__(self, value: int, length: int):
+        self.value = value
+        self.length = length
+
+    def __and__(self, other: Union["BitField", int]) -> "BitField":
+        """Bitwise AND operation."""
+        if isinstance(other, BitField):
+            value = self.value & other.value
+            length = max(self.length, other.length)
+        else:
+            value = self.value & other
+            length = self.length
+        return BitField(value, length)
+
+    def __or__(self, other: Union["BitField", int]) -> "BitField":
+        """Bitwise OR operation."""
+        if isinstance(other, BitField):
+            value = self.value | other.value
+            length = max(self.length, other.length)
+        else:
+            value = self.value | other
+            length = self.length
+        return BitField(value, length)
+
+    def __repr__(self):
+        """Return a canonical representation of the bit field."""
+        return f"{self.value:0>{self.length}b}"
 
 # Internet Protocol Stack-Frames
 class EthernetFrame:
@@ -151,25 +216,3 @@ class HTTPRequest:
         self.uri = uri
         self.headers = headers
         self.body = body
-
-
-def main():
-    header = IPv6Header(
-        version=6,
-        traffic_class=0,
-        flow_label=0x12345,
-        payload_length=64,
-        next_header=6,  # TCP
-        hop_limit=64,
-        source_address="2001:db8::1",
-        destination_address="2001:db8::2",
-        extension_headers=[0, 1, 2]
-    )
-    print(repr(header))
-    eth_frame = EthernetFrame("00:11:22:33:44:55", "66:77:88:99:AA:BB", "Payload data")
-    eth_frame.generate_frame()
-    eth_frame.display()
-    print(eth_frame)
-
-if __name__ == "__main__":
-    main()
