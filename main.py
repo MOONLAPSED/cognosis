@@ -18,9 +18,6 @@ import json
 from threading import Thread, current_thread, Semaphore
 from concurrent.futures import ThreadPoolExecutor
 
-from src.cog.el import main as main2
-from src.cog.ele import main as main3
-
 # Number Systems
 # (No implementation needed)
 
@@ -379,5 +376,3 @@ if __name__ == '__main__':
         wizard()
         helped()
         main()
-        main2()
-        main3()

@@ -6,6 +6,7 @@
 /.idea/*
 /output/*
 *.bin
+.old/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
