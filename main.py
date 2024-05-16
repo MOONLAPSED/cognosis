@@ -18,6 +18,9 @@ import json
 from threading import Thread, current_thread, Semaphore
 from concurrent.futures import ThreadPoolExecutor
 
+from src.app.kb import KnowledgeItem, FileContextManager
+from src.api.ayy_p_aye import main as main2, Atom, AtomDataclass
+
 # Number Systems
 # (No implementation needed)
 
@@ -376,3 +379,8 @@ if __name__ == '__main__':
         wizard()
         helped()
         main()
+        # Instantiate AtomDataclass with a value (e.g., an integer)
+        AtomAgent = AtomDataclass[int](42)
+        # Call __add__ with another AtomDataclass instance
+        AtomAgent = AtomAgent.__add__(AtomDataclass[int](10))
+        main2()

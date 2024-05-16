@@ -5,7 +5,6 @@ from typing import List, Optional
 import logging
 import sys
 import os
-from jinja2 import Environment, FileSystemLoader
 from src.app.abstract import BaseContextManager, BaseRuntime, BaseProtocol, TokenSpace
 
 # Setup paths
@@ -60,23 +59,7 @@ created_at: {self.created_at.isoformat()}
         body = '\n\n'.join([front_matter, self.content])
         with FileContextManager(file_path, 'w') as file:
             file.write(body)
-
-    def to_html(self, template_path: Path, output_url_symlink: Path):
-        env = Environment(loader=FileSystemLoader(template_path))
-        template = env.get_template("post.html")  # Assuming a post.html template
-        metadata = {
-            'title': self.title,
-            'description': self.description,
-            'tags': self.tags,
-            'created_at': self.created_at.isoformat(),
-        }
-        html_content = template.render(metadata=metadata, content=self.content)
-
-        filename = f"{self.created_at.strftime('%Y-%m-%d')}-{self.title.replace(' ', '-')}.html"
-        output_file = output_url_symlink / filename
-        with FileContextManager(output_file, 'w') as file:
-            file.write(html_content)
-
+        Logger.info(f"Wrote {filename} to {vault_url_symlink}")
 
 # Entry point for the script
 if __name__ == '__main__':
