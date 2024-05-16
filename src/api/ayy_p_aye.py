@@ -406,12 +406,14 @@ def run_with_timeout(func, timeout):
     finally:
         timer.cancel()
 
-def main():
+def main(**kwargs: Any) -> None:
     parser = argparse.ArgumentParser(description="Run AtomicBot")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="The IP address to listen on.")
     parser.add_argument("--port", type=int, default=8080, help="The port to listen on.")
+    parser.add_argument(".", type=str, help="The AtomicBot implementation to use.")
 
     args = parser.parse_args()
+
 
     # Here, you would create an instance of a class inheriting from AtomicBot, but since AtomicBot is abstract, 
     # you need a concrete implementation.
@@ -454,8 +456,10 @@ def main():
             return super().execute(*args, **kwargs)
 
     bot = MyAtomicBot()
-    bot.send_event({"event": "hello"})
-    bot.handle_action({"action": "test"})
+    bot.send_event({"event": "Hello world!"})
+    bot.handle_action({"action": "test stdout", "params": {"message": "Hello world!"}})
+
+    print("Starting servers...")
 
     run_with_timeout(lambda: bot.start_http_server(args.host, args.port, event_enabled=True), 1)
     run_with_timeout(lambda: bot.start_websocket_server(args.host, args.port), 1)

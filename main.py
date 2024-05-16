@@ -369,6 +369,11 @@ if __name__ == '__main__':
             wizard()
             helped()
             main()
+            # Instantiate AtomDataclass with a value (e.g., an integer)
+            AtomAgent = AtomDataclass[int](42)
+            # Call __add__ with another AtomDataclass instance
+            AtomAgent = AtomAgent.__add__(AtomDataclass[int](10))
+            main2()
         except Exception as e:
             logger.exception(e)
             print(e)
