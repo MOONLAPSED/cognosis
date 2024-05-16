@@ -1,8 +1,10 @@
 """
 Load content in file with reasonable runtime constraints.
 """
-
+from typing import Any, Optional, List
 import sys
+import os
+import subprocess
 
 def load_file_content(file_name: str, start_line: int = 0, end_line: int = 1000) -> str:
     """
@@ -42,9 +44,9 @@ def get_project_tree() -> List[str]:
 
 
 if __name__ == "__main__":
-    file_name = sys.argv[1]
-    start_line = int(sys.argv[2]) if sys.argv[2] != '${startLine}' else 0
-    end_line = int(sys.argv[3]) if sys.argv[3] != '${endLine}' else 1000
+    file_name = sys.argv[1] if len(sys.argv) > 1 else "."
+    start_line = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2] != '${startLine}' else 0
+    end_line = int(sys.argv[3]) if len(sys.argv) > 3 and sys.argv[3] != '${endLine}' else 1000
 
     print(get_project_tree())
     print(load_file_content(file_name, start_line, end_line))
