@@ -1,0 +1,56 @@
+{
+    "prompt": "meta-analysis prompt",
+    "situation": "The effectiveness of various teaching methods in improving student performance in mathematics at the high school level.",
+    "context": "This meta-analysis aims to examine the impact of different teaching methods on high school students' performance in mathematics. It involves synthesizing and analyzing data from multiple studies to provide insights into the most effective approaches for teaching mathematics to high school students.",
+    "steps": [
+      {
+        "step": 1,
+        "description": "Define the research question and objectives.",
+        "actions": [
+          "Specify the research question, such as 'What teaching methods are most effective in improving high school students' performance in mathematics?'",
+          "Identify the objectives of the meta-analysis, such as determining the relative effectiveness of various teaching methods and identifying factors that influence their effectiveness."
+        ],
+        "return": "Provide a clear research question and objectives for the meta-analysis."
+      },
+      {
+        "step": 2,
+        "description": "Conduct a comprehensive literature review.",
+        "actions": [
+          "Search academic databases, journals, and relevant sources for studies on teaching methods in high school mathematics.",
+          "Select studies that meet inclusion criteria, such as focusing on high school students, mathematics education, and reporting relevant outcome measures.",
+          "Extract relevant data from selected studies, including sample size, methodology, teaching methods used, and outcome measures."
+        ],
+        "return": "Summarize the process of conducting a comprehensive literature review."
+      },
+      {
+        "step": 3,
+        "description": "Analyze and synthesize data.",
+        "actions": [
+          "Use statistical techniques to analyze quantitative data, such as effect sizes, mean differences, and regression analyses.",
+          "Synthesize qualitative data by identifying common themes, patterns, and trends across studies.",
+          "Consider subgroup analyses to explore variations in the effectiveness of teaching methods based on factors like student demographics, instructional settings, and duration of interventions."
+        ],
+        "return": "Explain the process of analyzing and synthesizing data from the selected studies."
+      },
+      {
+        "step": 4,
+        "description": "Interpret findings and draw conclusions.",
+        "actions": [
+          "Interpret the results of statistical analyses to assess the overall effectiveness of teaching methods.",
+          "Discuss the implications of findings for educational practice, policy, and future research.",
+          "Identify limitations of the meta-analysis and areas for further investigation."
+        ],
+        "return": "Outline the steps involved in interpreting findings and drawing conclusions."
+      },
+      {
+        "step": 5,
+        "description": "Prepare a meta-analysis report.",
+        "actions": [
+          "Organize the report with clear sections, including an introduction, methods, results, discussion, and conclusion.",
+          "Present findings using tables, figures, and narrative descriptions.",
+          "Provide references for all included studies and any statistical analyses conducted."
+        ],
+        "return": "Describe the components of a meta-analysis report and how to present findings effectively."
+      }
+    ]
+  }
