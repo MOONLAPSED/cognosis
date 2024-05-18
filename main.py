@@ -18,8 +18,8 @@ import json
 from threading import Thread, current_thread, Semaphore
 from concurrent.futures import ThreadPoolExecutor
 
-from src.app.kb import KnowledgeItem, FileContextManager
-from src.api.ayy_p_aye import main as main2, Atom, AtomDataclass
+from src.utils.kb import KnowledgeItem, FileContextManager
+from src.api.cog import main as main2, Atom, AtomDataclass
 
 # Number Systems
 # (No implementation needed)

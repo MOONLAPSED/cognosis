@@ -5,7 +5,7 @@ from typing import List, Optional
 import logging
 import sys
 import os
-from src.app.abstract import BaseContextManager, BaseRuntime, BaseProtocol, TokenSpace
+from src.utils.abstract import BaseContextManager, BaseRuntime, BaseProtocol, TokenSpace
 
 # Setup paths
 vault_path = Path(__file__).parent / "my_vault"  # Your knowledge base directory
