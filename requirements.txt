@@ -1,9 +1,10 @@
-pandas
-requests
-litellm
 pydantic
 python-dotenv
 httpx
-spacy
 python-frontmatter
 pyYAML
+matplotlib[notebook]
+numpy
+ipywidgets
+jupyterlab
+ipykernel

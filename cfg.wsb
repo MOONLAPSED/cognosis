@@ -11,13 +11,8 @@
     <MemoryInMB>8192</MemoryInMB>
     <MappedFolders>
         <MappedFolder>
-            <HostFolder>C:\Users\tp\cognosis</HostFolder>
+            <HostFolder>C:\Users\Dev\Documents\cognosis</HostFolder>
             <SandboxFolder>C:\Users\WDAGUtilityAccount\Desktop</SandboxFolder>
-            <ReadOnly>false</ReadOnly>
-        </MappedFolder>
-        <MappedFolder>
-            <HostFolder>D:\2023dir</HostFolder>
-            <SandboxFolder>C:\Users\WDAGUtilityAccount\Desktop\2023dir</SandboxFolder>
             <ReadOnly>false</ReadOnly>
         </MappedFolder>
     </MappedFolders>
