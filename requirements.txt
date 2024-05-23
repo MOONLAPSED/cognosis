@@ -8,3 +8,4 @@ numpy
 ipywidgets
 jupyterlab
 ipykernel
+mkdocs

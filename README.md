@@ -25,6 +25,8 @@ In a nutshell, "Morphological Source Code" is a paradigm in which the source cod
 
 The challenge (of this architecture) lies in the 'cognitive lambda calculus' needed to bring these runtimes into existence and evolve them, not the computation itself. Cognosis is designed for consumer hardware and extreme scalability via self-distribution of cognitive systems (amongst constituent [[subscribers|asynchronous, stake-holders]]) peer-to-peer.
 
+"""Cognitive systems are defined by actions, orientations within structures, and communicative parameters, all of which align with the goal of creating a coherent and organized cognitive framework. The idea of modular cognitive units communicating via namespaces and syntaxes resonates with the framework of prioritizing and organizing cognitive tasks."""
+
 A core component of cognosis, cognOS establishes a hyper-interface designed to manage the evolution of cognitive algorithms. It focuses on:
 
     Meta-versioning: Tracking and managing the evolution of code over time.
@@ -98,9 +100,10 @@ Please follow the respective setup procedures for Docker and your chosen hypervi
         - conda activate 3ten
         - python3 -m pip install --upgrade pip
         - python3 -m pip install --user pipx
+        - python -m pipx install virtualenv
+        - python -m venv test_env
+        - .\test_env\Scripts\activate  # unix->'source test_env/bin/activate'
         - pip install -e -r requirements.txt
-        - Create a virtual environment: python -m venv test_env
-        - Activate it: test_env\Scripts\activate
     ```
 
 

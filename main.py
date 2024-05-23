@@ -1,25 +1,24 @@
 import datetime
+import json
 import logging
 import logging.config
 import logging.handlers
+import operator
+import os
 import sys
 import threading
-import os
-from typing import Any, Dict, Tuple
+import uuid
 from pathlib import Path
-import operator
 from functools import reduce
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging.config import dictConfig
 from typing import Callable, TypeVar, List, Optional, Union, Any, Tuple, Dict, NamedTuple, Set
-import uuid
-import json
 from threading import Thread, current_thread, Semaphore
 from concurrent.futures import ThreadPoolExecutor
+from argparse import ArgumentParser
 
 from src.utils.kb import KnowledgeItem, FileContextManager
-from src.api.cog import main as main2, Atom, AtomDataclass
 from src.utils.helpr import helped, wizard
 
 
@@ -155,28 +154,23 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
 
 if __name__ == '__main__':
     logger = _init_basic_logging()
-    if len(sys.argv) > 1:
-        try:
+    try:
+        if len(sys.argv) > 1:
+            try:
+                wizard()
+                helped()
+                pmain = sys.argv[1+len(sys.argv)//2]
+                main(pmain)
+                sys.argv.pop(1)
+                pass
+            except Exception as e:
+                logger.exception(e)
+                print(e)
+                sys.exit(1)
+        else:
+            # No arguments provided, call main() without arguments
             wizard()
             helped()
             main()
-            # Instantiate AtomDataclass with a value (e.g., an integer)
-            AtomAgent = AtomDataclass[int](42)
-            # Call __add__ with another AtomDataclass instance
-            AtomAgent = AtomAgent.__add__(AtomDataclass[int](10))
-            main2()
-        except Exception as e:
-            logger.exception(e)
-            print(e)
-            sys.exit(1)
-
-    else:
-        # No arguments provided, call main() without arguments
-        wizard()
-        helped()
-        main()
-        # Instantiate AtomDataclass with a value (e.g., an integer)
-        AtomAgent = AtomDataclass[int](42)
-        # Call __add__ with another AtomDataclass instance
-        AtomAgent = AtomAgent.__add__(AtomDataclass[int](10))
-        main2()
+    except:
+        ArgumentParser(description='Run the main function in parallel for each argument.')

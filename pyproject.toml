@@ -6,15 +6,20 @@ build-backend = "pdm.pep517.api"
 name = "cognosis"
 description = "A namespace and filesystem interface for Obsidian knowledge bases."
 authors = [{ name = "MOONLAPSED", email = "MOONLAPSED@gmail.com" }]
-version = "0.1.0"
 requires-python = ">=3.11"
 readme = "README.md"
+dynamic = ["version"]
+
+# Consolidated dependencies including those from requirements.txt
 dependencies = [
     "jax",
     "jupyter",
+    "jupyterlab",
     "ipykernel",
+    "ipywidgets",
     "numpy",
     "pandas",
+    "matplotlib",
     "typing-extensions",
     "xonsh",
     "litellm",
@@ -23,8 +28,14 @@ dependencies = [
     "docker",
     "requests",
     "python-dotenv",
-    "spacy"
+    "spacy",
+    "python-frontmatter",
+    "pyYAML",
+    "mkdocs"
 ]
+
+[project.scripts]
+main = "main.py:main"
 
 [tool.pdm.build-system.backends]
 go = { name = "go", requires = ["go>=1.16"] }
@@ -32,5 +43,13 @@ npm = { name = "npm", requires = ["npm>=10.4.0"] }
 pdm = { requires = ["pdm-pep517>=0.8.5"], build-backend = "pdm.pep517.api" }
 rust = { requires = ["rust>=1.0"] }
 
-[project.scripts]
-main = "main.py:main"
+# Optional: tools/pdm/scripts for versioning or other tasks, add those here
+
+[project.optional-dependencies]
+dev = [
+    "mkdocs",
+    "mkdocs-material"  # Preferred MkDocs theme or plugins
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "package.__version__"}

@@ -3,6 +3,10 @@ from typing import Any, Callable, Dict, Generic, List, NamedTuple, Optional, Tup
 from types import ModuleType, FunctionType, MethodType, CodeType, FrameType, TracebackType
 from dataclasses import dataclass, field, asdict, astuple
 from struct import Struct
+import sys
+import os
+import logging
+from argparse import ArgumentParser
 
 
 class Atom(ABC):
@@ -85,4 +89,33 @@ class Atom(ABC):
         pass
 
 
+def main(arg=None):
+    if arg:
+        print(f"Main called with argument: {arg}")
+    else:
+        print("Main called with no arguments")
 
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)
+    try:
+        # Set up argument parser with a description
+        parser = ArgumentParser(description='Run the main function in parallel for each argument.')
+        
+        # Add positional argument 'params' that can take zero or more arguments
+        parser.add_argument('params', nargs='*', help='Parameters to pass to the main function')
+        
+        # Parse the command-line arguments
+        args = parser.parse_args()
+        if args.params:
+            for param in args.params:
+                main(param)
+        else:
+            # If no parameters were provided, call main() without arguments
+            main()
+    except Exception as e:
+        # Log the exception and print the error message
+        logger.exception("An error occurred: %s", e)
+        print(e)
+        sys.exit(1)
+
+        
