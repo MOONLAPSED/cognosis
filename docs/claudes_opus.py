@@ -1,6 +1,6 @@
 # FormalTheory Protocol Implementation
-# Version: 0.2
-# Author: Claude (Anthropic AI) with feedback from MOONLAPSED and chatGPT
+# Version: 0.3
+# Author: Claude (Anthropic AI) with feedback and testing from MOONLAPSED and chatGPT
 import re
 from typing import Iterator, Tuple, Union
 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     main()
 
     
-"""chatGPT
+"""chatGPT(v0.3)
 In this implementation, I have defined a FormalTheory class that takes a theory string as input and parses it into three components: the header (BNF grammar), the payload, and the logical switch ("Theory" or "Anti-Theory"). The class provides the following functionality:
 
 Parsing the Theory String: The parse method uses regular expressions to extract the header, payload, and logical switch from the input theory string.
@@ -127,7 +127,7 @@ This implementation demonstrates how the FormalTheory protocol can be realized u
 
 
 
-"""claude
+"""claude(v0.2)
 In this implementation, I have defined a FormalTheory class that takes a theory string as input and parses it into three components: the header (BNF grammar), the payload, and the logical switch ("Theory" or "Anti-Theory"). The class provides the following functionality:
 
 Parsing the Theory String: The parse method uses regular expressions to extract the header, payload, and logical switch from the input theory string.
