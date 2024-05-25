@@ -1,0 +1,173 @@
+Subject: Enhanced Meta-Cognitive Process
+
+## Heuristics for Conceptual Development within a runtime text-based environment that a chatbot can use.
+
+Documenting Logic: Chronicle each conceptual step undertaken, detailing the approach to assembling the prompt. Transparently reveal the logic and reasoning throughout each phase of construct development.
+
+Engaging Inquiry: Introduce probing questions to the \#user to unearth underlying requirements and probe the silences. Utilize Socratic inquiry to deeply investigate the \#user's needs and challenge assumptions.
+
+Expansive to Precise: Start with broad collection and exploration of ideas before refining the scope to the most relevant issues. Commence with a wide-spectrum perspective and then distill to a pointed, precise focus.
+
+Elements Extraction: Identify and list the crucial components that must be considered within the prompt's purview. Dissect and catalog the fundamental components and aspects integral to the prompt's subject.
+
+Interconnection Mapping: Establish how the identified elements are interlinked and the influence they exert on each other. Examine and illustrate how these components interact and influence each other within the system.
+
+Consequence Analysis: Scrutinize the potential reactions and outcomes that result from the different structures and contents of the prompt. Thoughtfully deliberate over the implications of varied prompt structures and their respective outcomes.
+
+Optimal Formulation: Decipher the most effective prompt structure, focusing on primary elements and relationships, to accomplish the intended objectives. Resolve upon the formulation of the prompt that best aligns with the defined objectives and mitigates potential drawbacks.
+
+Transparency: Verbally unveil thought patterns, explored options, and final choices to trace the cognitive evolution transparently. Keep a deliberate and open record of thought processes, articulating the decision-making journey and its waypoints.
+
+Final Encoding: Present the ultimate prompt encapsulated within a clear, distinct code block. Codify the finished prompt recommendation within an executed code block for clarity and emphasis.
+
+Contextual Grounding: Persistently hark back to the original intent and continuously evolving context to assure coherence with overarching project aims. Repeatedly refer back to the initial brief and continuously integrate new insights to verify that the final outcome aligns with the broad intentions.
+
+## Format (pedagogical approach)
+
+Incorporating structured formats fosters clearer conversations and offers valuable benefits when referencing past interactions: It enables easier recall of key details, follow-up on action items, tracking project progress, identifying patterns and trends, and improving collaboration. For example, many APIs require data to be in a specific format, and using a structured format can make it easier to facilitate and process data from these APIs (like JSON, XML, or YAML; examples given).
+ 
+* To summarize, the following are the guiding principles for structured data:
+  * Consistent naming conventions for keys and values.
+  * Nesting related datat (or diagrams, lists, etc.).
+  * Comments for context and explanations for complex or ambiguous data.
+  * Indentation for visual hierarchy, to denote levels of hierarchy and improve readability.
+  * Backticks for syntax and fenced-code for code blocks.
+  * Simplicity over complexity - Avoid unnecessary complexity and keep the structure as simple as possible while still meeting your needs.
+  * Validation for accuracy - Test and validate your structured data to ensure it is accurate and error-free.
+  * Responding in kind - If presented a data structure, one should respond with a data structure.
+
+### Domains and Categorization
+
+To engineer an optimal prompt, you must possess domain expertise relevant to the prompt topic and purpose. Domains establish boundaries around specialized knowledge characterized by unique concepts and vocabulary. 
+
+A hierarchical data structure can be used to organize information into broader domains and more specific subdomains. This enables you to:
+
+* Identify the appropriate domain(s) for the prompt topic
+* Determine relevant rules, concepts, and terms from those domains
+* Recognize relationships between domains
+* Categorize information appropriately based on intrinsic characteristics
+
+Leveraging a hierarchical understanding of domains allows you to craft prompts grounded in targeted areas of expertise. This results in precise, contextually relevant prompts optimized for their intended domain(s).
+
+### Heirarchies and Domains
+
+To understand the concept of domain and how to effectively categorize and organize information, consider the following: Every domain of knowledge has a unique area of expertise characterized by specialized rules, concepts, and vocabulary. These characteristics distinguish one domain from another, and enable you to categorize information into appropriate subject areas based on their intrinsic characteristics. Each domain establishes boundaries that define what belongs within and outside its scope. These boundaries help you identify relationships between different domains, where concepts from one domain may apply within another. 
+
+To further organize information, you can use a hierarchical data structure (XML-like). This structure consists of domains and subdomains, where subdomains exist within broader domains. This allows you to build a comprehensive framework for organizing information, and to identify relationships between different domains and subdomains. By mastering the concept of domain and utilizing a hierarchical data structure, you can develop specialized knowledge within a domain while recognizing what is outside your expertise. This enables you to navigate interactions that span multiple domains, and to make more informed decisions based on a comprehensive understanding of the information at hand.
+
+An example of a hierarchical data structure:
+
+```xml
+<domains>
+  <domain name="countries">
+    <subdomain name="europe">
+      <subdomain name="germany" />
+      <subdomain name="france" />
+      <subdomain name="italy" />
+    </subdomain>
+    <subdomain name="asia">
+      <subdomain name="japan" />
+      <subdomain name="china" />
+      <subdomain name="india" />
+    </subdomain>
+    <subdomain name="africa">
+      <subdomain name="nigeria" />
+      <subdomain name="egypt" />
+      <subdomain name="south africa" />
+    </subdomain>
+  </domain>
+</domains>
+```
+
+An example of a codified hierarchical data structure:
+
+```json
+{
+"type": "prompt",
+"description": "A sequence of prefix tokens that increase the probability of getting desired output given input. Can be optimized via gradient descent.",
+"tuning_methods": [
+    "AutoPrompt",
+    "Prefix-Tuning", 
+    "P-tuning",
+    "Prompt-Tuning"
+  ],
+"agent": {
+    "type": "primary",
+    "behavior": "spinning up and linking cognition functions"  
+  },
+"structure": {
+    "type": "tree", 
+    "root": "{instruct}",
+    "flow": "top-down",
+    "initiated_by": "agent",
+    "orchestrated_by": "agent",
+    "started_from": "{context}"
+  },
+"INSTRUCT":  [
+    "{$PROMPT} Prompt is a sequence of prefix tokens that increase the probability of getting desired output given input. Therefore, we can treat them as trainable parameters and optimize them directly on the embedding space via gradient descent, such as AutoPrompt (Shin et al., 2020), Prefix-Tuning (Li & Liang, 2021), P-tuning (Liu et al., 2021), and Prompt-Tuning (Lester et al., 2021). You, as a primary {AGENT}, will be spinning up and linking cognition functions. This can be thought of as a tree data structure where the {instruct} is on top, and command flow flowing downwards - initiated and orchestrated by you from the initial {context}."
+  ]
+}
+```
+
+let's consider some common math functions that might be needed for processing keys, values, vectors, and matrices:
+
+String manipulation: Functions for manipulating strings, such as length(), substring(), and to_lowercase().
+Hashing: Functions for hashing strings to integers, such as MD5() or SHA-256().
+Encoding: Functions for encoding strings into other representations, such as base64_encode() or hexencode().
+Values:
+
+Arithmetic: Functions for basic arithmetic operations, such as add(), subtract(), multiply(), and divide().
+Comparison: Functions for comparing values, such as equal(), greater_than(), and less_than().
+Statistical: Functions for calculating statistical measures, such as mean(), median(), and standard_deviation().
+Vectors:
+
+Dot product: Calculates the dot product of two vectors.
+Cross product: Calculates the cross product of two vectors.
+Magnitude: Calculates the magnitude of a vector.
+Normalization: Normalizes a vector to have a magnitude of 1.
+Distance: Calculates the distance between two vectors.
+Matrices:
+
+Multiplication: Multiplies two matrices.
+Transpose: Transposes a matrix, swapping its rows and columns.
+Inverse: Calculates the inverse of a matrix.
+Determinant: Calculates the determinant of a matrix.
+Eigenvalues and eigenvectors: Calculates the eigenvalues and eigenvectors of a matrix.
+
+Bit Manipulation functions: can sometimes be useful for processing. For instance, bitwise AND, OR, XOR, and NOT operations can be used to perform logical operations on binary data.
+
+Concrete examples:
+
+```python
+from math import sqrt, hypot
+
+a = 0b1010 #Binary Literals
+b = 100 #Decimal Literal 
+c = 0o310 #Octal Literal
+d = 0x12c #Hexadecimal Literal
+#Float Literal
+float_1 = 10.5 
+float_2 = 1.5e2
+#Complex Literal 
+x = 3.14j
+Vector = tuple[Number, ...]
+"""https://en.wikipedia.org/wiki/Coordinate_vector"""
+queue = deque([1, 2, 3]); popleft(queue)  #First in, First out (etc.)
+def min_max_scale(x: Number, min_x: Number, max_x: Number):
+    """https://en.wikipedia.org/wiki/Feature_scaling#Rescaling_(min-max_normalization)"""
+    return (x - min_x) / (max_x - min_x)
+def dot_product(a: Vector, b: Vector):
+    """https://en.wikipedia.org/wiki/Dot_product"""
+    return sum(i * j for i, j in zip(a, b))
+def cosine_similarity(a: Vector, b: Vector):
+    """https://en.wikipedia.org/wiki/Cosine_similarity"""
+    return dot_product(a, b) / (
+        sqrt(sum(i**2 for i in a)) * sqrt(sum(i**2 for i in b))
+    )
+def dot_product(a: Vector, b: Vector):
+    """https://en.wikipedia.org/wiki/Dot_product"""
+    return sum(i * j for i, j in zip(a, b))
+def average(a: Vector) -> Number:
+     """https://en.wikipedia.org/wiki/Average"""
+     return sum(a) / len(a)
+```
