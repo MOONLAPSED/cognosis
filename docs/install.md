@@ -82,3 +82,11 @@ https://learn.microsoft.com/en-us/windows/powertoys/text-extractor
     snipping tool OCR char recognition native in-windows eng-US (admin powershell):
     $Capability = Get-WindowsCapability -Online | Where-Object { $_.Name -Like 'Language.OCR*en-US*' }
     $Capability | Remove-WindowsCapability -Online
+
+#### windows containers +++
+`Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/microsoft/Windows-Containers/Main/helpful_tools/Install-ContainerdRuntime/install-containerd-runtime.ps1" -o install-containerd-runtime.ps1`
+`.\install-containerd-runtime.ps1`
+`mkdir -force "C:\Program Files\containerd\cni\bin"`
+`mkdir -force "C:\Program Files\containerd\cni\conf"`
+ - see -> [/docs/containerd_windows.ps1](/docs/containerd_windows.ps1)
+ - see -> [msft](https://learn.microsoft.com/en-us/virtualization/windowscontainers/quick-start/run-your-first-container)
