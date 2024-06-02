@@ -8,6 +8,8 @@
 *.bin
 .old/*
 /test_env/*
+newmain.py
+
 
 scoop_log.txt
 
