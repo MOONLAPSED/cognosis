@@ -138,6 +138,162 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
         if _lock.locked(): _lock.release()  # cleanup routines
         return logger, runtime_arguments
 
+# =====================================================+
+# | Cognitive Comment: Define Utility Functions |
+
+def run_command(command, check=True, shell=False, verbose=False):
+    """Utility to run a shell command and handle exceptions"""
+    if verbose:
+        command += " -v"
+    try:
+        result = subprocess.run(command, check=check, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(result.stdout.decode())
+    except subprocess.CalledProcessError as e:
+        print(f"Command '{command}' failed with error:\n{e.stderr.decode()}")
+        if check:
+            sys.exit(e.returncode)
+
+def ensure_delete(path):
+    """Ensure that a file or directory can be deleted"""
+    try:
+        os.chmod(path, 0o777)
+        if os.path.isfile(path) or os.path.islink(path):
+            os.remove(path)
+        elif os.path.isdir(path):
+            shutil.rmtree(path)
+    except Exception as e:
+        print(f"Failed to delete {path}. Reason: {e}")
+
+def ensure_path():
+    """Ensure that the PATH is set correctly"""
+    path = os.getenv('PATH')
+    if 'desired_path_entry' not in path:
+        os.environ['PATH'] = f'/desired_path_entry:{path}'
+        print('Updated PATH environment variable.')
+
+# | Cognitive Comment: Define State Dictionary |
+
+state = {
+    "pipx_installed": False,
+    "pdm_installed": False,
+    "virtualenv_created": False,
+    "dependencies_installed": False,
+    "lint_passed": False,
+    "code_formatted": False,
+    "tests_passed": False,
+    "benchmarks_run": False,
+    "pre_commit_installed": False,
+}
+
+# | Cognitive Comment: Define Pipx and PDM Functions |
+
+def ensure_pipx():
+    """Ensure pipx is installed"""
+    global state
+    try:
+        subprocess.run("pipx --version", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        state['pipx_installed'] = True
+    except subprocess.CalledProcessError:
+        print("pipx not found, installing pipx...")
+        run_command("pip install pipx", shell=True)
+        run_command("pipx ensurepath", shell=True)
+        state['pipx_installed'] = True
+
+def ensure_pdm():
+    """Ensure pdm is installed via pipx"""
+    global state
+    try:
+        output = subprocess.run("pipx list", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if b'pdm' not in output.stdout:
+            raise KeyError('pdm not found in pipx list')
+        print("pdm is already installed.")
+        state['pdm_installed'] = True
+    except (subprocess.CalledProcessError, KeyError):
+        print("pdm not found, installing pdm...")
+        run_command("pipx install pdm", shell=True)
+        state['pdm_installed'] = True
+
+# | Cognitive Comment: Define Virtual Environment Creation Function |
+
+def create_virtualenv():
+    """Create a virtual environment and activate it using pdm"""
+    global state
+    os.environ["PDM_VENV_IN_PROJECT"] = "1"
+    venv_path = ".venv"
+    if os.path.exists(venv_path):
+        choice = input("Virtual environment already exists. Overwrite? (y/n): ").lower()
+        if choice == 'y':
+            print("Deactivating and deleting existing virtual environment...")
+            ensure_delete(venv_path)
+            print("Virtual environment deleted.")
+            run_command("pdm venv create", shell=True)
+        else:
+            print("Reusing the existing virtual environment.")
+    else:
+        run_command("pdm venv create", shell=True)
+    run_command("pdm lock", shell=True)
+    run_command("pdm install", shell=True, verbose=True)
+    state['virtualenv_created'] = True
+    state['dependencies_installed'] = True
+
+# | Cognitive Comment: Define Mode Prompt Function |
+
+def prompt_for_mode():
+    """Prompt the user to choose between development and non-development setup"""
+    while True:
+        choice = input("Choose setup mode: [d]evelopment or [n]on-development? ").lower()
+        if choice in ['d', 'n']:
+            return choice
+        print("Invalid choice, please enter 'd' or 'n'.")
+
+# | Cognitive Comment: Define Install, Lint, Format, Test, Bench, Pre-commit Functions |
+
+def install():
+    """Run installation"""
+    run_command("pdm install", shell=True, verbose=True)
+
+def lint():
+    """Run linting tools"""
+    global state
+    run_command("pdm run flake8 .", shell=True)
+    run_command("pdm run black --check .", shell=True)
+    run_command("pdm run mypy .", shell=True)
+    state['lint_passed'] = True
+
+def format_code():
+    """Format the code"""
+    global state
+    run_command("pdm run black .", shell=True)
+    run_command("pdm run isort .", shell=True)
+    state['code_formatted'] = True
+
+def test():
+    """Run tests"""
+    global state
+    run_command("pdm run pytest", shell=True)
+    state['tests_passed'] = True
+
+def bench():
+    """Run benchmarks"""
+    global state
+    run_command("pdm run python src/bench/bench.py", shell=True)
+    state['benchmarks_run'] = True
+
+def pre_commit_install():
+    """Install pre-commit hooks"""
+    global state
+    run_command("pdm run pre-commit install", shell=True)
+    state['pre_commit_installed'] = True
+
+# | Cognitive Comment: Define Introspect Function |
+
+def introspect():
+    """Introspect the current state and print results"""
+    print("Introspection results:")
+    for key, value in state.items():
+        print(f"{key}: {'✅' if value else '❌'}")
+
+
 if __name__ == '__main__':
     try:
         if len(sys.argv) > 1:
