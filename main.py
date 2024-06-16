@@ -5,6 +5,8 @@ import logging.config
 import logging.handlers
 import operator
 import os
+import shutil
+import subprocess
 import sys
 import threading
 import uuid
@@ -17,6 +19,8 @@ from typing import Callable, TypeVar, List, Optional, Union, Any, Tuple, Dict, N
 from threading import Thread, current_thread, Semaphore
 from concurrent.futures import ThreadPoolExecutor
 from argparse import ArgumentParser
+
+
 
 from src.utils.kb import KnowledgeItem, FileContextManager
 from src.utils.helpr import helped, wizard
@@ -139,7 +143,6 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
         return logger, runtime_arguments
 
 # =====================================================+
-# | Cognitive Comment: Define Utility Functions |
 
 def run_command(command, check=True, shell=False, verbose=False):
     """Utility to run a shell command and handle exceptions"""
@@ -171,7 +174,6 @@ def ensure_path():
         os.environ['PATH'] = f'/desired_path_entry:{path}'
         print('Updated PATH environment variable.')
 
-# | Cognitive Comment: Define State Dictionary |
 
 state = {
     "pipx_installed": False,
@@ -185,7 +187,6 @@ state = {
     "pre_commit_installed": False,
 }
 
-# | Cognitive Comment: Define Pipx and PDM Functions |
 
 def ensure_pipx():
     """Ensure pipx is installed"""
@@ -213,7 +214,6 @@ def ensure_pdm():
         run_command("pipx install pdm", shell=True)
         state['pdm_installed'] = True
 
-# | Cognitive Comment: Define Virtual Environment Creation Function |
 
 def create_virtualenv():
     """Create a virtual environment and activate it using pdm"""
@@ -236,7 +236,6 @@ def create_virtualenv():
     state['virtualenv_created'] = True
     state['dependencies_installed'] = True
 
-# | Cognitive Comment: Define Mode Prompt Function |
 
 def prompt_for_mode():
     """Prompt the user to choose between development and non-development setup"""
@@ -246,7 +245,6 @@ def prompt_for_mode():
             return choice
         print("Invalid choice, please enter 'd' or 'n'.")
 
-# | Cognitive Comment: Define Install, Lint, Format, Test, Bench, Pre-commit Functions |
 
 def install():
     """Run installation"""
@@ -284,8 +282,6 @@ def pre_commit_install():
     global state
     run_command("pdm run pre-commit install", shell=True)
     state['pre_commit_installed'] = True
-
-# | Cognitive Comment: Define Introspect Function |
 
 def introspect():
     """Introspect the current state and print results"""
