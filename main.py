@@ -28,8 +28,6 @@ from src.api.threadsafelocal import ThreadLocalScratchArena, ThreadSafeContextMa
 
 
 # Setup paths
-vault_path = Path(__file__).parent / "my_vault"  # Your knowledge base directory
-templates_path = Path(__file__).parent / "templates"
 output_path = Path(__file__).parent / "output"
 output_path.mkdir(parents=True, exist_ok=True)
 _lock = threading.Lock()
