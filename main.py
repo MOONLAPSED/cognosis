@@ -25,7 +25,7 @@ from argparse import ArgumentParser
 from src.utils.kb import KnowledgeItem, FileContextManager
 from src.utils.helpr import helped, wizard
 from src.api.threadsafelocal import ThreadLocalScratchArena, ThreadSafeContextManager, FormalTheory, Atom, AtomicData
-
+from src.utils.get import ensure_path, get_project_tree, run_command, ensure_delete
 
 # Setup paths
 output_path = Path(__file__).parent / "output"
@@ -141,37 +141,16 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
         return logger, runtime_arguments
 
 # =====================================================+
-
+# moved to utils/get.py
+"""
 def run_command(command, check=True, shell=False, verbose=False):
-    """Utility to run a shell command and handle exceptions"""
-    if verbose:
-        command += " -v"
-    try:
-        result = subprocess.run(command, check=check, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print(result.stdout.decode())
-    except subprocess.CalledProcessError as e:
-        print(f"Command '{command}' failed with error:\n{e.stderr.decode()}")
-        if check:
-            sys.exit(e.returncode)
-
+...
 def ensure_delete(path):
-    """Ensure that a file or directory can be deleted"""
-    try:
-        os.chmod(path, 0o777)
-        if os.path.isfile(path) or os.path.islink(path):
-            os.remove(path)
-        elif os.path.isdir(path):
-            shutil.rmtree(path)
-    except Exception as e:
-        print(f"Failed to delete {path}. Reason: {e}")
-
+...
 def ensure_path():
-    """Ensure that the PATH is set correctly"""
-    path = os.getenv('PATH')
-    if 'desired_path_entry' not in path:
-        os.environ['PATH'] = f'/desired_path_entry:{path}'
-        print('Updated PATH environment variable.')
-
+...
+# =====================================================+
+"""
 
 state = {
     "pipx_installed": False,

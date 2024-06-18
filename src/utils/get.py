@@ -5,6 +5,7 @@ from typing import Any, Optional, List
 import sys
 import os
 import subprocess
+import shutil
 
 def load_file_content(file_name: str, start_line: int = 0, end_line: int = 1000) -> str:
     """
@@ -41,6 +42,41 @@ def get_project_tree() -> List[str]:
         return output
     except Exception as e:
         sys.stderr.write(f"Error: {str(e)}\n")
+
+
+
+def run_command(command, check=True, shell=False, verbose=False):
+    """Utility to run a shell command and handle exceptions"""
+    if verbose:
+        command += " -v"
+    try:
+        result = subprocess.run(command, check=check, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(result.stdout.decode())
+    except subprocess.CalledProcessError as e:
+        print(f"Command '{command}' failed with error:\n{e.stderr.decode()}")
+        if check:
+            sys.exit(e.returncode)
+
+def ensure_delete(path):
+    """Ensure that a file or directory can be deleted"""
+    try:
+        os.chmod(path, 0o777)
+        if os.path.isfile(path) or os.path.islink(path):
+            os.remove(path)
+        elif os.path.isdir(path):
+            shutil.rmtree(path)
+    except Exception as e:
+        print(f"Failed to delete {path}. Reason: {e}")
+
+def ensure_path():
+    """Ensure that the PATH is set correctly"""
+    path = os.getenv('PATH')
+    if 'desired_path_entry' not in path:
+        os.environ['PATH'] = f'/desired_path_entry:{path}'
+        print('Updated PATH environment variable.')
+
+
+
 
 
 if __name__ == "__main__":
