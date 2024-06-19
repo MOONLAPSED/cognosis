@@ -1,3 +1,5 @@
+import concurrent.futures
+
 def helped() -> None:
     """
     Print help.
@@ -118,4 +120,22 @@ def wizard() -> None:
  _.-'       |      QQq       '-.  '-. 
 (_________/_|____.qQQQq.________)____)
     """)
+
+def run_main_parallel(args):
+    """
+    Run the main function in parallel for each argument.
+
+    Args:
+        args (list): A list of arguments to pass to the main function.
+    """
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        # Run main() for each argument in parallel
+        futures = [executor.submit(main, arg) for arg in args[1:]]
+
+        # Wait for all the tasks to complete
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                logging.exception(f"Error in parallel execution: {e}")
 
