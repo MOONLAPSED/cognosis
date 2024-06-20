@@ -8,6 +8,7 @@ powershell:
  - if it still doesn't work, hack the registry:
 
        `https://www.wisecleaner.com/think-tank/389-How-to-Enable-Explorer-Tabs-on-Windows-11-22H2.html`
+
  - install windows terminal, vscode-insiders, curl, hurl, scoop, micromamba, etc.
 
         included `.bat` is a good starting-point for customization
