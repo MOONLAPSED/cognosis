@@ -1,3 +1,5 @@
+*dont upgrade to june win 11 23H2 yet patch is coming*
+
 powershell:
  - upgrade to release windows from the flashstick-version .iso (use shift f-10 for command prompt): 
  
@@ -47,6 +49,7 @@ wsl:
  - `sudo apt-get -y install cuda`
  - `sudo reboot`
  - `pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121`
+
 #### only after doing all of the above should you proceed to install conda or mess with systems python3
  - `curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
  - `bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/miniconda`

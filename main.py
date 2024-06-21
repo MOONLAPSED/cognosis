@@ -165,6 +165,8 @@ state = {
 }
 
 
+#def state_load():  # provides a value for a 'loading bar' function, for the various stages
+
 def ensure_pipx():
     """Ensure pipx is installed"""
     global state
