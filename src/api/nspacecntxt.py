@@ -12,6 +12,10 @@ import builtins
 from types import SimpleNamespace
 
 
+all_modules = sys.modules
+runtime_modules = [module for module in all_modules if "__" not in module]
+dunder_modules = [module for module in all_modules if "__" in module] 
+
 def setup_logging() -> logging.Logger:
     logs_dir = Path(__file__).resolve().parent / 'logs'
     logs_dir.mkdir(exist_ok=True)
