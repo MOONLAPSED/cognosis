@@ -12,6 +12,9 @@ I'm moving all implementation of the virtual machine, WSL, Docker, and Windows S
 
 This is all under development, and to signify one of these repos' compliance with this agenda its main branch will be renamed to master. 'Master' commits will be such that they are configured to work with the other repositories as modules.
 
+### Late June:
+(Impending) Explorer patcher (patch) -> windows sandbox fix = 'finalize' an installer
+
 ### Key Concepts
 
 Cognosis is an experimental framework that explores the dynamic evolution of software architectures during runtime. It aims to combine the fluidity of live interactions with the stability of traditional code. At its core lies the concept of "Morphological Source Code," where code adapts and changes in response to user interactions, particularly those leveraging natural language processing (NLP).
