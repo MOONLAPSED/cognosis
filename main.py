@@ -140,17 +140,7 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
         if _lock.locked(): _lock.release()  # cleanup routines
         return logger, runtime_arguments
 
-# =====================================================+
-# moved to utils/get.py
-"""
-def run_command(command, check=True, shell=False, verbose=False):
-...
-def ensure_delete(path):
-...
-def ensure_path():
-...
-# =====================================================+
-"""
+
 
 state = {
     "pipx_installed": False,
