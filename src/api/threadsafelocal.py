@@ -155,7 +155,7 @@ class FormalTheory(Atom, Generic[T]):
         co_cellvars = self.encode_names(code.co_cellvars)
         co_filename = self.encode_filename(code.co_filename)
         co_name = self.encode_names(code.co_name)
-        co_lnotab = code.co_lnotab  # Deprecated, use co_lines instead
+        co_lnotab = code.co_code
 
         encoded_code = struct.pack(
             "HHHHHHHH",
