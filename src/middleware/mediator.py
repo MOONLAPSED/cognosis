@@ -21,3 +21,28 @@ class REPLProxy(http.server.BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         # ...
         raise
+    pass
+
+class RuntimeModules(ABC):
+    def __init__(self, *args, **kwargs):
+        # ...
+        raise
+    pass
+
+class ConcreteModules(ABC):
+    def __init__(self, *args, **kwargs):
+        # ...
+        raise
+    pass
+
+class VersionedModules(ABC):
+    def __init__(self, *args, **kwargs):
+        # ...
+        raise
+    pass
+
+class AssociativeModule(RuntimeModules, ConcreteModules, VersionedModules):
+    def __init__(self, *args, **kwargs):
+        # ...
+        raise
+    pass
