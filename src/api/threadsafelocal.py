@@ -16,16 +16,38 @@ import threading
 
 T = TypeVar('T')
 
-# Constants
-BANNED_WORDS = ["TOKEN", "PARSER", "COMPILER", "POINTER", "FACTOR", "LEXER", "SHELL", "TERMINAL", "AI", "MODEL", "ATTRIBUTE", "DICTIONARY", "DICT"]
 RESERVED_WORDS = ["FormalTheory", "Element", "Atom", "Action", "Response", "Exception", "Event", "Frame", "Lambda", "UFS"]
 
 # Argument parser
 args = argparse.ArgumentParser(description="Hypothesis? Use a simple, terse english statement.")
-if any(word in ' '.join(args.description.split()) for word in BANNED_WORDS):
-    for word in BANNED_WORDS:
-        print(f"You cannot use the word {word} in your arguments.")
-    sys.exit(1)
+args.add_argument("hypothesis", help="Hypothesis? Use a simple, terse english statement.")
+args.add_argument("case_base", help="Case base? Use a simple, terse english statement.")
+args.add_argument("recursion_limit", help="Recursion limit? Use a simple, terse english statement.")
+
+KERNEL_LIMITER = "consumer"
+if KERNEL_LIMITER is None:
+    KERNEL_LIMITER = "consumer"
+    print("KERNEL_LIMITER is None. Defaulting to 'consumer'.")
+elif "consumer" not in KERNEL_LIMITER:
+    KERNEL_LIMITER = "consumer"
+    print("KERNEL_LIMITER is not 'consumer'.")
+RECURSION_LIMIT = KERNEL_LIMITER
+
+def recursion_limit(limit):
+    global RECURSION_LIMIT
+    RECURSION_LIMIT = limit
+
+def get_recursion_limit():
+    return RECURSION_LIMIT
+
+ # KERNEL_LIMITER is internal versioning where "consumer" is off the shelf consumer hardware running Ubuntu 22.04 LTS in a home office setting or similar.
+
+CURRENT_PLATFORM = RECURSION_LIMIT
+SUPPORTED_PLATFORM = "consumer"
+
+if CURRENT_PLATFORM != SUPPORTED_PLATFORM:
+    # Run alternative code or raise an exception
+    raise EnvironmentError(f"Unsupported platform: {CURRENT_PLATFORM}")
 
 # Abstract base class
 class Atom(ABC):
