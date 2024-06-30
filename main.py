@@ -300,3 +300,17 @@ if __name__ == '__main__':
         raise e
     finally:
         pass
+    try:
+        from src.middleware.kolmogorov import kolmogorov_middleware
+
+        # In your NLP pipeline
+        input_text = "What is the capital of France?"
+        output_text = "The capital of France is Paris."
+
+        result = kolmogorov_middleware(input_text, output_text)
+        print(result)
+    except:
+        print("Kolmogorov Middleware failed")
+        raise
+    finally:
+        pass
