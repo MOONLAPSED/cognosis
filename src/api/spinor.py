@@ -16,6 +16,10 @@ import math
 # Define an element as a tuple (real component, nonreal component)
 Element = tuple
 
+# magnitude represents Kolomgorov complexity as determined by a kernel/agent
+# and measuring it is not deterministic due to the nature of NLP models used.
+
+
 def magnitude(component):
     """Calculate the magnitude of a complex or real component."""
     if isinstance(component, complex):
@@ -34,6 +38,31 @@ def transform_element(element: Element, transformation: callable) -> Element:
     new_real_component = transformation(real_component)
     new_nonreal_component = transformation(nonreal_component)
     return (new_real_component, new_nonreal_component)
+
+class SyntacticalKernel:
+    def __init__(self, literal, intent, embedding, cognitive_trace):
+        self.literal = literal  # The actual string/tokens
+        self.intent = intent  # Vector representing non-subjective intent
+        self.embedding = embedding  # Vector in the embedding space
+        self.cognitive_trace = cognitive_trace  # Complex number representing the 'breadcrumb trail'
+
+    def informational_energy(self):
+        return (magnitude(self.literal)**2 + 
+                magnitude(self.intent)**2 + 
+                magnitude(self.embedding)**2 + 
+                magnitude(self.cognitive_trace)**2)
+
+class EntangledKernels:
+    def __init__(self, kernel1, kernel2):
+        self.kernel1 = kernel1
+        self.kernel2 = kernel2
+
+    def collapse(self):
+        # Simulate a 'measurement' that collapses the entangled state
+        # This represents the resolution of ambiguity in language and
+        # 'observing' a complex emergent cognitive phenomenon.
+        pass
+
 
 def main():
     # Define an initial element
