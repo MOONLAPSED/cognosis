@@ -1,5 +1,5 @@
-# /src/middleware/kolmogorov.py
-# a middleware function for dirty and fast but fail-safe kolmogorov quantifications of syntactically meaningful 'work' in the NLP-sense
+# /src/api/kolmogorov.py
+# a function for dirty and fast but fail-safe kolmogorov quantifications of syntactically meaningful 'work' in the NLP-sense
 
 import zlib
 import math
