@@ -1,8 +1,6 @@
 # main.py
 # This script is part of "cognosis - cognitive coherence coroutines" project, 
 # which amongst other things, is a pythonic implementation of a model cognitive system.
-# main.py
-# main.py
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Callable, Dict, Any, TypeVar, Generic, Union
