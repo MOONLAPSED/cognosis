@@ -56,3 +56,8 @@ User Permissions:
 
 sudo usermod -aG docker $USER
 newgrp docker
+
+### alternative dockerd_____.ps1
+`scoop install nonportable/stevedore-np`
+
+A restart may be required, at least on the first install. Please run `sc start stevedored` as an administrator if `docker run` does not work.
