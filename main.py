@@ -97,10 +97,9 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
                 logger.debug(f'Arguments: {arguments}')
                 runtime_arguments = {}
                 for arg in arguments:
-                    if arg == '-h':
-                        print(f'Help: {__doc__}')
+                    if '-h' in arg:
+                        print(f'Help: {__name__.__doc__}')
                         print(f"'-v' verbose debugging for invocations of cognosis, their args, flags, and curried/runtime args")
-                        print(f"'-c' for currying invocations of cognosis")
                         sys.exit()
                     elif len(str(arg).strip()) >= 5000:
                         print(f'Argument is too long: {arg}')
@@ -124,7 +123,7 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
                 media_path.mkdir(parents=True, exist_ok=True)
             except Exception as e:
                 logger.error(f"Error creating directories: {e}")
-                sys.exit(1)
+                raise e
 
             logger.info(f"Timestamp: {__timestamp__()}")
             logger.info(f"Threading hash: {hash(threading)}")
@@ -136,7 +135,7 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
     except Exception as e:
         logger = logging.getLogger(__name__)
         logger.exception(f'Error in main(): {e}')
-        sys.exit(1)
+        raise e
     finally:
         if _lock.locked():
             _lock.release()
