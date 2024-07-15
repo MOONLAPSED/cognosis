@@ -1,3 +1,4 @@
+from __future__ import annotations
 import datetime
 import json
 import logging
@@ -20,43 +21,39 @@ from threading import Thread, current_thread, Semaphore
 from concurrent.futures import ThreadPoolExecutor
 from argparse import ArgumentParser
 
-
-
-from src.utils.kb import KnowledgeItem, FileContextManager
-from src.utils.helpr import helped, wizard
-from src.api.threadsafelocal import ThreadLocalScratchArena, ThreadSafeContextManager, FormalTheory, Atom, AtomicData
-from src.utils.get import ensure_path, get_project_tree, run_command, ensure_delete
-
-# Setup paths
-output_path = Path(__file__).parent / "output"
-output_path.mkdir(parents=True, exist_ok=True)
-_lock = threading.Lock()
-# Find the current directory for logging
-current_dir = Path(__file__).resolve().parent
-while not (current_dir / 'logs').exists():
-    current_dir = current_dir.parent
-    if current_dir == Path('/'):
-        break
-# Ensure the logs directory exists
-logs_dir = Path(__file__).resolve().parent.joinpath('logs')
-logs_dir.mkdir(exist_ok=True)
-# Add paths for importing modules
-sys.path.append(str(Path(__file__).resolve().parent))
-sys.path.append(str(Path(__file__).resolve().parent.joinpath('src')))
+def __timestamp__() -> str:
+    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    timestamp += f'_{str(uuid.uuid4())}'
+    timestamp = timestamp.replace('-', '')
+    timestamp = timestamp.replace(':', '')
+    timestamp = timestamp.replace('.', '')
+    return timestamp
 
 def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
-    """Configures logging for the app.
+    """Configures logging & paths for the app. Handles currying and MPI
     Args:
         *args: Positional arguments to be passed to the function.
         **kwargs: Keyword arguments to be passed to the function.
     Returns:
         logging.Logger: The logger for the module.
+        runtime_arguments: The runtime arguments for the module, are 
+            also saved in .json format in the logs dir.
+        curried_arguments: The curried arguments for the module.
     """
-    try:
-        run_id = os.getenv("GITHUB_RUN_ID")
-        if run_id:
-            print(f"Workflow run ID: {run_id}")
-    except: pass
+    # Setup paths
+    global _lock, output_path, media_path, logs_dir, current_dir
+
+    _lock = threading.Lock()
+    print(f" -'threading' hash: {hash(threading)}")
+    current_dir = Path(__file__).resolve().parent
+
+    # Find project root
+    while not (current_dir / 'src').exists():
+        current_dir = current_dir.parent
+        if current_dir == Path('/'):
+            raise Exception("Unable to find project root")
+    logs_dir = current_dir / "logs"  # Create logs directory
+    logs_dir.mkdir(exist_ok=True)
     try:
         with _lock:
             logging_config = {
@@ -93,10 +90,6 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
             dictConfig(logging_config)
 
             logger = logging.getLogger(__name__)
-            logger.info(f'Logging_dir {logs_dir}|'
-                        f'\nSource_file: {__file__}|'
-                        f'\nInvocation_dir: {Path(__file__).resolve().parent}|'
-                        f'\nWorking_dir: {current_dir}||')
 
             arguments = [_ for _ in str(sys.argv).lower().strip().split(' ') if len(_) > 0]
             if len(arguments) > 1:
@@ -104,213 +97,46 @@ def main(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> logging.Logger:
                 runtime_arguments = {}
                 for arg in arguments:
                     if arg == '-h':
-                        helped()
+                        print(f'Help: {__doc__}')
+                        print(f"'-v' verbose debugging for invocations of cognosis, their args, flags, and curried/runtime args")
+                        print(f"'-c' for currying invocations of cognosis")  # MPI via bash or JIT C code via python +NYE+
                         sys.exit()
-                    elif str(arg).startswith('-'):
-                        print(f'Unrecognized argument: {arg}')
                     elif len(str(arg).strip()) >= 5_000:
                         print(f'Argument is too long: {arg}')
-                    # '--h' for args and flags of invocations of cognosis
-                    elif arg.startswith('~'):
-                        print(f'Argument starts with tilde: {arg}')
-                    # '--v' verbose debugging for invocations of cognosis, their args, flags, and curried/runtime args
-                    elif arg.startswith('!'):
-                        print(f'Argument starts with exclamation point: {arg}')
                     else:
                         # Generate a timestamp as the key
-                        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-                        timestamp += f'_{str(uuid.uuid4())}'
-                        timestamp = timestamp.replace('-', '')
-                        timestamp = timestamp.replace(':', '')
-                        timestamp = timestamp.replace('.', '')
+                        timestamp = __timestamp__()
                         hash_key = f'{timestamp}_{arg}'
                         runtime_arguments[hash_key] = arg
                         logger.debug(f'Argument: {arg}|{hash_key}')
-                    rtjson_path = os.path.join(output_path, 'runtime_arguments.json')
-                    with open(str(rtjson_path), 'w') as f:
+                    rtjson_path = os.path.join(logs_dir, 'runtime_arguments.json')
+                    with open(str(rtjson_path), 'a') as f:
                         json.dump(runtime_arguments, f, indent=4)
+                        f.write('\n')            
             else:
                 logger.debug(f'No arguments provided.')
+            try:
+                # Create output and media directories
+                output_path = current_dir / "output"
+                output_path.mkdir(parents=True, exist_ok=True)
+                media_path = current_dir / "media"
+                media_path.mkdir(parents=True, exist_ok=True)
 
-            return logger, runtime_arguments; _lock.release()
-    except:
+            except Exception as e:
+                logger.debug(f"Error creating directories: {e}")
+                sys.exit(1)
+
+            logger.debug(f" -'invocation' dir: {current_dir}")
+            logger.debug(f" -'src' dir: {current_dir}")
+            logger.debug(f" -'media' dir: {media_path.__sizeof__()}bytes, 'output' dir: {output_path.__sizeof__()}bytes")
+            return logger
+
+    except Exception as e:
         logger = logging.getLogger(__name__).exception(f'Error in main(): {e}')
         sys.exit(1)
     finally:
-        if _lock.locked(): _lock.release()  # cleanup routines
-        return logger, runtime_arguments
-
-
-
-state = {
-    "pipx_installed": False,
-    "pdm_installed": False,
-    "virtualenv_created": False,
-    "dependencies_installed": False,
-    "lint_passed": False,
-    "code_formatted": False,
-    "tests_passed": False,
-    "benchmarks_run": False,
-    "pre_commit_installed": False,
-}
-
-
-#def state_load():  # provides a value for a 'loading bar' function, for the various stages
-
-def ensure_pipx():
-    """Ensure pipx is installed"""
-    global state
-    try:
-        subprocess.run("pipx --version", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        state['pipx_installed'] = True
-    except subprocess.CalledProcessError:
-        print("pipx not found, installing pipx...")
-        run_command("pip install pipx", shell=True)
-        run_command("pipx ensurepath", shell=True)
-        state['pipx_installed'] = True
-
-def ensure_pdm():
-    """Ensure pdm is installed via pipx"""
-    global state
-    try:
-        output = subprocess.run("pipx list", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if b'pdm' not in output.stdout:
-            raise KeyError('pdm not found in pipx list')
-        print("pdm is already installed.")
-        state['pdm_installed'] = True
-    except (subprocess.CalledProcessError, KeyError):
-        print("pdm not found, installing pdm...")
-        run_command("pipx install pdm", shell=True)
-        state['pdm_installed'] = True
-
-
-def create_virtualenv():
-    """Create a virtual environment and activate it using pdm"""
-    global state
-    os.environ["PDM_VENV_IN_PROJECT"] = "1"
-    venv_path = ".venv"
-    if os.path.exists(venv_path):
-        choice = input("Virtual environment already exists. Overwrite? (y/n): ").lower()
-        if choice == 'y':
-            print("Deactivating and deleting existing virtual environment...")
-            ensure_delete(venv_path)
-            print("Virtual environment deleted.")
-            run_command("pdm venv create", shell=True)
-        else:
-            print("Reusing the existing virtual environment.")
-    else:
-        run_command("pdm venv create", shell=True)
-    run_command("pdm lock", shell=True)
-    run_command("pdm install", shell=True, verbose=True)
-    state['virtualenv_created'] = True
-    state['dependencies_installed'] = True
-
-
-def prompt_for_mode():
-    """Prompt the user to choose between development and non-development setup"""
-    while True:
-        choice = input("Choose setup mode: [d]evelopment or [n]on-development? ").lower()
-        if choice in ['d', 'n']:
-            return choice
-        print("Invalid choice, please enter 'd' or 'n'.")
-
-
-def install():
-    """Run installation"""
-    run_command("pdm install", shell=True, verbose=True)
-
-def lint():
-    """Run linting tools"""
-    global state
-    run_command("pdm run flake8 .", shell=True)
-    run_command("pdm run black --check .", shell=True)
-    run_command("pdm run mypy .", shell=True)
-    state['lint_passed'] = True
-
-def format_code():
-    """Format the code"""
-    global state
-    run_command("pdm run black .", shell=True)
-    run_command("pdm run isort .", shell=True)
-    state['code_formatted'] = True
-
-def test():
-    """Run tests"""
-    global state
-    run_command("pdm run pytest", shell=True)
-    state['tests_passed'] = True
-
-def bench():
-    """Run benchmarks"""
-    global state
-    run_command("pdm run python src/bench/bench.py", shell=True)
-    state['benchmarks_run'] = True
-
-def pre_commit_install():
-    """Install pre-commit hooks"""
-    global state
-    run_command("pdm run pre-commit install", shell=True)
-    state['pre_commit_installed'] = True
-
-def introspect():
-    """Introspect the current state and print results"""
-    print("Introspection results:")
-    for key, value in state.items():
-        print(f"{key}: {'✅' if value else '❌'}")
+        if _lock.locked(): _lock.release()  # cleanup routine
 
 
 if __name__ == '__main__':
-    try:
-        if len(sys.argv) > 1:
-            try:
-                wizard()
-                helped()
-                pmain = sys.argv[1+len(sys.argv)//2]
-                main(pmain)
-                sys.argv.pop(1)
-                pass
-            except Exception as e:
-                logger=logging.getLogger(__name__).exception(f'Error in parallel execution: {e}')
-                print(e)
-                sys.exit(1)
-        else:
-            # No arguments provided, call main() without arguments
-            wizard()
-            helped()
-            main()
-    except:
-        ArgumentParser(description='Run the main function in parallel for each argument.')
-
-    try:
-        atom = AtomicData(data=b"Some data")
-        print(atom.encode())
-
-        theory = FormalTheory()
-        print(theory.encode())
-
-        context_manager = ThreadSafeContextManager()
-        with context_manager:
-            print("Thread-safe operation")
-
-        arena = ThreadLocalScratchArena()
-        arena.set(AtomicData(data="Thread-local data"))
-        print(arena.get())
-    except Exception as e:
-        print(e)
-        raise e
-    finally:
-        pass
-    try:
-        from src.api.kolmogorov import kolmogorov_middleware
-
-        # In your NLP pipeline
-        input_text = "What is the capital of France?"
-        output_text = "The capital of France is Paris."
-
-        result = kolmogorov_middleware(input_text, output_text)
-        print(result)
-    except:
-        print("Kolmogorov check failed")
-        raise
-    finally:
-        pass
+    main()
