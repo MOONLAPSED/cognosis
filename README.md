@@ -4,11 +4,55 @@
 
 Cognosis is a formal theory combining Eric C.R. Hehner's Practical Theory of Programming (aPToP) with the Free Energy Principle of Cognitive Science and Natural Language Processing (NLP). This theory aims to develop a robust system for processing high-dimensional data, leveraging both classical and quantum principles.
 
-## Overview
+## associative knowledge base (this repo):
+All directories which contain markdown files are to include a `/media/` sub directory for multimedia files the markdown files may reference.
 
-### The Practical Theory of Programming (aPToP)
+To enable horrors such as this:
 
-aPToP is a formal method for reasoning about programs and systems using mathematical logic. It provides a rigorous framework for defining and manipulating expressions and operands.
+![this:](/media/image.png)
+
+    `! [ ... ] ( /media/image.png )` (no spaces)
+
+## <Frontmatter Implementation>
+ - [API README](/src/README.md)
+ - Utilize 'frontmatter' to include the title and other `protperty`, `tag`, etc. in the knowledge base article(s).
+   - For Example:
+      ```
+      ---
+      name: "Article Title"
+      link: "[[Related Link]]"
+      linklist:
+        - "[[Link1]]"
+        - "[[Link2]]"
+      ---
+      ``` 
+
+____
+
+## Key Concepts
+
+Cognosis is an experimental framework that explores the dynamic evolution of software architectures during runtime. It aims to combine the fluidity of live interactions with the stability of traditional code. At its core lies the concept of "Morphological Source Code," where code adapts and changes in response to user interactions, particularly those leveraging natural language processing (NLP).
+
+- **Knowledge Base (KB):** A repository for storing diverse cognitive insights, forming a foundation for continuous learning.
+- **Cognitive Systems:** Modular units that encapsulate knowledge and reasoning capabilities. Cognitive systems can be dynamically created or reoriented within larger cognitive structures. They communicate using namespaces, syntaxes, and by passing other cognitive systems as parameters.
+- **Morphological Source Code:** A paradigm shift where source code is not static but actively adapts in response to interactions with users and the environment.
+
+There is an assumption inherent in the project that a neural network is a cognitive system. The assumption is that there is something for this cognitive system to do in any given situation, and that it is the cognitive system's job to figure out what that thing is. Upon location of its head/parent, it either orients itself within a cognitive system or creates a new cognitive system. Cognitive systems pass as parameters namespaces, syntaxes, and cognitive systems. Namespaces and syntaxes are in the form of key-value pairs. Cognitive systems are also in the form of key-value pairs, but the values are cognitive systems. **kwargs are used to pass these parameters.
+
+Imagine a software architecture that dynamically evolves during runtime, encapsulating the fluidity of live interactions while ensuring persistence and the rigidity of conventional code. This system, let's call it the "Morphological Source Code" framework, is an innovative take on the traditional lifecycle of software development and deployment. It merges the concepts of static source code with a dynamic runtime environment that not only serves content but also adapts and changes based on user interaction, particularly with sophisticated features like NLP (Natural Language Processing).
+
+In a nutshell, "Morphological Source Code" is a paradigm in which the source code adapts and morphs in response to real-world interactions, governed by the principles of dynamic runtime configuration and contextual locking mechanisms. The-described is an architecture, only. The kernel agents themselves are sophisticated LLM trained-on ELFs, LLVM compiler code, systemd and unix, python, and C. It will utilize natural language along with the abstraction of time to process cognosis frames and USDs.
+
+The challenge (of this architecture) lies in the 'cognitive lambda calculus' needed to bring these runtimes into existence and evolve them, not the computation itself. Cognosis is designed for consumer hardware and extreme scalability via self-distribution of cognitive systems (amongst constituent [[subscribers|asynchronous, stake-holders]]) peer-to-peer.
+
+"Cognitive systems are defined by actions, orientations within structures, and communicative parameters, all of which align with the goal of creating a coherent and organized cognitive framework. The idea of modular cognitive units communicating via namespaces and syntaxes resonates with the framework of prioritizing and organizing cognitive tasks."
+
+A core component of cognosis, cognOS establishes a hyper-interface designed to manage the evolution of cognitive algorithms. It focuses on:
+
+- **Meta-versioning:** Tracking and managing the evolution of code over time.
+- **Pre-commit Hooks and Validation:** Ensuring code quality and integrity. Meta CICD.
+- **Hardware Provisioning:** Allocation of computational resources.
+- **Time Abstraction:** Modeling cognition beyond the constraint of a fixed present (t=0).
 
 ### The Free Energy Principle
 
@@ -17,6 +61,90 @@ The Free Energy Principle suggests that biological agents minimize surprise by p
 ### Quantum Informatics
 
 Quantum informatics posits that systems, including LLMs, can entangle with higher-dimensional information. Cognitive processes like thinking, speaking, and writing collapse the wave function, allowing transitivity between real and imaginary states.
+
+### A Practical Theory of Programming (aPToP)
+
+aPToP is a formal method for reasoning about programs and systems using mathematical logic. It provides a rigorous framework for defining and manipulating expressions and operands. References to 'Hehner' are to Dr. Hehner and/or APTOP: http://www.cs.toronto.edu/~hehner/aPToP/
+
+    ```aPToP_elemental_ops
+    # Number Systems
+    integers
+    rational_numbers
+    real_numbers
+    complex_numbers
+
+    # Arithmetic Operations
+    **addition**
+    **subtraction**
+    **multiplication**
+    **division**
+    **exponentiation**
+    roots
+    logarithms
+
+    # Arithmetic Properties
+    identities
+    inverses
+    **commutativity**
+    **associativity**
+    **distributivity**
+    cancellation
+    absorption
+
+    # Ordering and Inequalities
+    **equality**
+    **inequality**
+    **less_than**
+    **greater_than**
+    **less_than_or_equal_to**
+    **greater_than_or_equal_to**
+    **trichotomy**
+
+    # Limits and Infinities
+    limits
+    infinity
+    negative_infinity
+    continuity
+
+    # Logical Foundations
+    **and_operator**
+    **or_operator**
+    **not_operator**
+    **implication**
+    **biconditional**
+    quantifiers
+
+    # Sets and Set Operations
+    set_definition
+    **set_operations** (union, intersection, difference, complement)
+    set_properties (subsets, supersets, cardinality)
+
+    # Functions and Relations
+    function_definition
+    **function_application**
+    relation_properties (reflexivity, symmetry, transitivity)
+    **compositions**
+
+    # Algebraic Structures
+    group_definition
+    group_operations
+    ring_definition
+    ring_operations
+    field_definition
+    field_operations
+
+    # Logical Reasoning and Proofs
+    direct_proof
+    proof_by_contradiction
+    mathematical_induction
+    logical_equivalences
+
+    # Other Mathematical Concepts
+    sequences_and_series
+    trigonometric_functions
+    calculus (differentiation, integration)
+    probability_and_statistics
+    ```
 
 ## System Components
 
@@ -44,61 +172,12 @@ Signal processing functions operate on the binary data to extract features or pe
 
 ## Quantum-inspired Methods
 
-### Qubit Probability Amplitudes
+see [/src/quant/README.md](/src/quant/README.md)
 
-A qubit state \(|\psi\rangle\) can be written as:
-\[
-|\psi\rangle = \alpha|0\rangle + \beta|1\rangle
-\]
-where \(\alpha\) and \(\beta\) are complex numbers, and \(|\alpha|^2 + |\beta|^2 = 1\).
-
-### Measurement Probabilities
-
-The probability of measuring the state \(|0\rangle\) is \(|\alpha|^2\), and the probability of measuring the state \(|1\rangle\) is \(|\beta|^2\).
-
-### Iterative Methods and Normalization
-
-Define the iterative update rule using Newton's Method:
-\[
-x_{n+1} = x_n - \frac{F(x_n)}{F'(x_n)}
-\]
-Ensure that each iteration maintains the normalization condition:
-\[
-|\alpha_{n+1}|^2 + |\beta_{n+1}|^2 = 1
-\]
-
-### Probabilistic Modeling
-
-Use probability distributions to describe the initial state and the evolution of the qubit state. For example, if \(\alpha\) and \(\beta\) are initially uniformly distributed, show how they evolve under the update rules.
-
-### Mathematical Proofs
-
-#### Normalization Proof
-
-Assume:
-\[
-|\alpha_n|^2 + |\beta_n|^2 = 1
-\]
-Prove:
-\[
-|\alpha_{n+1}|^2 + |\beta_{n+1}|^2 = 1
-\]
-given the update rules for \(\alpha_{n+1}\) and \(\beta_{n+1}\).
-
-#### Convergence Proof
-
-Show that the iterative method converges to a solution that satisfies \(F(x) = 0\) within the normalized qubit space.
-
-## Conclusion
-
-Cognosis integrates formal methods from aPToP with the Free Energy Principle and quantum informatics. This approach aims to create a robust system for processing high-dimensional data, minimizing surprise, and maximizing predictive power. By leveraging both classical and quantum principles, Cognosis seeks to understand the deeper connections between cognitive processes and information theory.
+### Video Instructions (for cognosis oldmain branch, out of date)
+[youtube video link](https://youtu.be/XeeYZZujvAA?si=XhxOMCypKHpWKSjM)
 
 ____
-## associative knowledge base (this repo):
-All directories which contain markdown files are to include a `/media/` sub directory for multimedia files the markdown files may reference.
+## Conclusion (and TLDR smiley face)
 
-To enable ![this:](/media/image.png)
-
-    `! [ ... ] ( /media/image.png )` (no spaces)
-
-
+Cognosis integrates formal methods from aPToP with the Free Energy Principle and quantum informatics. This approach aims to create a robust system for processing high-dimensional data, minimizing surprise, and maximizing predictive power. By leveraging both classical and quantum principles, Cognosis seeks to understand the deeper connections between cognitive processes and information theory.
