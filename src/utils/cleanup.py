@@ -98,7 +98,8 @@ def remove_conda_env():
     except Exception as e:
         print(f"An unexpected error occurred while removing conda environment: {e}")
 
-if __name__ == "__main__":
+
+def main():
     confirm = input("This will remove all project artifacts and installations. Are you sure? (y/N): ")
     if confirm.lower() == 'y':
         cleanup()
@@ -109,3 +110,6 @@ if __name__ == "__main__":
     else:
         print("Cleanup aborted.")
     sys.exit(0)
+
+if __name__ == "__main__":
+    main()
