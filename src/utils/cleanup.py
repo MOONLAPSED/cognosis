@@ -42,10 +42,11 @@ def cleanup():
         ".pytest_cache",
         ".mypy_cache",
         ".tox",
-        "abraxus.egg-info",
+        "cognosis.egg-info",
         ".pdm.toml",
         ".pdm-build",
         ".pdm-python",
+        "pdm.lock",
     ]
 
     # Remove paths

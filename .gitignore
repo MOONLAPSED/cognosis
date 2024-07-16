@@ -10,7 +10,7 @@
 /test_env/*
 scoop_log.txt
 logs/*
-pdm.python
+.pdm.python
 pdm.lock
 
 # Byte-compiled / optimized / DLL files
