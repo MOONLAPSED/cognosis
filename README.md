@@ -15,7 +15,7 @@ To enable horrors such as this:
 
 ## <Frontmatter Implementation>
  - [API README](/src/README.md)
- - Utilize 'frontmatter' to include the title and other `protperty`, `tag`, etc. in the knowledge base article(s).
+ - Utilize 'frontmatter' to include the title and other `property`, `tag`, etc. in the knowledge base article(s).
    - For Example:
       ```
       ---
