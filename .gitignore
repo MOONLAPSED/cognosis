@@ -9,7 +9,9 @@
 .old/*
 /test_env/*
 scoop_log.txt
-runtime_arguments.json
+logs/*
+pdm.python
+pdm.lock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -9,3 +9,4 @@ ipywidgets
 jupyterlab
 ipykernel
 mkdocs
+aiohttp
