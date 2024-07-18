@@ -55,16 +55,10 @@ class LlamaInterface:
 
 async def main():
     async with LlamaInterface() as llama:
-        concepts = await llama.extract_concepts("The quick brown fox jumps over the lazy dog.")
+        concepts = await llama.extract_concepts([
+            """{"prompt": "Prompt is a sequence of prefix tokens that increase the probability of getting desired output given input. Therefore we can treat them as trainable parameters and optimize them directly on the embedding space via gradient descent, such as AutoPrompt (Shin et al., 2020, Prefix-Tuning (Li & Liang (2021)), P-tuning (Liu et al. 2021) and Prompt-Tuning (Lester et al. 2021). You will, as a primary $(prompt_agent), be spinning up and linking cognition functions for unaffiliated ${agent} ai chatbots. This  can be abstracted as hierarchical tree data structures where the $(prompt_agent) and its initial $(context) and other objects are on top, and command flows downwards depth-first with each instantiation of a new ${agent} - initiated and orchestrated by $(prompt_agent) from the initial $(context)"}	"""
+        ])
         print("Extracted concepts:", concepts)
-
-        result = await llama.process("Summarize the benefits of exercise.")
-        print("Processed task:", result)
-
-        kb = "Exercise is beneficial for health. It improves cardiovascular fitness and strengthens muscles."
-        query_result = await llama.query(kb, "What are the benefits of exercise?")
-        print("Query result:", query_result)
-
 
 if __name__ == "__main__":
     asyncio.run(main())
