@@ -1,18 +1,7 @@
-#from .knowledge_base import Graph
-#from .file_manager import FileSystemManager
-#from .memory_manager import MemoryManager
-#from .cpu_scheduler import CPUScheduler
-from llama_interface import LlamaInterface
-import threading
-import logging
 import random
 import math
 import cmath
 from typing import List, Tuple
-
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 class QuantumInfoDynamics:
     def __init__(self, dimensions=3):
@@ -69,7 +58,7 @@ class QuantumInfoDynamics:
     @staticmethod
     def _cross_product(v1: List[float], v2: List[float]) -> List[float]:
         return [
-            v1[1] * v2[2] - v1[2] * v1[1],
+            v1[1] * v2[2] - v1[2] * v2[1],
             v1[2] * v2[0] - v1[0] * v2[2],
             v1[0] * v2[1] - v1[1] * v2[0]
         ]
@@ -130,70 +119,31 @@ def rotate(state: TripartiteState, axis: Tuple[int, int, int], angle: float) -> 
     
     return TripartiteState(*rotated_state_q)
 
-class SpeculativeKernel:
-    def __init__(self):
-        self.arenas = {}
-        self.lock = threading.Lock()
-        self.threads = []
-        self.running = True
-
-    def create_arena(self, name: str):
-        with self.lock:
-            self.arenas[name] = []
-
-    def allocate(self, arena: str, obj):
-        with self.lock:
-            if arena in self.arenas:
-                self.arenas[arena].append(obj)
-            else:
-                logger.error(f"Arena '{arena}' does not exist.")
-
-    def start_thread(self, target, args=()):
-        thread = threading.Thread(target=target, args=args)
-        thread.start()
-        self.threads.append(thread)
-
-    def interrupt(self):
-        logger.warning("Interrupt signal received. Switching context...")
-        self.running = False
-
-    def resume(self):
-        logger.info("Resuming execution...")
-        self.running = True
-
-    def run(self):
-        while self.running:
-            try:
-                for thread in self.threads:
-                    if not thread.is_alive():
-                        logger.error(f"Thread {thread.name} crashed.")
-                        self.interrupt()
-                        break
-            except KeyboardInterrupt:
-                self.interrupt()
-
-    def stop(self):
-        logger.info("Stopping kernel...")
-        self.running = False
-        for thread in self.threads:
-            thread.join()
-
-def task(kernel: SpeculativeKernel, arena: str, qid: QuantumInfoDynamics):
-    while kernel.running:
-        qid.rotate((1, 0, 0), math.pi / 100)
-        kernel.allocate(arena, qid.state)
-        logger.info(f"Task in arena '{arena}' rotated state to: {qid.state}")
-
 def main():
-    kernel = SpeculativeKernel()
+    # Example usage
+    initial_state = TripartiteState(1, 0, 0, 0)  # Pure information state
+    rotated_state = rotate(initial_state, (0, 1, 0), math.pi / 4)  # Rotate towards matter
 
-    kernel.create_arena("arena1")
-    qid = QuantumInfoDynamics()
+    # Example usage
+    qid1 = QuantumInfoDynamics()
+    qid2 = QuantumInfoDynamics()
 
-    kernel.start_thread(task, (kernel, "arena1", qid))
-    kernel.run()
+    print("Initial states:")
+    print(qid1.state, qid2.state)
 
-    kernel.stop()
+    qid1.rotate((0, 1, 0), math.pi / 4)
+    qid2.rotate((1, 0, 0), math.pi / 3)
+
+    print("After rotation:")
+    print(qid1.state, qid2.state)
+
+    qid1.interact(qid2)
+
+    print("After interaction:")
+    print(qid1.state, qid2.state)
+
+    print("Measurements:")
+    print(qid1.measure(), qid2.measure())
 
 if __name__ == "__main__":
     main()
