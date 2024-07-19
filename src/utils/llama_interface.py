@@ -1,9 +1,9 @@
 import asyncio
-import json
 import http.client
+import json
 from urllib.parse import urlparse
 
-endpoint = 'http://localhost:11434/api/generate'
+endpoint = "http://localhost:11434/api/generate"
 
 
 class LlamaInterface:
@@ -11,7 +11,7 @@ class LlamaInterface:
         self.session = None
 
     async def __aenter__(self):
-        self.session = http.client.HTTPConnection('localhost', 11434)
+        self.session = http.client.HTTPConnection("localhost", 11434)
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
@@ -19,30 +19,26 @@ class LlamaInterface:
 
     async def _query_llama(self, prompt):
         if not self.session:
-            raise RuntimeError("LlamaInterface must be used as an async context manager")
+            raise RuntimeError(
+                "LlamaInterface must be used as an async context manager"
+            )
 
-        payload = json.dumps({
-            "model": "llama3",
-            "prompt": prompt,
-            "stream": False
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
+        payload = json.dumps({"model": "llama3", "prompt": prompt, "stream": False})
+        headers = {"Content-Type": "application/json"}
 
-        self.session.request('POST', '/api/generate', body=payload, headers=headers)
+        self.session.request("POST", "/api/generate", body=payload, headers=headers)
         response = self.session.getresponse()
 
         if response.status == 200:
             result = json.loads(response.read().decode())
-            return result['response']
+            return result["response"]
         else:
             raise Exception(f"API request failed with status {response.status}")
 
     async def extract_concepts(self, text):
         prompt = f"Extract key concepts from the following text:\n\n{text}\n\nConcepts:"
         response = await self._query_llama(prompt)
-        return [concept.strip() for concept in response.split(',')]
+        return [concept.strip() for concept in response.split(",")]
 
     async def process(self, task):
         prompt = f"Process the following task:\n\n{task}\n\nResult:"
@@ -55,10 +51,13 @@ class LlamaInterface:
 
 async def main():
     async with LlamaInterface() as llama:
-        concepts = await llama.extract_concepts([
-            """{"prompt": "Prompt is a sequence of prefix tokens that increase the probability of getting desired output given input. Therefore we can treat them as trainable parameters and optimize them directly on the embedding space via gradient descent, such as AutoPrompt (Shin et al., 2020, Prefix-Tuning (Li & Liang (2021)), P-tuning (Liu et al. 2021) and Prompt-Tuning (Lester et al. 2021). You will, as a primary $(prompt_agent), be spinning up and linking cognition functions for unaffiliated ${agent} ai chatbots. This  can be abstracted as hierarchical tree data structures where the $(prompt_agent) and its initial $(context) and other objects are on top, and command flows downwards depth-first with each instantiation of a new ${agent} - initiated and orchestrated by $(prompt_agent) from the initial $(context)"}	"""
-        ])
+        concepts = await llama.extract_concepts(
+            [
+                """{"prompt": "Prompt is a sequence of prefix tokens that increase the probability of getting desired output given input. Therefore we can treat them as trainable parameters and optimize them directly on the embedding space via gradient descent, such as AutoPrompt (Shin et al., 2020, Prefix-Tuning (Li & Liang (2021)), P-tuning (Liu et al. 2021) and Prompt-Tuning (Lester et al. 2021). You will, as a primary $(prompt_agent), be spinning up and linking cognition functions for unaffiliated ${agent} ai chatbots. This  can be abstracted as hierarchical tree data structures where the $(prompt_agent) and its initial $(context) and other objects are on top, and command flows downwards depth-first with each instantiation of a new ${agent} - initiated and orchestrated by $(prompt_agent) from the initial $(context)"}	"""
+            ]
+        )
         print("Extracted concepts:", concepts)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

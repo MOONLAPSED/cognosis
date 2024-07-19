@@ -1,16 +1,19 @@
 import hashlib
-import random
-import math
 import inspect
-import logging
-import queue
 import json
-from typing import Any, Callable
+import logging
+import math
+import queue
+import random
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
-import threading
+from typing import Any, Callable
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 
 class EvolvingQuine:
     def __init__(self, ttl=10):
@@ -24,11 +27,14 @@ class EvolvingQuine:
 
     @staticmethod
     def measure_entropy(s):
-        return -sum(p * math.log2(p) for p in [s.count(c)/len(s) for c in set(s)])
+        return -sum(p * math.log2(p) for p in [s.count(c) / len(s) for c in set(s)])
 
     @staticmethod
     def mutate(s, mutation_rate=0.01):
-        return ''.join(c if random.random() > mutation_rate else chr(random.randint(32, 126)) for c in s)
+        return "".join(
+            c if random.random() > mutation_rate else chr(random.randint(32, 126))
+            for c in s
+        )
 
     def evolve(self):
         if self.ttl > 0:
@@ -48,6 +54,7 @@ EvolvingQuine:
 {self.code}
 """
 
+
 class Task:
     def __init__(self, task_id: int, func: Callable, args=(), kwargs=None):
         self.task_id = task_id
@@ -61,6 +68,7 @@ class Task:
         self.result = self.func(*self.args, **self.kwargs)
         logging.info(f"Task {self.task_id} completed")
         return self.result
+
 
 class Arena:
     def __init__(self, name: str):
@@ -81,6 +89,7 @@ class Arena:
     def get(self, key: str):
         with self.lock:
             return self.local_data.get(key)
+
 
 class SpeculativeKernel:
     def __init__(self, num_arenas: int):
@@ -153,28 +162,30 @@ class SpeculativeKernel:
 
     def save_state(self, filename: str):
         state = {arena.name: arena.local_data for arena in self.arenas.values()}
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             json.dump(state, f)
         logging.info(f"State saved to {filename}")
 
     def load_state(self, filename: str):
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             state = json.load(f)
         for arena_name, local_data in state.items():
-            arena_id = int(arena_name.split('_')[1])
+            arena_id = int(arena_name.split("_")[1])
             self.arenas[arena_id].local_data = local_data
         logging.info(f"State loaded from {filename}")
+
 
 # Example usage
 if __name__ == "__main__":
     kernel = SpeculativeKernel(num_arenas=4)
-    
+
     # Submit an EvolvingQuine task
     kernel.submit_task(EvolvingQuine().evolve)
-    
+
     kernel.run()
-    
+
     import time
+
     time.sleep(5)  # Allow some time for tasks to be processed
-    
+
     kernel.stop()

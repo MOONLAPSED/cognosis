@@ -2,10 +2,11 @@
 # /src/utils/cleanup.py
 
 import os
-import sys
 import shutil
 import subprocess
+import sys
 from pathlib import Path
+
 
 def run_command(command):
     try:
@@ -13,6 +14,7 @@ def run_command(command):
         print(f"Successfully ran command: {command}")
     except subprocess.CalledProcessError as e:
         print(f"Command '{command}' failed with error: {e}")
+
 
 def remove_path(path):
     path = Path(path)
@@ -29,6 +31,7 @@ def remove_path(path):
         print(f"Permission denied: {path}")
     except Exception as e:
         print(f"Error removing {path}: {e}")
+
 
 def cleanup():
     # Get the project root directory
@@ -70,6 +73,7 @@ def cleanup():
 
     print("Cleanup completed.")
 
+
 def remove_conda_env():
     try:
         conda_env_path = Path(os.environ.get("CONDA_PREFIX", ""))
@@ -87,7 +91,7 @@ def remove_conda_env():
 
         # Deactivate the current environment
         run_command("conda deactivate")
-        
+
         # Remove the environment
         run_command(f"conda env remove -n {env_name} --yes")
         print(f"Removed conda environment: {env_name}")
@@ -101,8 +105,10 @@ def remove_conda_env():
 
 
 def main():
-    confirm = input("This will remove all project artifacts and installations. Are you sure? (y/N): ")
-    if confirm.lower() == 'y':
+    confirm = input(
+        "This will remove all project artifacts and installations. Are you sure? (y/N): "
+    )
+    if confirm.lower() == "y":
         cleanup()
         try:
             remove_conda_env()
@@ -111,6 +117,7 @@ def main():
     else:
         print("Cleanup aborted.")
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

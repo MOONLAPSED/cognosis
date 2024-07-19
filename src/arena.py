@@ -1,13 +1,16 @@
-import threading
+import json
 import logging
 import queue
-import json
-from typing import Any, Dict, Tuple, List, Callable
-from concurrent.futures import ThreadPoolExecutor, Future
+import threading
+from concurrent.futures import Future, ThreadPoolExecutor
 from contextlib import contextmanager
+from typing import Any, Callable, Dict, List, Tuple
 
 # Logger configuration
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 
 class Task:
     def __init__(self, task_id: int, func: Callable, args=(), kwargs=None):
@@ -25,6 +28,7 @@ class Task:
         except Exception as e:
             logging.error(f"Task {self.task_id} failed with error: {e}")
         return self.result
+
 
 class Arena:
     def __init__(self, name: str):
@@ -45,6 +49,7 @@ class Arena:
     def get(self, key: str):
         with self.lock:
             return self.local_data.get(key)
+
 
 class SpeculativeKernel:
     def __init__(self, num_arenas: int):
@@ -112,17 +117,18 @@ class SpeculativeKernel:
 
     def save_state(self, filename: str):
         state = {arena.name: arena.local_data for arena in self.arenas.values()}
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             json.dump(state, f)
         logging.info(f"State saved to {filename}")
 
     def load_state(self, filename: str):
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             state = json.load(f)
         for arena_name, local_data in state.items():
-            arena_id = int(arena_name.split('_')[1])
+            arena_id = int(arena_name.split("_")[1])
             self.arenas[arena_id].local_data = local_data
         logging.info(f"State loaded from {filename}")
+
 
 def main():
     kernel = SpeculativeKernel(3)
@@ -138,6 +144,7 @@ def main():
     kernel.submit_task(lambda x: x**2, (10,))
     kernel.stop()
     kernel.save_state("state.json")
+
 
 if __name__ == "__main__":
     main()

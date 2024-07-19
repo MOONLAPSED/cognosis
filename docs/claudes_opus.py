@@ -25,6 +25,7 @@ GRAMMAR = """
 <content> ::= <any_characters>
 """
 
+
 class FormalTheory:
     def __init__(self, theory_string: str):
         self.header, self.payload, self.logical_switch = self.parse(theory_string)
@@ -35,35 +36,37 @@ class FormalTheory:
         print(f"Grammar: {self.grammar}")
 
     def parse(self, theory_string: str) -> Tuple[str, str, str]:
-        match = re.match(r'BNF:(.*?)(Theory|Anti-Theory)', theory_string, re.DOTALL)
+        match = re.match(r"BNF:(.*?)(Theory|Anti-Theory)", theory_string, re.DOTALL)
         if match:
             header = match.group(1).strip()
-            rest = theory_string[match.end(1):].strip()
-            payload, logical_switch = rest.rsplit('\n', 1)
+            rest = theory_string[match.end(1) :].strip()
+            payload, logical_switch = rest.rsplit("\n", 1)
             return header, payload.strip(), logical_switch.strip()
         else:
             raise ValueError("Invalid FormalTheory string")
 
     def parse_bnf(self, bnf_string: str) -> dict:
         grammar = {}
-        productions = bnf_string.split('\n')
+        productions = bnf_string.split("\n")
         for production in productions:
-            if '::=' in production:
-                lhs, rhs = production.split('::=', 1)  # Split only at the first '::='
+            if "::=" in production:
+                lhs, rhs = production.split("::=", 1)  # Split only at the first '::='
                 lhs = lhs.strip()
-                rhs = [symbol.strip() for symbol in rhs.split('|')]
+                rhs = [symbol.strip() for symbol in rhs.split("|")]
                 grammar[lhs] = rhs
         return grammar
 
     def validate_syntax(self, symbol: str) -> Iterator[str]:
         print(f"Validating syntax for symbol: {symbol}")
-        if symbol.startswith('<') and symbol.endswith('>'):
+        if symbol.startswith("<") and symbol.endswith(">"):
             non_terminal = symbol
             if non_terminal not in self.grammar:
-                raise ValueError(f"Non-terminal '{non_terminal}' not found in the grammar")
+                raise ValueError(
+                    f"Non-terminal '{non_terminal}' not found in the grammar"
+                )
             expressions = self.grammar[non_terminal]
             for expression in expressions:
-                if expression.startswith('<'):
+                if expression.startswith("<"):
                     yield from self.validate_syntax(expression)
                 else:
                     yield expression
@@ -72,14 +75,17 @@ class FormalTheory:
 
     def is_valid(self) -> bool:
         try:
-            symbols = list(self.validate_syntax('<theory>'))
+            symbols = list(self.validate_syntax("<theory>"))
             print(f"Symbols from grammar: {symbols}")
-            payload_valid = self.payload == ''.join(symbols)
+            payload_valid = self.payload == "".join(symbols)
             print(f"Payload valid: {payload_valid}")
-            return payload_valid if self.logical_switch == "Theory" else not payload_valid
+            return (
+                payload_valid if self.logical_switch == "Theory" else not payload_valid
+            )
         except ValueError as e:
             print(f"Validation error: {e}")
             return False
+
 
 # Example usage
 theory_string = """BNF: <theory> ::= <header> <payload> <logical_switch>
@@ -104,15 +110,17 @@ BNF: <header> "Hello, World!" Theory
 Theory
 """
 
+
 def main():
     theory = FormalTheory(theory_string)
     print(theory.is_valid())
     print(theory.header)
 
+
 if __name__ == "__main__":
     main()
 
-    
+
 """chatGPT(v0.3)
 In this implementation, I have defined a FormalTheory class that takes a theory string as input and parses it into three components: the header (BNF grammar), the payload, and the logical switch ("Theory" or "Anti-Theory"). The class provides the following functionality:
 
@@ -124,7 +132,6 @@ Logical Validation: The is_valid method checks if the payload matches the syntax
 The implementation includes an example usage where a theory string is defined, and a FormalTheory object is created. The is_valid method is called, and the result is printed, which should be True for the given example.
 This implementation demonstrates how the FormalTheory protocol can be realized using Python. It follows the principles of parsing the header (BNF grammar), validating the syntax of the payload against the grammar, and applying the logical switch based on the validity of the payload.
 """
-
 
 
 """claude(v0.2)
