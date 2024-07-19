@@ -1,3 +1,5 @@
+`master` branch of cognosis is now on a different github user account. This is the speculative moon branch. This is not a deprecation warning because we were never precated to begin with. This repo will have artificial intelligence working on it where the `master` branch will be human maintained.
+
 # Cognosis: A Formal Theory Integrating aPToP and the Free Energy Principle
 
 ## Introduction
@@ -170,9 +172,6 @@ Encoding functions transform high-dimensional data into binary representations. 
 
 Signal processing functions operate on the binary data to extract features or perform analyses. These functions also adhere to formal methods, leveraging both classical and quantum principles.
 
-## Quantum-inspired Methods
-
-see [/src/quant/README.md](/src/quant/README.md)
 
 ### Video Instructions (for cognosis oldmain branch, out of date)
 [youtube video link](https://youtu.be/XeeYZZujvAA?si=XhxOMCypKHpWKSjM)

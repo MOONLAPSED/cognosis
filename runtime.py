@@ -191,11 +191,15 @@ def main():
         pre_commit_install()
 
     if args.run_user_main:
-        run_command("pdm run python main.py", shell=True)
+        try:
+            import main
+            main.usermain()
+        except ImportError:
+            logging.error(
+                "No user-defined main function found. Please add a main.py file and define a usermain() function."
+            )
     else:
-        logging.info(
-            "No additional arguments provided. Skipping user-defined main function."
-        )
+        logging.info("No additional arguments provided. Skipping user-defined main function.")
 
     introspect()
 
