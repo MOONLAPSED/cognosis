@@ -2,12 +2,15 @@
 import asyncio
 import json
 import logging
+import marshal
+import types
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from enum import Enum
 from functools import partial, wraps
 from struct import Struct
-from typing import Any, Callable, Dict, Generic, List, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, TypeVar, List, Tuple, Union, Type, Optional, ClassVar
+from enum import Enum, auto
+from abc import ABC, abstractmethod
 
 import runtime
 
@@ -28,7 +31,9 @@ def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
 logger = setup_logger("MainLogger")
 
 
-# Base Model and Field
+
+T = TypeVar('T')
+
 class BaseModel:
     def dict(self) -> Dict[str, Any]:
         return {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
@@ -42,43 +47,116 @@ class BaseModel:
 
     @classmethod
     def parse_json(cls, json_str: str) -> "BaseModel":
-        return cls.parse_obj(json.loads(json_str))
-
+        try:
+            data = json.loads(json_str)
+        except json.JSONDecodeError as e:
+            raise ValueError("Invalid JSON string") from e
+        return cls.parse_obj(data)
 
 class Field:
     def __init__(self, type_: Type, default: Any = None, required: bool = True):
+        if not isinstance(type_, type):
+            raise TypeError("type_ must be a valid type")
         self.type = type_
         self.default = default
         self.required = required
 
-
-# Create Model
 def create_model(model_name: str, **field_definitions: Field) -> Type[BaseModel]:
-    annotations = {name: field.type for name, field in field_definitions.items()}
-    defaults = {
-        name: field.default
-        for name, field in field_definitions.items()
-        if not field.required
-    }
+    fields = {}
+    annotations = {}
+    defaults = {}
+
+    for field_name, field in field_definitions.items():
+        annotations[field_name] = field.type
+        if not field.required:
+            defaults[field_name] = field.default
 
     def __init__(self, **data):
-        for name, field in field_definitions.items():
-            value = data.get(name, field.default)
-            if field.required and name not in data:
-                raise ValueError(f"Field {name} is required")
+        for field_name, field in field_definitions.items():
+            if field.required and field_name not in data:
+                raise ValueError(f"Field {field_name} is required")
+            value = data.get(field_name, field.default)
             if not isinstance(value, field.type):
-                raise TypeError(f"Expected {field.type} for {name}, got {type(value)}")
-            setattr(self, name, value)
+                raise TypeError(f"Expected {field.type} for {field_name}, got {type(value)}")
+            setattr(self, field_name, value)
 
-    fields = {"__annotations__": annotations, "__init__": __init__}
+    def __repr__(self):
+        return f"{model_name}({', '.join(f'{k}={v!r}' for k, v in self.__dict__.items() if not k.startswith('_'))})"
+    
+    fields['__annotations__'] = annotations
+    fields['__init__'] = __init__
+    fields['__repr__'] = __repr__
 
     return type(model_name, (BaseModel,), fields)
 
+def validate_types(cls: Type[T]) -> Type[T]:
+    original_init = cls.__init__    
 
-User = create_model("User", ID=Field(int), name=Field(str))
+    def new_init(self: T, *args: Any, **kwargs: Any) -> None:
+        known_keys = set(cls.__annotations__.keys())
+        for key, value in kwargs.items():
+            if key in known_keys:
+                expected_type = cls.__annotations__.get(key)
+                if not isinstance(value, expected_type):
+                    raise TypeError(f"Expected {expected_type} for {key}, got {type(value)}")
+        original_init(self, *args, **kwargs)
+
+    cls.__init__ = new_init
+    return cls
+
+def validator(field_name: str, validator_fn: Callable[[Any], None]) -> Callable[[Type[T]], Type[T]]:
+    def decorator(cls: Type[T]) -> Type[T]:
+        original_init = cls.__init__
+
+        def new_init(self: T, *args: Any, **kwargs: Any) -> None:
+            original_init(self, *args, **kwargs)
+            value = getattr(self, field_name)
+            validator_fn(value)
+
+        cls.__init__ = new_init
+        return cls
+
+    return decorator
+
+class DataType(Enum):
+    INT = auto()
+    FLOAT = auto()
+    STR = auto()
+    BOOL = auto()
+    NONE = auto()
+    LIST = auto()
+    TUPLE = auto()
+
+TypeMap = {
+    int: DataType.INT,
+    float: DataType.FLOAT,
+    str: DataType.STR,
+    bool: DataType.BOOL,
+    type(None): DataType.NONE,
+    list: DataType.LIST,
+    tuple: DataType.TUPLE
+}
+datum = Union[int, float, str, bool, None, List[Any], Tuple[Any, ...]]
+
+def get_type(value: datum) -> DataType:
+    if isinstance(value, list):
+        return DataType.LIST
+    if isinstance(value, tuple):
+        return DataType.TUPLE
+    return TypeMap[type(value)]
+
+def validate_datum(value: Any) -> bool:
+    return get_type(value) is not None
+
+def process_datum(value: datum) -> str:
+    return f"Processed {get_type(value).name}: {value}"
+
+def safe_process_input(value: Any) -> str:
+    return "Invalid input type" if not validate_datum(value) else process_datum(value)
+
+User = create_model('User', ID=Field(int), name_=Field(str))  # using name_ to avoid collision
 
 
-# Event Bus
 class EventBus:
     def __init__(self):
         self._subscribers = {}
@@ -93,16 +171,11 @@ class EventBus:
         for handler in self._subscribers.get(event_type, []):
             handler(data)
 
-
 event_bus = EventBus()
 
-# Validation
 validate_type = lambda value, expected_type: isinstance(value, expected_type)
 
-
 class Atom(ABC):
-    grammar_rules: List["GrammarRule"] = field(default_factory=list)
-
     @abstractmethod
     def encode(self) -> bytes:
         pass
@@ -112,20 +185,142 @@ class Atom(ABC):
         pass
 
     @abstractmethod
-    def execute(self, *args, **kwargs) -> Any:
+    def execute(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
-    @abstractmethod
-    def to_dataclass(self) -> "AtomDataclass":
-        pass
+class AtomicData(Atom):
+    def __init__(self, data: Any):
+        self.data = data
 
-    @abstractmethod
-    def parse_tree(self) -> "ParseTreeAtom":
-        pass
+    def encode(self) -> bytes:
+        return str(self.data).encode()
 
-    @abstractmethod
-    def define_grammar(self) -> None:
-        pass
+    def decode(self, data: bytes) -> None:
+        self.data = data.decode()
+
+    def execute(self, *args: Any, **kwargs: Any) -> Any:
+        return self.data
+
+@dataclass
+class Event(AtomicData):
+    id: str
+    type: str
+    detail_type: str
+    message: List[Dict[str, Any]]
+
+    def validate(self) -> bool:
+        return all([
+            isinstance(self.id, str),
+            isinstance(self.type, str),
+            isinstance(self.detail_type, str),
+            isinstance(self.message, list)
+        ])
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "type": self.type,
+            "detail_type": self.detail_type,
+            "message": self.message
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Event':
+        return cls(
+            id=data["id"],
+            type=data["type"],
+            detail_type=data["detail_type"],
+            message=data["message"]
+        )
+
+@dataclass
+class ActionRequest(AtomicData):
+    action: str
+    params: Dict[str, Any]
+    self_info: Dict[str, Any]
+
+    def validate(self) -> bool:
+        return all([
+            isinstance(self.action, str),
+            isinstance(self.params, dict),
+            isinstance(self.self_info, dict)
+        ])
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "action": self.action,
+            "params": self.params,
+            "self": self.self_info
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ActionRequest':
+        return cls(
+            action=data["action"],
+            params=data["params"],
+            self_info=data["self"]
+        )
+
+@dataclass
+class ActionResponse(AtomicData):
+    status: str
+    retcode: int
+    data: Dict[str, Any]
+    message: str = ""
+
+    def validate(self) -> bool:
+        return all([
+            isinstance(self.status, str),
+            isinstance(self.retcode, int),
+            isinstance(self.data, dict),
+            isinstance(self.message, str)
+        ])
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "status": self.status,
+            "retcode": self.retcode,
+            "data": self.data,
+            "message": self.message
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ActionResponse':
+        return cls(
+            status=data["status"],
+            retcode=data["retcode"],
+            data=data["data"],
+            message=data.get("message", "")
+        )
+
+class EventBus:
+    def __init__(self):
+        self._subscribers: Dict[str, List[Callable[[Any], None]]] = {}
+
+    def subscribe(self, event_type: str, handler: Callable[[Any], None]):
+        if event_type not in self._subscribers:
+            self._subscribers[event_type] = []
+        self._subscribers[event_type].append(handler)
+
+    def unsubscribe(self, event_type: str, handler: Callable[[Any], None]):
+        if event_type in self._subscribers:
+            self._subscribers[event_type].remove(handler)
+
+    def publish(self, event_type: str, data: Any):
+        for handler in self._subscribers.get(event_type, []):
+            handler(data)
+
+def process_event(event: Event) -> None:
+    print(f"Processing event: {event.to_dict()}")
+
+def handle_action_request(request: ActionRequest) -> ActionResponse:
+    print(f"Handling action request: {request.to_dict()}")
+    return ActionResponse(
+        status="ok",
+        retcode=0,
+        data={"result": "success"},
+        message=""
+    )
 
 
 @dataclass
@@ -135,10 +330,6 @@ class GrammarRule:
 
     def __repr__(self):
         return f"{self.lhs} -> {' '.join(map(str, self.rhs))}"
-
-
-T = TypeVar("T")
-
 
 @dataclass
 class AtomDataclass(Generic[T], Atom):
