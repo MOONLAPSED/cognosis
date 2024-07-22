@@ -6,41 +6,18 @@ import asyncio
 import os
 import subprocess
 import sys
-from typing import Any, Dict
+from typing import Any, Dict, Callable
 
-from src.app.llama import LlamaInterface
-from src.app.model import EventBus, ActionRequest, ActionResponse, Event
+from main import log_error, usermain, handle_action_request, process_event, User, Logger
 
-class Logger:
-    def __init__(self, name: str, level: int = logging.INFO):
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(level)
-        if not self.logger.handlers:
-            for handler in [logging.StreamHandler(), logging.FileHandler(f"{name}.log")]:
-                handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-                self.logger.addHandler(handler)
-            self.logger.info(f"Logger {name} initialized.")
 
-    def log(self, message: str, level: int = logging.INFO):
-        try:
-            self.logger.log(level, message)
-        except Exception as e:
-            logging.error(f"Failed to log message: {e}")
-
-    def debug(self, message: str):
-        self.log(message, logging.DEBUG)
-
-    def info(self, message: str):
-        self.log(message, logging.INFO)
-
-    def warning(self, message: str):
-        self.log(message, logging.WARNING)
-
-    def error(self, message: str, exc_info=None):
-        self.logger.error(message, exc_info=exc_info)
 
 state: Dict[str, bool] = {
-    k: False for k in ["pdm_installed", "virtualenv_created", "dependencies_installed", "lint_passed", "code_formatted", "tests_passed", "benchmarks_run", "pre_commit_installed"]
+    k: False for k in [
+        "pdm_installed", "virtualenv_created", "dependencies_installed",
+        "lint_passed", "code_formatted", "tests_passed",
+        "benchmarks_run", "pre_commit_installed"
+    ]
 }
 
 def run_command(command: str, check: bool = True, shell: bool = False, timeout: int = 120) -> Dict[str, Any]:
@@ -82,19 +59,6 @@ def run_command(command: str, check: bool = True, shell: bool = False, timeout: 
         "output": stdout.decode("utf-8"),
         "error": stderr.decode("utf-8")
     }
-
-class AppBus(EventBus):
-    def __init__(self, name: str = "AppBus"):
-        super().__init__()
-        self.logger = Logger(name)
-
-"""
-class AppModel(AtomicData):
-    def __init__(self, name: str, description: str, fields: Dict[str, Field]):
-        super().__init__(name, description, fields)
-        self.logger = Logger(name)
-        self.kernel = SymbolicKernel()
-"""
 
 def setup_app():
     """Setup the application"""
@@ -182,14 +146,15 @@ def introspect():
     for key, value in state.items():
         logging.info(f"{key}: {'✅' if value else '❌'}")
 
-async def usermain():
+async def run_usermain():
     try:
-        import main
-        await main.usermain()  # Ensure usermain is run as async function
+        await usermain()  # Ensure usermain is run as async function
     except ImportError:
         logging.error("No user-defined main function found. Please add a main.py file and define a usermain() function.")
+    except Exception as e:
+        logging.error(f"An error occurred while running usermain: {str(e)}", exc_info=True)
 
-def main(usermain):
+def rtmain():
     ensure_pdm()
     ensure_virtualenv()
     parser = argparse.ArgumentParser(description="Setup and run cognosis project")
@@ -213,14 +178,14 @@ def main(usermain):
     if not args.skip_user_main:
         try:
             if not asyncio.get_event_loop().is_running():
-                asyncio.run(usermain())
+                asyncio.run(run_usermain())
             else:
                 loop = asyncio.get_event_loop()
-                loop.run_until_complete(usermain())
+                loop.run_until_complete(run_usermain())
         except Exception as e:
             logging.error(f"An error occurred while running usermain: {str(e)}", exc_info=True)
 
     introspect()
 
 if __name__ == "__main__":
-    main(usermain)
+    rtmain()

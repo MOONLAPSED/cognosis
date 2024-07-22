@@ -2,26 +2,91 @@
 import asyncio
 import json
 import logging
-import marshal
-import types
-import sys
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
 import platform
-from functools import partial, wraps
+from dataclasses import dataclass, field
+from functools import partial
 from struct import Struct
-from typing import Any, Callable, Dict, Generic, TypeVar, List, Tuple, Union, Type, Optional, ClassVar
+from typing import Any, Callable, Dict, TypeVar, List, Tuple
+from typing import Union, Type, Optional, ClassVar, Generic
 from enum import Enum, auto
 from abc import ABC, abstractmethod
 
 from runtime import *
 
+class Logger:
+    def __init__(self, name: str, level: int = logging.INFO):
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(level)
+        if not self.logger.handlers:
+            for handler in [logging.StreamHandler(), logging.FileHandler(f"{name}.log")]:
+                handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+                self.logger.addHandler(handler)
+            self.logger.info(f"Logger {name} initialized.")
 
-def log_error(error: Exception):
+    def log(self, message: str, level: int = logging.INFO):
+        try:
+            self.logger.log(level, message)
+        except Exception as e:
+            logging.error(f"Failed to log message: {e}")
+
+    def debug(self, message: str):
+        self.log(message, logging.DEBUG)
+
+    def info(self, message: str):
+        self.log(message, logging.INFO)
+
+    def warning(self, message: str):
+        self.log(message, logging.WARNING)
+
+    def error(self, message: str, exc_info=None):
+        self.logger.error(message, exc_info=exc_info)
+
+logger = Logger("MainLogger")
+def log_error(error: Exception): #usermain() logger wrapper
     logger.error(f"Error occurred: {error}")
 
+class EventBus:
+    def __init__(self):
+        self._subscribers = {}
+
+    def subscribe(self, event_type: str, handler: Callable[[Any], None]):
+        self._subscribers.setdefault(event_type, []).append(handler)
+
+    def unsubscribe(self, event_type: str, handler: Callable[[Any], None]):
+        if event_type in self._subscribers:
+            self._subscribers[event_type].remove(handler)
+
+    def publish(self, event_type: str, data: Any):
+        for handler in self._subscribers.get(event_type, []):
+            handler(data)
+
+class AppBus:
+    def __init__(self, name: str = "AppBus"):
+        self._subscribers: Dict[str, List[Callable[[Any], None]]] = {}
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(logging.INFO)
+        if not self.logger.handlers:
+            for handler in [logging.StreamHandler(), logging.FileHandler(f"{name}.log")]:
+                handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+                self.logger.addHandler(handler)
+        self.logger.info(f"{name} initialized.")
+
+    def subscribe(self, event_type: str, handler: Callable[[Any], None]):
+        if event_type not in self._subscribers:
+            self._subscribers[event_type] = []
+        self._subscribers[event_type].append(handler)
+
+    def unsubscribe(self, event_type: str, handler: Callable[[Any], None]):
+        if event_type in self._subscribers:
+            self._subscribers[event_type].remove(handler)
+
+    def publish(self, event_type: str, data: Any):
+        for handler in self._subscribers.get(event_type, []):
+            handler(data)
+
+event_bus = EventBus()
+
 App = AppBus("AppBus")
-logger = Logger("MainLogger")
 T = TypeVar('T')
 
 class BaseModel:
@@ -142,28 +207,17 @@ def process_datum(value: datum) -> str:
     return f"Processed {get_type(value).name}: {value}"
 
 def safe_process_input(value: Any) -> str:
-    return "Invalid input type" if not validate_datum(value) else process_datum(value)
+    if not validate_datum(value):
+        return "Invalid input type"
+    return process_datum(value)
 
 User = create_model('User', ID=Field(int), name_=Field(str))  # using name_ to avoid collision
 
 
-class EventBus:
-    def __init__(self):
-        self._subscribers = {}
 
-    def subscribe(self, event_type: str, handler: Callable[[Any], None]):
-        self._subscribers.setdefault(event_type, []).append(handler)
 
-    def unsubscribe(self, event_type: str, handler: Callable[[Any], None]):
-        self._subscribers.get(event_type, []).remove(handler)
-
-    def publish(self, event_type: str, data: Any):
-        for handler in self._subscribers.get(event_type, []):
-            handler(data)
-
-event_bus = EventBus()
-
-validate_type = lambda value, expected_type: isinstance(value, expected_type)
+# ------------------------------------------------------------
+# begin atomic code
 
 class Atom(ABC):
     @abstractmethod
@@ -283,23 +337,6 @@ class ActionResponse(AtomicData):
             message=data.get("message", "")
         )
 
-class EventBus:
-    def __init__(self):
-        self._subscribers: Dict[str, List[Callable[[Any], None]]] = {}
-
-    def subscribe(self, event_type: str, handler: Callable[[Any], None]):
-        if event_type not in self._subscribers:
-            self._subscribers[event_type] = []
-        self._subscribers[event_type].append(handler)
-
-    def unsubscribe(self, event_type: str, handler: Callable[[Any], None]):
-        if event_type in self._subscribers:
-            self._subscribers[event_type].remove(handler)
-
-    def publish(self, event_type: str, data: Any):
-        for handler in self._subscribers.get(event_type, []):
-            handler(data)
-
 def process_event(event: Event) -> None:
     print(f"Processing event: {event.to_dict()}")
 
@@ -311,7 +348,6 @@ def handle_action_request(request: ActionRequest) -> ActionResponse:
         data={"result": "success"},
         message=""
     )
-
 
 @dataclass
 class GrammarRule:
@@ -401,7 +437,7 @@ class AtomDataclass(Generic[T], Atom):
             value[key.value] = val.value
         return value
 
-    def execute(self, *args, **kwargs) -> Any:
+    def execute(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
     def __repr__(self):
@@ -424,23 +460,26 @@ class AtomDataclass(Generic[T], Atom):
         }
         self.grammar_rules = rules.get(self.data_type, [])
 
-
 @dataclass
 class ParseTreeAtom:
     value: str
 
-logger = Logger("MainLogger")
 logger.info(f"Starting main.py on {platform.system()}")
 
 async def usermain(failure_threshold=10) -> bool:
-    user_logger = Logger("UserMainLogger")
+    user_logger = logging.getLogger("UserMainLogger")
+    user_logger.setLevel(logging.INFO)
+    ch = logging.StreamHandler()
+    ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    user_logger.addHandler(ch)
 
-    async def do_something() -> bool:
-        user_logger.info("The user had control of the application kernel.")
+    async def rtkernel() -> bool:
+        user_logger.info("The user has control of the application kernel.")
+        # logic that requires a thread, etc.
         return True
 
     try:
-        result = await do_something()
+        result = await rtkernel()
         if result:
             user_logger.info("usermain successful, returns True")
             return True
@@ -448,7 +487,7 @@ async def usermain(failure_threshold=10) -> bool:
         user_logger.error(f"Failed with error: {e}")
         return False
 
-    failure_count = sum(1 for _ in range(failure_threshold) if not await do_something())
+    failure_count = sum(1 for _ in range(failure_threshold) if not await rtkernel())
     failure_rate = failure_count / failure_threshold
     user_logger.info(f"Failure rate: {failure_rate:.2%}")
     return failure_rate < 1.0
@@ -471,3 +510,6 @@ async def main():
         logger.error(f"An error occurred: {str(e)}", exc_info=True)
     finally:
         logger.info("Exiting...")
+
+if __name__ == "__main__":
+    asyncio.run(main())
