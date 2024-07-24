@@ -3,6 +3,7 @@
 *.vs
 /apps/
 *.idea/
+/spec/*
 /.idea/*
 /output/*
 *.bin
