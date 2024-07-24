@@ -1,88 +1,18 @@
 import json
-import struct
 import logging
-import asyncio
-from datetime import datetime
+import struct
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Set, Type, Union, Generic, TypeVar
 from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Generic, TypeVar
 
+# Define typing variables
 T = TypeVar('T')
-P = TypeVar('P')
 
-class BaseModel:
-    def dict(self) -> Dict[str, Any]:
-        return {k: v for k, v in self.__dict__.items() if not k.startswith('_')}
+# Setup logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    def json(self) -> str:
-        return json.dumps(self.dict())
-
-    @classmethod
-    def parse_obj(cls: Type[T], data: Dict[str, Any]) -> T:
-        return cls(**data)
-
-    @classmethod
-    def parse_json(cls: Type[T], json_str: str) -> T:
-        return cls.parse_obj(json.loads(json_str))
-
-# Define custom Field for dynamic models
-class Field:
-    def __init__(self, type_: Type, default: Any = None, required: bool = True):
-        self.type = type_
-        self.default = default
-        self.required = required
-
-def create_model(model_name: str, **field_definitions: Field) -> Type[BaseModel]:
-    fields = {}
-    annotations = {}
-    defaults = {}
-
-    for field_name, field in field_definitions.items():
-        annotations[field_name] = field.type
-        if not field.required:
-            defaults[field_name] = field.default
-
-    def __init__(self, **data):
-        for field_name, field in field_definitions.items():
-            if field.required and field_name not in data:
-                raise ValueError(f"Field {field_name} is required")
-            value = data.get(field_name, field.default)
-            if not isinstance(value, field.type):
-                raise TypeError(f"Expected {field.type} for {field_name}, got {type(value)}")
-            setattr(self, field_name, value)
-
-    fields['__annotations__'] = annotations
-    fields['__init__'] = __init__
-
-    return type(model_name, (BaseModel,), fields)
-# user is the invokee of main, doesn't have access to runtime
-User = create_model('User',
-    id=Field(int),
-    name=Field(str, required=True),
-)
-
-# Define Event Bus (pub/sub pattern) User-scoped
-class EventBus:
-    def __init__(self):
-        self._subscribers: Dict[str, List[Callable[[Any], None]]] = {}
-
-    def subscribe(self, event_type: str, handler: Callable[[Any], None]):
-        if event_type not in self._subscribers:
-            self._subscribers[event_type] = []
-        self._subscribers[event_type].append(handler)
-
-    def unsubscribe(self, event_type: str, handler: Callable[[Any], None]):
-        if event_type in self._subscribers:
-            self._subscribers[event_type].remove(handler)
-
-    def publish(self, event_type: str, data: Any):
-        if event_type in self._subscribers:
-            for handler in self._subscribers[event_type]:
-                handler(data)
-
-event_bus = EventBus()
-
+# Define validation and logging decorators
 def validate_atom(func: Callable[..., T]) -> Callable[..., T]:
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> T:
@@ -104,9 +34,9 @@ def log_execution(func: Callable[..., T]) -> Callable[..., T]:
             raise
     return wrapper
 
+# Base Atom Class
 class Atom(ABC):
-    def __init__(self, value: Any, metadata: Optional[Dict[str, Any]] = None):
-        self.value = value
+    def __init__(self, metadata: Optional[Dict[str, Any]] = None):
         self.metadata = metadata or {}
 
     def add_metadata(self, key: str, value: Any):
@@ -132,11 +62,20 @@ class Atom(ABC):
     def execute(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
-# Define Token concrete class
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "metadata": self.metadata
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Atom':
+        return cls(metadata=data.get("metadata", {}))
+
 @dataclass
 class Token(Atom):
     def __init__(self, value: str, metadata: Optional[Dict[str, Any]] = None):
-        super().__init__(value, metadata)
+        super().__init__(metadata)
+        self.value = value
 
     def validate(self) -> bool:
         return isinstance(self.value, str) and isinstance(self.metadata, dict)
@@ -164,7 +103,174 @@ class Token(Atom):
     def execute(self, *args: Any, **kwargs: Any) -> Any:
         return self.value
 
-# Define MultiDimensionalAtom concrete class
+@dataclass
+class Event(Atom):
+    id: str
+    type: str
+    detail_type: str
+    message: List[Dict[str, Any]]
+
+    def __init__(self, id: str, type: str, detail_type: str, message: List[Dict[str, Any]], metadata: Optional[Dict[str, Any]] = None):
+        super().__init__(metadata)
+        self.id = id
+        self.type = type
+        self.detail_type = detail_type
+        self.message = message
+
+    def validate(self) -> bool:
+        return all([
+            isinstance(self.id, str),
+            isinstance(self.type, str),
+            isinstance(self.detail_type, str),
+            isinstance(self.message, list)
+        ])
+
+    def to_dict(self) -> Dict[str, Any]:
+        data = super().to_dict()
+        data.update({
+            "id": self.id,
+            "type": self.type,
+            "detail_type": self.detail_type,
+            "message": self.message
+        })
+        return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Event':
+        return cls(
+            id=data["id"],
+            type=data["type"],
+            detail_type=data["detail_type"],
+            message=data["message"],
+            metadata=data.get("metadata", {})
+        )
+
+    def encode(self) -> bytes:
+        return json.dumps(self.to_dict()).encode()
+
+    def decode(self, data: bytes) -> None:
+        obj = json.loads(data.decode())
+        self.id = obj['id']
+        self.type = obj['type']
+        self.detail_type = obj['detail_type']
+        self.message = obj['message']
+        self.metadata = obj.get('metadata', {})
+
+    def execute(self, *args: Any, **kwargs: Any) -> Any:
+        logging.info(f"Executing event: {self.id}")
+        # Implement necessary functionality here
+
+@dataclass
+class ActionRequest(Atom):
+    action: str
+    params: Dict[str, Any]
+    self_info: Dict[str, Any]
+
+    def __init__(self, action: str, params: Dict[str, Any], self_info: Dict[str, Any], metadata: Optional[Dict[str, Any]] = None):
+        super().__init__(metadata)
+        self.action = action
+        self.params = params
+        self.self_info = self_info
+
+    def validate(self) -> bool:
+        return all([
+            isinstance(self.action, str),
+            isinstance(self.params, dict),
+            isinstance(self.self_info, dict)
+        ])
+
+    def to_dict(self) -> Dict[str, Any]:
+        data = super().to_dict()
+        data.update({
+            "action": self.action,
+            "params": self.params,
+            "self_info": self.self_info
+        })
+        return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ActionRequest':
+        return cls(
+            action=data["action"],
+            params=data["params"],
+            self_info=data["self_info"],
+            metadata=data.get("metadata", {})
+        )
+
+    def encode(self) -> bytes:
+        return json.dumps(self.to_dict()).encode()
+
+    def decode(self, data: bytes) -> None:
+        obj = json.loads(data.decode())
+        self.action = obj['action']
+        self.params = obj['params']
+        self.self_info = obj['self_info']
+        self.metadata = obj.get('metadata', {})
+
+    def execute(self, *args: Any, **kwargs: Any) -> Any:
+        logging.info(f"Executing action: {self.action}")
+        # Implement action-related functionality here
+
+@dataclass
+class ActionResponse(Atom):
+    status: str
+    retcode: int
+    data: Dict[str, Any]
+    message: str = ""
+
+    def __init__(self, status: str, retcode: int, data: Dict[str, Any], message: str = "", metadata: Optional[Dict[str, Any]] = None):
+        super().__init__(metadata)
+        self.status = status
+        self.retcode = retcode
+        self.data = data
+        self.message = message
+
+    def validate(self) -> bool:
+        return all([
+            isinstance(self.status, str),
+            isinstance(self.retcode, int),
+            isinstance(self.data, dict),
+            isinstance(self.message, str)
+        ])
+
+    def to_dict(self) -> Dict[str, Any]:
+        data = super().to_dict()
+        data.update({
+            "status": self.status,
+            "retcode": self.retcode,
+            "data": self.data,
+            "message": self.message
+        })
+        return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ActionResponse':
+        return cls(
+            status=data["status"],
+            retcode=data["retcode"],
+            data=data["data"],
+            message=data.get("message", ""),
+            metadata=data.get("metadata", {})
+        )
+
+    def encode(self) -> bytes:
+        return json.dumps(self.to_dict()).encode()
+
+    def decode(self, data: bytes) -> None:
+        obj = json.loads(data.decode())
+        self.status = obj['status']
+        self.retcode = obj['retcode']
+        self.data = obj['data']
+        self.message = obj['message']
+        self.metadata = obj.get('metadata', {})
+
+    def execute(self, *args: Any, **kwargs: Any) -> Any:
+        logging.info(f"Executing response with status: {self.status}")
+        if self.status == "success":
+            return self.data
+        else:
+            raise Exception(self.message)
+
 @dataclass
 class MultiDimensionalAtom(Atom):
     dimensions: List[Atom] = field(default_factory=list)
@@ -187,10 +293,11 @@ class MultiDimensionalAtom(Atom):
     @validate_atom
     def decode(self, data: bytes) -> None:
         num_dims = struct.unpack('>I', data[:4])[0]
-        lengths = struct.unpack(f'>{num_dims}I', data[4:4+4*num_dims])
-        offset = 4 + 4*num_dims
+        lengths = struct.unpack(f'>{num_dims}I', data[4:4 + 4 * num_dims])
+        offset = 4 + 4 * num_dims
+        self.dimensions = []
         for length in lengths:
-            atom_data = data[offset:offset+length]
+            atom_data = data[offset:offset + length]
             atom = Token()  # Initialize as Token by default, can be replaced dynamically
             atom.decode(atom_data)
             self.dimensions.append(atom)
@@ -201,7 +308,6 @@ class MultiDimensionalAtom(Atom):
     def execute(self, *args: Any, **kwargs: Any) -> Any:
         return [atom.execute(*args, **kwargs) for atom in self.dimensions]
 
-# Formal Theory representation
 @dataclass
 class FormalTheory(Generic[T], Atom):
     top_atom: Optional[Atom] = None
@@ -247,3 +353,54 @@ class FormalTheory(Generic[T], Atom):
             "top_value": self.top_atom.execute(*args, **kwargs) if self.top_atom else None,
             "bottom_value": self.bottom_atom.execute(*args, **kwargs) if self.bottom_atom else None
         }
+
+# Define Event Bus (pub/sub pattern) restricted to Atom events
+class EventBus:
+    def __init__(self):
+        self._subscribers: Dict[str, List[Callable[[Atom], None]]] = {}
+
+    def subscribe(self, event_type: str, handler: Callable[[Atom], None]):
+        if event_type not in self._subscribers:
+            self._subscribers[event_type] = []
+        self._subscribers[event_type].append(handler)
+
+    def unsubscribe(self, event_type: str, handler: Callable[[Atom], None]):
+        if event_type in self._subscribers:
+            self._subscribers[event_type].remove(handler)
+
+    def publish(self, event_type: str, event: Atom):
+        if not isinstance(event, Atom):
+            raise TypeError(f"Published event must be an Atom, got {type(event)}")
+        if event_type in self._subscribers:
+            for handler in self._subscribers[event_type]:
+                handler(event)
+
+# Create an instance of EventBus
+event_bus = EventBus()
+
+# Example usage
+if __name__ == "__main__":
+    # Create a Token
+    token = Token("example")
+    result = token.execute()
+    logging.info(f"Token result: {result}")
+
+    # Create a MultiDimensionalAtom
+    multi_dim_atom = MultiDimensionalAtom()
+    multi_dim_atom.add_dimension(Token("dim1"))
+    multi_dim_atom.add_dimension(Token("dim2"))
+    result = multi_dim_atom.execute()
+    logging.info(f"MultiDimensionalAtom result: {result}")
+
+    # Create a FormalTheory
+    formal_theory = FormalTheory()
+    formal_theory.top_atom = Token("top")
+    formal_theory.bottom_atom = Token("bottom")
+    result = formal_theory.execute()
+    logging.info(f"FormalTheory result: {result}")
+
+    # Publish and Subscribe with the EventBus
+    event_bus.subscribe("example_event", lambda e: logging.info(f"Received event: {e.to_dict()}"))
+
+    event = Event(id="1", type="example_event", detail_type="test", message=[{"key": "value"}])
+    event_bus.publish("example_event", event)
