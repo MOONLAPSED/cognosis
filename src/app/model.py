@@ -317,6 +317,9 @@ class FormalTheory(Generic[T], Atom):
             "bottom_value": self.bottom_atom.execute(*args, **kwargs) if self.bottom_atom else None
         }
 
+
+# ------- end of dataclass & model definition -------
+
 class EventBus: # Define Event Bus (pub/sub pattern)
     def __init__(self):
         self._subscribers: Dict[str, List[Callable[[Atom], None]]] = {}
@@ -336,7 +339,6 @@ class EventBus: # Define Event Bus (pub/sub pattern)
         if event_type in self._subscribers:
             for handler in self._subscribers[event_type]:
                 handler(event)
-event_bus = EventBus()
 
 class Operation(ActionRequest):
     def __init__(self, name: str, action: Callable, args: List[Any] = None, kwargs: Dict[str, Any] = None):
@@ -348,10 +350,6 @@ class Operation(ActionRequest):
 
     def execute(self, *args: Any, **kwargs: Any) -> Any:
         return self.action(*self.params['args'], **self.params['kwargs'])
-
-# -------------------below are runtime.py scoped classes and methods---------
-# these are runtime.py scoped classes and methods but are here because 
-# this is a monolithic file for purposes of collaboration etc.
 
 class Task:
     def __init__(self, task_id: int, operation: Operation):
@@ -664,8 +662,6 @@ class AtomicBotApplication:
             f"  ]\n"
             f")"
         )
-
-# -------------------------------------------------------
 # end of library code
 
 
