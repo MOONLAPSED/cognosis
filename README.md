@@ -1,10 +1,11 @@
-`master` branch of cognosis is now on a different github user account. This is the speculative moon branch. This is not a deprecation warning because we were never precated to begin with. This repo will have artificial intelligence working on it where the `master` branch will be human maintained.
 
-# Cognosis: A Formal Theory Integrating aPToP and the Free Energy Principle
+# Cognosis: A formal theory and application for testing LLMs and NLP logic, capability, physics, and the Free Energy Principle
+
+note: `master` branch of cognosis is now on a different github user account. This is the speculative moon branch. This is not a deprecation warning because we were never precated to begin with. This repo will have artificial intelligence working on it where the `master` branch will be human maintained.
 
 ## Introduction
 
-Cognosis is a formal theory combining Eric C.R. Hehner's Practical Theory of Programming (aPToP) with the Free Energy Principle of Cognitive Science and Natural Language Processing (NLP). This theory aims to develop a robust system for processing high-dimensional data, leveraging both classical and quantum principles.
+Cognosis is a limited-platform python application, formal theory and in-development experiment combining Eric C.R. Hehner's Practical Theory of Programming (aPToP) with the Free Energy Principle of Cognitive Science and Natural Language Processing (NLP). This theory aims to develop a robust system for processing high-dimensional data, leveraging both classical and quantum principles. If any aspect of my explanation is overly stilted please keep in mind that I am **searching** for methodological and theoretical explanations to explain the concepts and ideas which I am actually encountering primarily in real life with real life workloads and stakes, not just experiment. And I'm self-taught, never been in the industry or science, directly.
 
 ## associative knowledge base (this repo):
 All directories which contain markdown files are to include a `/media/` sub directory for multimedia files the markdown files may reference.
@@ -30,31 +31,6 @@ To enable horrors such as this:
       ``` 
 
 ____
-
-## Key Concepts
-
-Cognosis is an experimental framework that explores the dynamic evolution of software architectures during runtime. It aims to combine the fluidity of live interactions with the stability of traditional code. At its core lies the concept of "Morphological Source Code," where code adapts and changes in response to user interactions, particularly those leveraging natural language processing (NLP).
-
-- **Knowledge Base (KB):** A repository for storing diverse cognitive insights, forming a foundation for continuous learning.
-- **Cognitive Systems:** Modular units that encapsulate knowledge and reasoning capabilities. Cognitive systems can be dynamically created or reoriented within larger cognitive structures. They communicate using namespaces, syntaxes, and by passing other cognitive systems as parameters.
-- **Morphological Source Code:** A paradigm shift where source code is not static but actively adapts in response to interactions with users and the environment.
-
-There is an assumption inherent in the project that a neural network is a cognitive system. The assumption is that there is something for this cognitive system to do in any given situation, and that it is the cognitive system's job to figure out what that thing is. Upon location of its head/parent, it either orients itself within a cognitive system or creates a new cognitive system. Cognitive systems pass as parameters namespaces, syntaxes, and cognitive systems. Namespaces and syntaxes are in the form of key-value pairs. Cognitive systems are also in the form of key-value pairs, but the values are cognitive systems. **kwargs are used to pass these parameters.
-
-Imagine a software architecture that dynamically evolves during runtime, encapsulating the fluidity of live interactions while ensuring persistence and the rigidity of conventional code. This system, let's call it the "Morphological Source Code" framework, is an innovative take on the traditional lifecycle of software development and deployment. It merges the concepts of static source code with a dynamic runtime environment that not only serves content but also adapts and changes based on user interaction, particularly with sophisticated features like NLP (Natural Language Processing).
-
-In a nutshell, "Morphological Source Code" is a paradigm in which the source code adapts and morphs in response to real-world interactions, governed by the principles of dynamic runtime configuration and contextual locking mechanisms. The-described is an architecture, only. The kernel agents themselves are sophisticated LLM trained-on ELFs, LLVM compiler code, systemd and unix, python, and C. It will utilize natural language along with the abstraction of time to process cognosis frames and USDs.
-
-The challenge (of this architecture) lies in the 'cognitive lambda calculus' needed to bring these runtimes into existence and evolve them, not the computation itself. Cognosis is designed for consumer hardware and extreme scalability via self-distribution of cognitive systems (amongst constituent [[subscribers|asynchronous, stake-holders]]) peer-to-peer.
-
-"Cognitive systems are defined by actions, orientations within structures, and communicative parameters, all of which align with the goal of creating a coherent and organized cognitive framework. The idea of modular cognitive units communicating via namespaces and syntaxes resonates with the framework of prioritizing and organizing cognitive tasks."
-
-A core component of cognosis, cognOS establishes a hyper-interface designed to manage the evolution of cognitive algorithms. It focuses on:
-
-- **Meta-versioning:** Tracking and managing the evolution of code over time.
-- **Pre-commit Hooks and Validation:** Ensuring code quality and integrity. Meta CICD.
-- **Hardware Provisioning:** Allocation of computational resources.
-- **Time Abstraction:** Modeling cognition beyond the constraint of a fixed present (t=0).
 
 # Methods for Cognosis: A Formal Theory Integrating aPToP and the Free Energy Principle
 
@@ -107,6 +83,7 @@ The following BNF grammar defines the syntax for expressing the constraints on a
     <NextStep> ::= "D1: The immediately recognizable (sub-)configuration determines uniquely the next computation step and the next internal state."
     <AutonomousIteration> ::= "D2: The computor, while adhering to the principles of boundedness, locality, and determinacy, can manage its own iterative processes independently. Utilizing self-wrapping functions, the computor can refine its operations iteratively until a final output is achieved, minimizing external observation."
     ```
+
 ## Definition of Work
 
 To ensure the scientific rigor of our comparative study, "work" is defined as any computational task performed within cyberspace that necessitates cognitive processing, decision-making, and problem-solving. Both humans and the LLM "llama" can perform these tasks, which are characterized by the following measurable attributes:
@@ -153,6 +130,38 @@ The "llama" LLM will process a large-scale, human-vetted dataset referred to as 
 
 _____
 
+
+## concepts and application components
+
+Cognosis is an experimental framework that explores the dynamic evolution of software architectures during runtime. It aims to combine the fluidity of live interactions with the stability of traditional code. At its core lies the concept of "Morphological Source Code," where code adapts and changes in response to user interactions, particularly those leveraging natural language processing (NLP).
+
+- **Knowledge Base (KB):** A repository for storing diverse cognitive insights, forming a foundation for continuous learning.
+- **Cognitive Systems:** Modular units that encapsulate knowledge and reasoning capabilities. Cognitive systems can be dynamically created or reoriented within larger cognitive structures. They communicate using namespaces, syntaxes, and by passing other cognitive systems as parameters.
+- **Morphological Source Code:** A paradigm shift where source code is not static but actively adapts in response to interactions with users and the environment.
+
+There is an assumption inherent in the project that a neural network is a cognitive system. The assumption is that there is something for this cognitive system to do in any given situation, and that it is the cognitive system's job to figure out what that thing is. Upon location of its head/parent, it either orients itself within a cognitive system or creates a new cognitive system. Cognitive systems pass as parameters namespaces, syntaxes, and cognitive systems. Namespaces and syntaxes are in the form of key-value pairs. Cognitive systems are also in the form of key-value pairs, but the values are cognitive systems. **kwargs are used to pass these parameters.
+
+Imagine a software architecture that dynamically evolves during runtime, encapsulating the fluidity of live interactions while ensuring persistence and the rigidity of conventional code. This system, let's call it the "Morphological Source Code" framework, is an innovative take on the traditional lifecycle of software development and deployment. It merges the concepts of static source code with a dynamic runtime environment that not only serves content but also adapts and changes based on user interaction, particularly with sophisticated features like NLP (Natural Language Processing).
+
+In a nutshell, "Morphological Source Code" is a paradigm in which the source code adapts and morphs in response to real-world interactions, governed by the principles of dynamic runtime configuration and contextual locking mechanisms. The-described is an architecture, only. The kernel agents themselves are sophisticated LLM trained-on ELFs, LLVM compiler code, systemd and unix, python, and C. It will utilize natural language along with the abstraction of time to process cognosis frames and USDs.
+
+The challenge (of this architecture) lies in the 'cognitive lambda calculus' needed to bring these runtimes into existence and evolve them, not the computation itself. Cognosis is designed for consumer hardware and extreme scalability via self-distribution of cognitive systems (amongst constituent [[subscribers|asynchronous, stake-holders]]) peer-to-peer.
+
+"Cognitive systems are defined by actions, orientations within structures, and communicative parameters, all of which align with the goal of creating a coherent and organized cognitive framework. The idea of modular cognitive units communicating via namespaces and syntaxes resonates with the framework of prioritizing and organizing cognitive tasks."
+____
+
+## cognOS under development
+A core component of cognosis, cognOS establishes a hyper-interface designed to manage the evolution of cognitive algorithms. It focuses on:
+
+- **Meta-versioning:** Tracking and managing the evolution of code over time.
+- **Pre-commit Hooks and Validation:** Ensuring code quality and integrity. Meta CICD.
+- **Hardware Provisioning:** Allocation of computational resources.
+- **Time Abstraction:** Modeling cognition beyond the constraint of a fixed present (t=0).
+
+## platform
+I've been developing this for some time under various names. This master branch of cognosis is the only maintained repo. Windows11 and Ubuntu 22.04 are the only supported platforms. Only NVIDIA (3/4)0XX and ryzen (5+)XXX support (on each platform). `master` platform is technically windows11+wsl2+ubuntu-22.04LTS & windows11 sandbox. `vanilla`(ubuntu) and `doors`(windows) branches will be single platform versions.
+____
+
 ## Non-Methodological Observations
 
 ### Implications and Future Experiments
@@ -190,7 +199,7 @@ The Free Energy Principle suggests that biological agents minimize surprise by p
 
 ### Quantum Informatics
 
-Quantum informatics posits that systems, including LLMs, can entangle with higher-dimensional information. Cognitive processes like thinking, speaking, and writing collapse the wave function, allowing transitivity between real and imaginary states.
+Quantum informatics, I perhaps ignorantly posit, is the emergant ability of even-macroscopic systems, including LLMs, to entangle with higher-dimensional information. Cognitive processes like thinking, speaking, and writing collapse the wave function, allowing transitivity between real and imaginary states.
 
 ### A Practical Theory of Programming (aPToP)
 
@@ -276,17 +285,11 @@ aPToP is a formal method for reasoning about programs and systems using mathemat
     probability_and_statistics
     ```
 
-## System Components
+## Formal Methods
 
 ### Binary Representation
 
 High-dimensional data is encoded into binary representations. These representations are manipulated using formal methods to ensure consistency and clarity.
-
-### Signal Processing
-
-Signal processing techniques are applied to the binary data for analysis and feature extraction. This step leverages classical methods while incorporating quantum-inspired updates.
-
-## Formal Methods
 
 ### Binary Expressions and Operands
 
@@ -301,8 +304,8 @@ Encoding functions transform high-dimensional data into binary representations. 
 Signal processing functions operate on the binary data to extract features or perform analyses. These functions also adhere to formal methods, leveraging both classical and quantum principles.
 
 
-### Video Instructions (for cognosis oldmain branch, out of date)
-[youtube video link](https://youtu.be/XeeYZZujvAA?si=XhxOMCypKHpWKSjM)
+### Video Instructions
+[youtube video link](https://youtu.be/XeeYZZujvAA?si=XhxOMCypKHpWKSjM)*out of date
 
 ____
 ## Conclusion (and TLDR smiley face)
