@@ -15,8 +15,9 @@ To enable horrors such as this:
     `! [ ... ] ( /media/image.png )` (no spaces)
 
 ## Frontmatter Implementation
- - [obsidian-markdown and associative 'knowledge base' README](/obkb/README.md)
- - 
+
+ - [obsidian-markdown and associative 'knowledge base' README](/src/obkb/README.md)
+
  - Utilize 'frontmatter' to include the title and other `property`, `tag`, etc. in the knowledge base article(s).
    
    - For Example:
