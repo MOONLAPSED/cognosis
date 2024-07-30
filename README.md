@@ -1,8 +1,6 @@
 
 # Cognosis: A formal theory and application for testing LLMs and NLP logic, capability, physics, and the Free Energy Principle
 
-note: `master` branch of cognosis is now on a different github user account. This is the speculative moon branch. This is not a deprecation warning because we were never precated to begin with. This repo will have artificial intelligence working on it where the `master` branch will be human maintained.
-
 ## Introduction
 
 Cognosis is a limited-platform python application, formal theory and in-development experiment combining Eric C.R. Hehner's Practical Theory of Programming (aPToP) with the Free Energy Principle of Cognitive Science and Natural Language Processing (NLP). This theory aims to develop a robust system for processing high-dimensional data, leveraging both classical and quantum principles. If any aspect of my explanation is overly stilted please keep in mind that I am **searching** for methodological and theoretical explanations to explain the concepts and ideas which I am actually encountering primarily in real life with real life workloads and stakes, not just experiment. And I'm self-taught, never been in the industry or science, directly.
@@ -16,9 +14,11 @@ To enable horrors such as this:
 
     `! [ ... ] ( /media/image.png )` (no spaces)
 
-## <Frontmatter Implementation>
- - [API README](/src/README.md)
+## Frontmatter Implementation
+ - [obsidian-markdown and associative 'knowledge base' README](/obkb/README.md)
+ - 
  - Utilize 'frontmatter' to include the title and other `property`, `tag`, etc. in the knowledge base article(s).
+   
    - For Example:
       ```
       ---
@@ -30,9 +30,14 @@ To enable horrors such as this:
       ---
       ``` 
 
+## asyncio REST API
+ - [API README](/src/README.md)
+
+note: `master` branch of cognosis is now on a different github user account. This is the speculative moon branch. This is not a deprecation warning because we were never precated to begin with. This repo will have artificial intelligence working on it where the `master` branch will be human maintained.
+
 ____
 
-# Methods for Cognosis: A Formal Theory Integrating aPToP and the Free Energy Principle
+# Methods for Cognosis:
 
 ## Abstract
 
