@@ -82,7 +82,7 @@ Utilizing an obsidian-markdown code like the following, one can save space while
 
 Rendered:
 
-...defined by a [[qubit]]
+...defined by a ![[qubit]]
 
 This will result in an associative link from the article being edited/rendered to the article we are referencing as the editors, an [[obsidian-markdown symlink]].
 

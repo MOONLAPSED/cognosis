@@ -1,5 +1,8 @@
 # /source/.windows/README.md
 
+NOTE: I do not recommend running any AI application on your pc proper. All instructions, binaries, etc in `/source`/` are for WSL and WSB usage only. This is slightly confusing since the files will work on normal windows or on normal ubuntu-22.04 but I repeat they are for use in SANDBOX windows, and SUBSYSTEM linux!
+
+
 ## windows container routine
 
 First, let's run the `dockerd_windows.ps1` script to start the container:
