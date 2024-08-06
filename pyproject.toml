@@ -7,7 +7,7 @@ name = "cognosis"
 description = "A namespace and filesystem interface for Obsidian knowledge bases."
 authors = [{ name = "MOONLAPSED", email = "MOONLAPSED@gmail.com" }]
 requires-python = ">=3.11"
-version = "0.1.6901"
+version = "0.1.269"
 
 [project.readme]
 file = "README.md"
