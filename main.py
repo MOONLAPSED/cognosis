@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
+# ~/main.py - Runtime for Cognosis, curryable (usermain())
 import asyncio
-import json
 import logging
 import platform
 from dataclasses import dataclass, field
@@ -10,8 +9,60 @@ from typing import Any, Callable, Dict, TypeVar, List, Tuple
 from typing import Union, Type, Optional, ClassVar, Generic
 from enum import Enum, auto
 from abc import ABC, abstractmethod
+import argparse
+import os
+import subprocess
+import sys
+import logging
+import pathlib
 
-from runtime import *
+state: Dict[str, bool] = {
+    k: False for k in [
+        "pdm_installed", "virtualenv_created", "dependencies_installed",
+        "lint_passed", "code_formatted", "tests_passed",
+        "benchmarks_run", "pre_commit_installed"
+    ]
+}
+
+def run_command(command: str, check: bool = True, shell: bool = False, timeout: int = 120) -> Dict[str, Any]:
+    try:
+        process = subprocess.Popen(command, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(timeout=timeout)
+
+        if check and process.returncode != 0:
+            logging.error(f"Command '{command}' failed with return code {process.returncode}")
+            logging.error(f"Error output: {stderr.decode('utf-8')}")
+            return {
+                "return_code": process.returncode,
+                "output": stdout.decode("utf-8"),
+                "error": stderr.decode("utf-8")
+            }
+
+        logging.info(f"Command '{command}' completed successfully")
+        logging.debug(f"Output: {stdout.decode('utf-8')}")
+
+    except subprocess.TimeoutExpired:
+        process.kill()
+        stdout, stderr = process.communicate()
+        logging.error(f"Command '{command}' timed out and was killed.")
+        return {
+            "return_code": -1,
+            "output": stdout.decode("utf-8"),
+            "error": "Command timed out"
+        }
+    except Exception as e:
+        logging.error(f"An error occurred while running command '{command}': {str(e)}")
+        return {
+            "return_code": -1,
+            "output": "",
+            "error": str(e)
+        }
+
+    return {
+        "return_code": process.returncode,
+        "output": stdout.decode("utf-8"),
+        "error": stderr.decode("utf-8")
+    }
 
 class Logger:
     def __init__(self, name: str, level: int = logging.INFO):
@@ -45,424 +96,92 @@ logger = Logger("MainLogger")
 def log_error(error: Exception): #usermain() logger wrapper
     logger.error(f"Error occurred: {error}")
 
-class EventBus:
-    def __init__(self):
-        self._subscribers = {}
+def setup_app():
+    """Setup the application"""
+    global state
+    if not state["pdm_installed"]:
+        ensure_pdm()
+    if not state["virtualenv_created"]:
+        ensure_virtualenv()
+    if not state["dependencies_installed"]:
+        ensure_dependencies()
 
-    def subscribe(self, event_type: str, handler: Callable[[Any], None]):
-        self._subscribers.setdefault(event_type, []).append(handler)
+    mode = prompt_for_mode()
+    if mode == "dev":
+        ensure_lint()
+        ensure_format()
+        ensure_tests()
+        ensure_benchmarks()
+        ensure_pre_commit()
+    introspect()
 
-    def unsubscribe(self, event_type: str, handler: Callable[[Any], None]):
-        if event_type in self._subscribers:
-            self._subscribers[event_type].remove(handler)
-
-    def publish(self, event_type: str, data: Any):
-        for handler in self._subscribers.get(event_type, []):
-            handler(data)
-
-class AppBus:
-    def __init__(self, name: str = "AppBus"):
-        self._subscribers: Dict[str, List[Callable[[Any], None]]] = {}
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.INFO)
-        if not self.logger.handlers:
-            for handler in [logging.StreamHandler(), logging.FileHandler(f"{name}.log")]:
-                handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-                self.logger.addHandler(handler)
-        self.logger.info(f"{name} initialized.")
-
-    def subscribe(self, event_type: str, handler: Callable[[Any], None]):
-        if event_type not in self._subscribers:
-            self._subscribers[event_type] = []
-        self._subscribers[event_type].append(handler)
-
-    def unsubscribe(self, event_type: str, handler: Callable[[Any], None]):
-        if event_type in self._subscribers:
-            self._subscribers[event_type].remove(handler)
-
-    def publish(self, event_type: str, data: Any):
-        for handler in self._subscribers.get(event_type, []):
-            handler(data)
-
-event_bus = EventBus()
-
-App = AppBus("AppBus")
-T = TypeVar('T')
-
-class BaseModel:
-    def dict(self) -> Dict[str, Any]:
-        return {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
-
-    def json(self) -> str:
-        return json.dumps(self.dict())
-
-    @classmethod
-    def parse_obj(cls, data: Dict[str, Any]) -> "BaseModel":
-        return cls(**data)
-
-    @classmethod
-    def parse_json(cls, json_str: str) -> "BaseModel":
+def ensure_pdm():
+    """Ensure pdm is installed"""
+    if not state["pdm_installed"]:
         try:
-            data = json.loads(json_str)
-        except json.JSONDecodeError as e:
-            raise ValueError("Invalid JSON string") from e
-        return cls.parse_obj(data)
+            subprocess.run("pdm --version", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            state["pdm_installed"] = True
+            logging.info("pdm is already installed.")
+        except subprocess.CalledProcessError:
+            logging.info("pdm not found, installing pdm...")
+            run_command("pip install pdm", shell=True)
+            state["pdm_installed"] = True
 
-class Field:
-    def __init__(self, type_: Type, default: Any = None, required: bool = True):
-        if not isinstance(type_, type):
-            raise TypeError("type_ must be a valid type")
-        self.type = type_
-        self.default = default
-        self.required = required
+def ensure_virtualenv():
+    """Ensure the virtual environment is created"""
+    if not state["virtualenv_created"]:
+        if not os.path.exists(".venv"):
+            run_command("pdm venv create", shell=True)
+        state["virtualenv_created"] = True
+        logging.info("Virtual environment already exists.")
 
-def create_model(model_name: str, **field_definitions: Field) -> Type[BaseModel]:
-    fields = {}
-    annotations = {}
-    defaults = {}
+def ensure_dependencies():
+    """Install dependencies"""
+    run_command("pdm install --project ./", shell=True)
+    state["dependencies_installed"] = True
 
-    for field_name, field in field_definitions.items():
-        annotations[field_name] = field.type
-        if not field.required:
-            defaults[field_name] = field.default
+def ensure_lint():
+    """Run linting tools"""
+    run_command("pdm run flake8 .", shell=True)
+    run_command("pdm run black --check .", shell=True)
+    run_command("pdm run mypy .", shell=True)
+    state["lint_passed"] = True
 
-    def __init__(self, **data):
-        for field_name, field in field_definitions.items():
-            if field.required and field_name not in data:
-                raise ValueError(f"Field {field_name} is required")
-            value = data.get(field_name, field.default)
-            if not isinstance(value, field.type):
-                raise TypeError(f"Expected {field.type} for {field_name}, got {type(value)}")
-            setattr(self, field_name, value)
+def ensure_format():
+    """Format the code"""
+    run_command("pdm run black .", shell=True)
+    run_command("pdm run isort .", shell=True)
+    state["code_formatted"] = True
 
-    def __repr__(self):
-        return f"{model_name}({', '.join(f'{k}={v!r}' for k, v in self.__dict__.items() if not k.startswith('_'))})"
-    
-    fields['__annotations__'] = annotations
-    fields['__init__'] = __init__
-    fields['__repr__'] = __repr__
+def ensure_tests():
+    """Run tests"""
+    run_command("pdm run pytest", shell=True)
+    state["tests_passed"] = True
 
-    return type(model_name, (BaseModel,), fields)
+def ensure_benchmarks():
+    """Run benchmarks"""
+    run_command("pdm run python src/bench/bench.py", shell=True)
+    state["benchmarks_run"] = True
 
-def validate_types(cls: Type[T]) -> Type[T]:
-    original_init = cls.__init__    
+def ensure_pre_commit():
+    """Install pre-commit hooks"""
+    run_command("pdm run pre-commit install", shell=True)
+    state["pre_commit_installed"] = True
 
-    def new_init(self: T, *args: Any, **kwargs: Any) -> None:
-        known_keys = set(cls.__annotations__.keys())
-        for key, value in kwargs.items():
-            if key in known_keys:
-                expected_type = cls.__annotations__.get(key)
-                if not isinstance(value, expected_type):
-                    raise TypeError(f"Expected {expected_type} for {key}, got {type(value)}")
-        original_init(self, *args, **kwargs)
+def prompt_for_mode():
+    """Prompt the user to choose between development and non-development setup"""
+    while True:
+        choice = input("Choose setup mode: [d]evelopment or [n]on-development? ").lower()
+        if choice in ["d", "n"]:
+            return choice
+        logging.info("Invalid choice, please enter 'd' or 'n'.")
 
-    cls.__init__ = new_init
-    return cls
+def introspect():
+    """Introspect the current state and print results"""
+    logging.info("Introspection results:")
+    for key, value in state.items():
+        logging.info(f"{key}: {'✅' if value else '❌'}")
 
-def validator(field_name: str, validator_fn: Callable[[Any], None]) -> Callable[[Type[T]], Type[T]]:
-    def decorator(cls: Type[T]) -> Type[T]:
-        original_init = cls.__init__
-
-        def new_init(self: T, *args: Any, **kwargs: Any) -> None:
-            original_init(self, *args, **kwargs)
-            value = getattr(self, field_name)
-            validator_fn(value)
-
-        cls.__init__ = new_init
-        return cls
-
-    return decorator
-
-class DataType(Enum):
-    INT = auto()
-    FLOAT = auto()
-    STR = auto()
-    BOOL = auto()
-    NONE = auto()
-    LIST = auto()
-    TUPLE = auto()
-
-TypeMap = {
-    int: DataType.INT,
-    float: DataType.FLOAT,
-    str: DataType.STR,
-    bool: DataType.BOOL,
-    type(None): DataType.NONE,
-    list: DataType.LIST,
-    tuple: DataType.TUPLE
-}
-datum = Union[int, float, str, bool, None, List[Any], Tuple[Any, ...]]
-
-def get_type(value: datum) -> DataType:
-    if isinstance(value, list):
-        return DataType.LIST
-    if isinstance(value, tuple):
-        return DataType.TUPLE
-    return TypeMap[type(value)]
-
-def validate_datum(value: Any) -> bool:
-    return get_type(value) is not None
-
-def process_datum(value: datum) -> str:
-    return f"Processed {get_type(value).name}: {value}"
-
-def safe_process_input(value: Any) -> str:
-    if not validate_datum(value):
-        return "Invalid input type"
-    return process_datum(value)
-
-User = create_model('User', ID=Field(int), name_=Field(str))  # using name_ to avoid collision
-
-
-
-
-# ------------------------------------------------------------
-# begin atomic code
-
-class Atom(ABC):
-    @abstractmethod
-    def encode(self) -> bytes:
-        pass
-
-    @abstractmethod
-    def decode(self, data: bytes) -> None:
-        pass
-
-    @abstractmethod
-    def execute(self, *args: Any, **kwargs: Any) -> Any:
-        pass
-
-class AtomicData(Atom):
-    def __init__(self, data: Any):
-        self.data = data
-
-    def encode(self) -> bytes:
-        return str(self.data).encode()
-
-    def decode(self, data: bytes) -> None:
-        self.data = data.decode()
-
-    def execute(self, *args: Any, **kwargs: Any) -> Any:
-        return self.data
-
-@dataclass
-class Event(AtomicData):
-    id: str
-    type: str
-    detail_type: str
-    message: List[Dict[str, Any]]
-
-    def validate(self) -> bool:
-        return all([
-            isinstance(self.id, str),
-            isinstance(self.type, str),
-            isinstance(self.detail_type, str),
-            isinstance(self.message, list)
-        ])
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "id": self.id,
-            "type": self.type,
-            "detail_type": self.detail_type,
-            "message": self.message
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Event':
-        return cls(
-            id=data["id"],
-            type=data["type"],
-            detail_type=data["detail_type"],
-            message=data["message"]
-        )
-
-@dataclass
-class ActionRequest(AtomicData):
-    action: str
-    params: Dict[str, Any]
-    self_info: Dict[str, Any]
-
-    def validate(self) -> bool:
-        return all([
-            isinstance(self.action, str),
-            isinstance(self.params, dict),
-            isinstance(self.self_info, dict)
-        ])
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "action": self.action,
-            "params": self.params,
-            "self": self.self_info
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ActionRequest':
-        return cls(
-            action=data["action"],
-            params=data["params"],
-            self_info=data["self"]
-        )
-
-@dataclass
-class ActionResponse(AtomicData):
-    status: str
-    retcode: int
-    data: Dict[str, Any]
-    message: str = ""
-
-    def validate(self) -> bool:
-        return all([
-            isinstance(self.status, str),
-            isinstance(self.retcode, int),
-            isinstance(self.data, dict),
-            isinstance(self.message, str)
-        ])
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "status": self.status,
-            "retcode": self.retcode,
-            "data": self.data,
-            "message": self.message
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ActionResponse':
-        return cls(
-            status=data["status"],
-            retcode=data["retcode"],
-            data=data["data"],
-            message=data.get("message", "")
-        )
-
-def process_event(event: Event) -> None:
-    print(f"Processing event: {event.to_dict()}")
-
-def handle_action_request(request: ActionRequest) -> ActionResponse:
-    print(f"Handling action request: {request.to_dict()}")
-    return ActionResponse(
-        status="ok",
-        retcode=0,
-        data={"result": "success"},
-        message=""
-    )
-
-@dataclass
-class GrammarRule:
-    lhs: str
-    rhs: List[Union[str, "GrammarRule"]]
-
-    def __repr__(self):
-        return f"{self.lhs} -> {' '.join(map(str, self.rhs))}"
-
-@dataclass
-class AtomDataclass(Generic[T], Atom):
-    value: T
-    data_type: str = field(init=False)
-
-    def __post_init__(self):
-        type_map = {
-            "str": "string",
-            "int": "integer",
-            "float": "float",
-            "bool": "boolean",
-            "list": "list",
-            "dict": "dictionary",
-        }
-        self.data_type = type_map.get(type(self.value).__name__, "unsupported")
-        self.define_grammar()
-
-    def encode(self) -> bytes:
-        return (
-            Struct("!I").pack(len(self.data_type.encode("utf-8")))
-            + self.data_type.encode("utf-8")
-            + self._encode_data()
-        )
-
-    def _encode_data(self) -> bytes:
-        encoders = {
-            "string": lambda x: x.encode("utf-8"),
-            "integer": lambda x: Struct("!q").pack(x),
-            "float": lambda x: Struct("!d").pack(x),
-            "boolean": lambda x: Struct("?").pack(x),
-            "list": lambda x: b"".join(AtomDataclass(elem).encode() for elem in x),
-            "dictionary": lambda x: b"".join(
-                AtomDataclass(k).encode() + AtomDataclass(v).encode()
-                for k, v in x.items()
-            ),
-        }
-        return encoders.get(self.data_type, lambda x: b"")(self.value)
-
-    def decode(self, data: bytes) -> None:
-        header_length = Struct("!I").unpack(data[:4])[0]
-        data_type = data[4 : 4 + header_length].decode("utf-8")
-        data_bytes = data[4 + header_length :]
-
-        decoders = {
-            "string": lambda x: x.decode("utf-8"),
-            "integer": lambda x: Struct("!q").unpack(x)[0],
-            "float": lambda x: Struct("!d").unpack(x)[0],
-            "boolean": lambda x: Struct("?").unpack(x)[0],
-            "list": lambda x: self._decode_list(x),
-            "dictionary": lambda x: self._decode_dict(x),
-        }
-
-        if data_type in decoders:
-            self.value = decoders[data_type](data_bytes)
-        else:
-            raise ValueError(f"Unsupported data type: {data_type}")
-
-        self.data_type = data_type
-
-    def _decode_list(self, data_bytes: bytes) -> List[Any]:
-        value, offset = [], 0
-        while offset < len(data_bytes):
-            element = AtomDataclass(None)
-            element.decode(data_bytes[offset:])
-            value.append(element.value)
-            offset += len(element.encode())
-        return value
-
-    def _decode_dict(self, data_bytes: bytes) -> Dict[Any, Any]:
-        value, offset = {}, 0
-        while offset < len(data_bytes):
-            key = AtomDataclass(None)
-            key.decode(data_bytes[offset:])
-            offset += len(key.encode())
-            val = AtomDataclass(None)
-            val.decode(data_bytes[offset:])
-            offset += len(val.encode())
-            value[key.value] = val.value
-        return value
-
-    def execute(self, *args: Any, **kwargs: Any) -> Any:
-        pass
-
-    def __repr__(self):
-        return f"AtomDataclass(id={id(self)}, value={self.value}, data_type='{self.data_type}')"
-
-    def to_dataclass(self):
-        return self
-
-    def parse_tree(self) -> "ParseTreeAtom":
-        return ParseTreeAtom(str(self.value))
-
-    def define_grammar(self) -> None:
-        rules = {
-            "string": [GrammarRule("STRING", ['".*"'])],
-            "integer": [GrammarRule("INTEGER", ["-?[0-9]+"])],
-            "float": [GrammarRule("FLOAT", ["-?[0-9]*\\.[0-9]+"])],
-            "boolean": [GrammarRule("BOOLEAN", ["true", "false"])],
-            "list": [GrammarRule("LIST", ["[", "ELEMENTS", "]"])],
-            "dictionary": [GrammarRule("DICTIONARY", ["{", "KEY_VALUES", "}"])],
-        }
-        self.grammar_rules = rules.get(self.data_type, [])
-
-@dataclass
-class ParseTreeAtom:
-    value: str
 
 logger.info(f"Starting main.py on {platform.system()}")
 
@@ -513,3 +232,43 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+async def run_usermain():
+    try:
+        await usermain()  # Ensure usermain is run as async function
+    except ImportError:
+        logging.error("No user-defined main function found. Please add a main.py file and define a usermain() function.")
+    except Exception as e:
+        logging.error(f"An error occurred while running usermain: {str(e)}", exc_info=True)
+
+def rtmain():
+    ensure_pdm()
+    ensure_virtualenv()
+    parser = argparse.ArgumentParser(description="Setup and run cognosis project")
+    parser.add_argument("-m", "--mode", choices=["dev", "non-dev"], help="Setup mode: 'dev' or 'non-dev'")
+    parser.add_argument("-u", "--skip-user-main", action="store_true", help="Skip running the user-defined main function")
+    args = parser.parse_args()
+    mode = args.mode
+    if not mode:
+        choice = prompt_for_mode()
+        mode = "dev" if choice == "d" else "non-dev"
+
+    ensure_dependencies()
+
+    if mode == "dev":
+        ensure_lint()
+        ensure_format()
+        ensure_tests()
+        ensure_benchmarks()
+        ensure_pre_commit()
+
+    if not args.skip_user_main:
+        try:
+            asyncio.run(run_usermain())
+        except Exception as e:
+            logging.error(f"An error occurred while running usermain: {str(e)}", exc_info=True)
+
+    introspect()
+
+if __name__ == "__main__":
+    rtmain()
