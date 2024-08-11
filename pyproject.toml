@@ -6,8 +6,8 @@ build-backend = "pdm.pep517.api"
 name = "cognosis"
 description = "A namespace and filesystem interface for Obsidian knowledge bases."
 authors = [{ name = "MOONLAPSED", email = "MOONLAPSED@gmail.com" }]
-requires-python = ">=3.11"
-version = "0.1.269"
+requires-python = ">=3.12"
+version = "0.1.369"
 
 [project.readme]
 file = "README.md"
