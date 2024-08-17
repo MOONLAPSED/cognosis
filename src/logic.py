@@ -6,7 +6,7 @@ import time
 import os
 import logging
 from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Union, Callable, TypeVar, Tuple, Generic, Set, Coroutine, Type
+from typing import Any, Dict, List, Optional, Union, Callable, TypeVar, Tuple, Generic, Set, Coroutine, Type, ClassVar
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import asyncio
@@ -20,20 +20,35 @@ import hashlib
 import base64
 import socket
 import inspect
-
 logging.basicConfig(level=logging.INFO)
 Logger = logging.getLogger(__name__)
-T = TypeVar('T')  # Type Variable to allow type-checking, linting,.. of Generic "T" and "V"
-
-# decorators
-def log_execution(func):
+"""ADMIN code (this script) is global scope and validates the following for APP and USER scoped code's use:
+Type Variable to allow type-checking, linting,.. of Generic...
+    "T"((t)ypes and classes),
+    "V"((v)ariables and functions),
+    "P"((p)arameters/message-(p)assing),
+    "C"((c)allable(reflective functions))"""
+T = TypeVar('T', bound=Type)  # type is synonymous for class, in other words T = class()
+P = {k: v for k, v in inspect.getmembers(Any, inspect.isclass) if k != 'Any'}
+V = TypeVar('V', bound=Union[int, float, str, bool, list, dict, tuple, set, object, Callable, Enum, Type[Any]])
+C = TypeVar('C', bound=Callable[..., Any])
+# decorators (USER-facing)
+def log_execution(func):  # asyncio.iscoroutinefunction(func)
     @wraps(func)
-    async def wrapper(*args, **kwargs):
+    async def async_wrapper(*args, **kwargs):
         logging.info(f"Executing {func.__name__} with args: {args}, kwargs: {kwargs}")
         result = await func(*args, **kwargs)
         logging.info(f"Completed {func.__name__} with result: {result}")
         return result
-    return wrapper
+
+    @wraps(func)
+    def sync_wrapper(*args, **kwargs):
+        logging.info(f"Executing {func.__name__} with args: {args}, kwargs: {kwargs}")
+        result = func(*args, **kwargs)
+        logging.info(f"Completed {func.__name__} with result: {result}")
+        return result
+
+    return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
 
 def measure_time(func):
     @wraps(func)
@@ -49,8 +64,10 @@ def dynamic_introspection(obj: Any):
     Logger.info(f"Introspecting: {obj.__class__.__name__}")
     for name, value in inspect.getmembers(obj):
         if not name.startswith('_'):
-            if inspect.ismethod(value) or inspect.isfunction(value):
+            if inspect.isfunction(value) or inspect.ismethod(value):
                 Logger.info(f"  Method: {name}")
+            elif isinstance(value, property):
+                Logger.info(f"  Property: {name}")
             else:
                 Logger.info(f"  Attribute: {name} = {value}")
 
@@ -60,12 +77,13 @@ class ReflectiveIntrospector:
         dynamic_introspection(obj)
 
 def validate_types(cls: Type[T]) -> Type[T]:
-    original_init = cls.__init__    
+    original_init = cls.__init__
+    sig = inspect.signature(original_init)
 
     def new_init(self: T, *args: Any, **kwargs: Any) -> None:
-        known_keys = set(cls.__annotations__.keys())
-        for key, value in kwargs.items():
-            if key in known_keys:
+        bound_args = sig.bind(self, *args, **kwargs)
+        for key, value in bound_args.arguments.items():
+            if key in cls.__annotations__:
                 expected_type = cls.__annotations__.get(key)
                 if not isinstance(value, expected_type):
                     raise TypeError(f"Expected {expected_type} for {key}, got {type(value)}")
@@ -78,6 +96,7 @@ def validator(field_name: str, validator_fn: Callable[[Any], None]) -> Callable[
     def decorator(cls: Type[T]) -> Type[T]:
         original_init = cls.__init__
 
+        @wraps(original_init)
         def new_init(self: T, *args: Any, **kwargs: Any) -> None:
             original_init(self, *args, **kwargs)
             value = getattr(self, field_name)
@@ -124,7 +143,7 @@ def process_datum(value: datum) -> str:
 def safe_process_input(value: Any) -> str:
     return "Invalid input type" if not validate_datum(value) else process_datum(value)
 
-class Atom(ABC):
+class Atom(ABC):  # Homoiconic abstract BaseClass
     def __init__(self, id: str, **attributes):
         self.id = id
         self.attributes: Dict[str, Any] = attributes
@@ -217,7 +236,7 @@ class TaskAtom(Atom):  # Tasks are atoms that represent asynchronous potential a
             result=data['result']
         )
 
-class ArenaAtom(Atom):
+class ArenaAtom(Atom):  # Arenas are threaded virtual memory Atoms appropriatly-scoped when invoked
     def __init__(self, name: str):
         super().__init__(id=name)
         self.name = name
@@ -292,7 +311,7 @@ class ArenaAtom(Atom):
                 logging.error(f"Error in worker: {e}")
 
 @dataclass
-class AtomNotification(Atom):
+class AtomNotification(Atom):  # nominative async message passing interface
     message: str
 
     def encode(self) -> bytes:
@@ -303,7 +322,7 @@ class AtomNotification(Atom):
         obj = json.loads(data.decode())
         return cls(message=obj['message'])
 
-class EventBus(Atom):
+class EventBus(Atom):  # Pub/Sub homoiconic event bus
     def __init__(self):
         super().__init__(id="event_bus")
         self._subscribers: Dict[str, List[Callable[[Atom], Coroutine[Any, Any, None]]]] = {}
@@ -330,7 +349,7 @@ class EventBus(Atom):
         raise NotImplementedError("EventBus cannot be directly decoded")
 
 @dataclass
-class EventAtom(Atom):  # Events are potential actions which are associated with messages
+class EventAtom(Atom):  # Events are network-friendly Atoms, associates with a type and an id (USER-scoped), think; datagram
     id: str
     type: str
     detail_type: Optional[str] = None
@@ -382,7 +401,7 @@ class EventAtom(Atom):  # Events are potential actions which are associated with
 
 
 @dataclass
-class ActionRequestAtom(Atom):
+class ActionRequestAtom(Atom):  # User-initiated action request
     action: str
     params: Dict[str, Any]
     self_info: Dict[str, Any]
@@ -421,7 +440,7 @@ class ActionRequestAtom(Atom):
         return True
 
 @dataclass
-class ActionResponseAtom(Atom):
+class ActionResponseAtom(Atom):  # Response to an action request of any scope
     status: str
     retcode: int
     data: Dict[str, Any]
@@ -633,7 +652,7 @@ class Hypothesis(Atom):
         return f"Hypothesis(name={self.name})"
 
 @dataclass
-class AtomicElement(Generic[T]):
+class AtomicElement(Generic[T]):  # AtomicElement is a User-scoped generic Dataclass
     value: T
     data_type: str = field(init=False)
 
@@ -715,7 +734,7 @@ class AtomicElement(Generic[T]):
 
 
 @dataclass
-class AtomicTheory(Generic[T], Atom):
+class AtomicTheory(Generic[T], Atom):  # APP-scoped generic Dataclass
     elements: List[AtomicElement[T]]
     operations: Dict[str, Callable[..., Any]] = field(default_factory=lambda: {
         '⊤': lambda x: True,
@@ -761,7 +780,7 @@ class AtomicTheory(Generic[T], Atom):
         return f"AtomicTheory(elements={self.elements!r})"
 
 @dataclass
-class AntiTheoryAtom(Atom):
+class AntiTheoryAtom(Atom):  # logical/runtime scoped generic Dataclass (can associate with any Atom)
     theory: AtomicTheory
 
     def encode(self) -> bytes:
