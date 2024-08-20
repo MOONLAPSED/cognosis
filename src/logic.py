@@ -26,10 +26,8 @@ Logger = logging.getLogger(__name__)
 Type Variable to allow type-checking, linting,.. of Generic...
     "T"((t)ypes and classes),
     "V"((v)ariables and functions),
-    "P"((p)arameters/message-(p)assing),
     "C"((c)allable(reflective functions))"""
-T = TypeVar('T', bound=Type)  # type is synonymous for class, in other words T = class()
-P = {k: v for k, v in inspect.getmembers(Any, inspect.isclass) if k != 'Any'}
+T = TypeVar('T', bound=Type)  # type is synonymous for class: T = type(class()) or vice-versa
 V = TypeVar('V', bound=Union[int, float, str, bool, list, dict, tuple, set, object, Callable, Enum, Type[Any]])
 C = TypeVar('C', bound=Callable[..., Any])
 # decorators (USER-facing)
