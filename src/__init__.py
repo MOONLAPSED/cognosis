@@ -1,62 +1,87 @@
+# src/__init__.py
+
+import sys
+import importlib
+from importlib.util import module_from_spec
+import pathlib
+
+try:
+    mixins = []
+    for path in pathlib.Path(__file__).parent.glob("*.py"):
+        if path.name.startswith("_"):
+            continue
+        module_name = path.stem
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        mixins.append(module)
+except Exception as e:
+    print(f"Error importing internal modules: {e}")
+    sys.exit(1)
+
+if mixins:
+    __all__ = [mixin.__name__ for mixin in mixins]
+else:
+    __all__ = []
+
+import asyncio
+from concurrent.futures import Future, ThreadPoolExecutor
+from contextlib import contextmanager
+import json
+import logging
+import struct
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Generic, TypeVar
+import threading
+import queue
+import time
+import pathlib
+import sys
 import importlib.util
-from pathlib import Path
-from types import SimpleNamespace
-import ast
 
-""" hacked namespace uses `__all__` as a whitelist of symbols which are executable source code.
-Non-whitelisted modules or runtime constituents are treated as 'data' which we call associative 
-'articles' within the knowledge base, loaded at runtime."""
+# Explicitly define what is exposed when the package is imported
+__all__ = [
+    "asyncio", "Future", "ThreadPoolExecutor", "contextmanager", "json", "logging", 
+    "struct", "ABC", "abstractmethod", "dataclass", "field", "wraps", "Any", 
+    "Callable", "Dict", "List", "Optional", "Generic", "TypeVar", "threading", 
+    "queue", "time", "pathlib", "importlib"
+]
 
-class KnowledgeBase:
-    def __init__(self, base_dir):
-        self.base_dir = Path(base_dir)
-        self.globals = SimpleNamespace()
-        self.globals.__all__ = []
-        self.initialize()
+# Import internal modules and submodules
+try:
+    from .app.llama import *
+    from .app.kernel import *
+except ModuleNotFoundError as e:
+    print(f"Error importing internal modules: {e}")
+    sys.exit(1)
 
-    def initialize(self):
-        self._import_py_modules(self.base_dir)
-        self._load_articles(self.base_dir)
+__all__.extend([
+    # Add the names of the imported symbols from the internal modules here
+])
 
-    def _import_py_modules(self, directory):
-        for path in directory.rglob("*.py"):
-            if path.name.startswith("_"):
-                continue
-            try:
-                module_name = path.stem
-                spec = importlib.util.spec_from_file_location(module_name, str(path))
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                setattr(self.globals, module_name, module)
-                self.globals.__all__.append(module_name)
-            except Exception as e:
-                print(f"Error importing module {module_name}: {e}")
+# Set the root directory to scan
+root_dir = pathlib.Path(__file__).parent.parent
 
-    def _load_articles(self, directory):
-        for suffix in ['*.md', '*.txt']:
-            for path in directory.rglob(suffix):
-                try:
-                    article_name = path.stem
-                    content = path.read_text()
-                    article = SimpleNamespace(
-                        content=content,
-                        path=str(path)
-                    )
-                    setattr(self.globals, article_name, article)
-                except Exception as e:
-                    print(f"Error loading article from {path}: {e}")
+# Create an array to store the files to load
+files_to_load = []
 
-    def execute_query(self, query):
-        try:
-            parsed = ast.parse(query, mode='eval')
-            result = eval(compile(parsed, '<string>', 'eval'), {'kb': self.globals})
-            return str(result)
-        except Exception as e:
-            return f"Error: {str(e)}"
+# Recursively traverse the directory tree and collect files
+for file in root_dir.rglob('*'):
+    if file.is_file():
+        # Store the file path and contents in the array
+        files_to_load.append((file, file.read_text()))
 
-    def commit_changes(self):
-        # TODO: Implement logic to write changes back to the file system
-        pass
+# Create a module for each file
+for file_path, file_contents in files_to_load:
+    # Create a module name based on the file name
+    module_name = file_path.stem
 
-def initialize_kb(base_dir):
-    return KnowledgeBase(base_dir)
+    # Use importlib to load the contents into the namespace as a module
+    spec = module_from_spec(importlib.util.Loader(file_path))
+    module = sys.modules[module_name] = spec.load_module()
+
+"""This code uses `pathlib` to recursively traverse the directory tree, collects files in an array, and then creates
+a module for each file using `importlib`. The contents of each file are loaded into the namespace as a module."""
