@@ -69,7 +69,7 @@ def dynamic_introspection(obj: Any):
             else:
                 Logger.info(f"  Attribute: {name} = {value}")
 
-class ReflectiveIntrospector:
+class ReflectiveIntrospector:  # NYE; 'callable' for Atoms
     @staticmethod
     def introspect(obj: Any):
         dynamic_introspection(obj)
@@ -920,15 +920,6 @@ class SpeculativeKernel:
                                 initial_input: Any, retries: int = 3, retry_delay: float = 1.0, max_parallel: int = 1) -> ExperimentAgentAtom:
         return ExperimentAgentAtom(hypothesis=hypothesis, ttl=ttl, termination_condition=termination_condition,
                                    initial_input=initial_input, retries=retries, retry_delay=retry_delay, max_parallel=max_parallel)
-
-    def create_websocket_communication_atom(self, uri: str, access_token: str = None) -> WebSocketCommunicationAtom:
-        return WebSocketCommunicationAtom(uri=uri, access_token=access_token)
-
-    def create_action_request_atom(self, action: str, params: Dict[str, Any], self_info: Dict[str, Any], echo: str = None) -> ActionRequestAtom:
-        return ActionRequestAtom(action=action, params=params, self_info=self_info, echo=echo)
-
-    def create_action_response_atom(self, status: str, retcode: int, data: Dict[str, Any], message: str = None, echo: str = None) -> ActionResponseAtom:
-        return ActionResponseAtom(status=status, retcode=retcode, data=data, message=message, echo=echo)
 
     def create_event_atom(self, event_id: str, event_type: str, detail_type: str = None, message: Union[str, List[Dict[str, Any]]] = None,
                           source: str = None, target: str = None, content: str = None, metadata: Dict[str, Any] = None) -> EventAtom:
