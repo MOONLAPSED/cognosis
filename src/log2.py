@@ -2,11 +2,9 @@ import uuid
 import json
 import struct
 import time
-import os
 import logging
 from enum import Enum, auto
 from typing import Any, Dict, List, Optional, Union, Callable, TypeVar, Tuple, Generic, Set, Coroutine, Type, ClassVar
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import asyncio
 from queue import Queue, Empty
@@ -14,10 +12,6 @@ import threading
 from functools import wraps
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
-from http.server import BaseHTTPRequestHandler
-import hashlib
-import base64
-import socket
 import inspect
 import ast
 logging.basicConfig(level=logging.INFO)
@@ -30,33 +24,6 @@ Type Variable to allow type-checking, linting,.. of Generic...
 T = TypeVar('T', bound=Type)  # type is synonymous for class: T = type(class()) or vice-versa
 V = TypeVar('V', bound=Union[int, float, str, bool, list, dict, tuple, set, object, Callable, Enum, Type[Any]])
 C = TypeVar('C', bound=Callable[..., Any])
-
-def log_execution(func):  # asyncio.iscoroutinefunction(func)
-    @wraps(func)
-    async def async_wrapper(*args, **kwargs):
-        logging.info(f"Executing {func.__name__} with args: {args}, kwargs: {kwargs}")
-        result = await func(*args, **kwargs)
-        logging.info(f"Completed {func.__name__} with result: {result}")
-        return result
-
-    @wraps(func)
-    def sync_wrapper(*args, **kwargs):
-        logging.info(f"Executing {func.__name__} with args: {args}, kwargs: {kwargs}")
-        result = func(*args, **kwargs)
-        logging.info(f"Completed {func.__name__} with result: {result}")
-        return result
-
-    return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
-
-def measure_time(func):
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        start_time = time.perf_counter()
-        result = await func(*args, **kwargs)
-        end_time = time.perf_counter()
-        logging.info(f"{func.__name__} executed in {end_time - start_time:.4f} seconds")
-        return result
-    return wrapper
 
 def dynamic_introspection(obj: Any):
     Logger.info(f"Introspecting: {obj.__class__.__name__}")
@@ -140,6 +107,42 @@ def process_datum(value: datum) -> str:
 
 def safe_process_input(value: Any) -> str:
     return "Invalid input type" if not validate_datum(value) else process_datum(value)
+
+
+def log_execution(func):  # asyncio.iscoroutinefunction(func)
+    @wraps(func)
+    async def async_wrapper(*args, **kwargs):
+        logging.info(f"Executing {func.__name__} with args: {args}, kwargs: {kwargs}")
+        result = await func(*args, **kwargs)
+        logging.info(f"Completed {func.__name__} with result: {result}")
+        return result
+
+    @wraps(func)
+    def sync_wrapper(*args, **kwargs):
+        logging.info(f"Executing {func.__name__} with args: {args}, kwargs: {kwargs}")
+        result = func(*args, **kwargs)
+        logging.info(f"Completed {func.__name__} with result: {result}")
+        return result
+
+    return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
+
+def measure_time(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        start_time = time.perf_counter()
+        result = await func(*args, **kwargs)
+        end_time = time.perf_counter()
+        logging.info(f"{func.__name__} executed in {end_time - start_time:.4f} seconds")
+        return result
+    return wrapper
+
+def instant(cls: Type[T]) -> Type[T]:
+    @wraps(cls)
+    def wrapper(*args, **kwargs):
+        instance = cls(*args, **kwargs)
+        logging.info(f"(Insta)nziator: Created instance of {cls.__name__} with args: {args}, kwargs: {kwargs}")
+        return instance
+    return wrapper
 
 # Base class for all Atoms to support homoiconism
 class Atom:
