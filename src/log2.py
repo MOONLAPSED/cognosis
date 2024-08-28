@@ -314,10 +314,11 @@ class EventBus(Atom):  # Pub/Sub homoiconic event bus
         if event_type in self._subscribers:
             self._subscribers[event_type].remove(handler)
 
-    async def publish(self, event_type: str, event: Atom) -> None:
+    async def publish(self, event_type: str, event_data: Any) -> None:
         if event_type in self._subscribers:
             for handler in self._subscribers[event_type]:
-                asyncio.create_task(handler(event))
+                asyncio.create_task(handler(event_type, event_data))
+
 
     def encode(self) -> bytes:
         raise NotImplementedError("EventBus cannot be directly encoded")

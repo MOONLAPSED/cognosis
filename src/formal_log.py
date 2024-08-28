@@ -21,10 +21,25 @@ class AtomicData:
     type: str
     detail_type: str
     message: List[Dict[str, Any]]
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'AtomicData':
+        return cls(
+            id=data['id'],
+            type=data['type'],
+            detail_type=data['detail_type'],
+            message=data['message']
+        )
+
 @dataclass(frozen=True)
 class Task:
     id: int
     description: str
+
+    async def run(self) -> Any:
+        # Implement the task execution logic here
+        return f"Executed task {self.id}: {self.description}"
+
 
 class TaskQueue:
     def __init__(self):
@@ -44,7 +59,7 @@ class TaskQueue:
             self.queue.task_done()
 
     def start_processing(self) -> None:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
         if loop.is_closed():
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
@@ -228,9 +243,9 @@ class FormalTheory(Generic[T]):
                 dummy_code.co_names,
                 dummy_code.co_varnames,
                 dummy_code.co_filename,
-                attr,  # function name
-                dummy_code.co_firstlineno,
-                dummy_code.co_lnotab if hasattr(dummy_code, 'co_lnotab') else dummy_code.co_linetable,
+                attr,  # This is already a string
+                1,  # co_firstlineno as an integer
+                b'',  # Use an empty bytes object for co_lnotab
                 dummy_code.co_freevars,
                 dummy_code.co_cellvars,
             )
@@ -242,6 +257,11 @@ class FormalTheory(Generic[T]):
     def add_axiom(self, name: str, axiom: Callable) -> None:
         self.case_base[name] = axiom
 
+    def get_anti_theory(self) -> 'FormalTheory':
+        anti_theory = FormalTheory()
+        for name, axiom in self.case_base.items():
+            anti_theory.add_axiom(f"Anti-{name}", lambda *args: not axiom(*args))
+        return anti_theory
 # Event Handling and Task Processing
 
 async def execute_action(request: AtomicData) -> str:
@@ -256,12 +276,13 @@ def handle_action_request(request: AtomicData) -> Dict[str, Any]:
 
 def create_task_from_event(event_type: str, event_data: dict) -> Task:
     action_request = AtomicData.from_dict(event_data)
-    return Task(action_request.id, execute_action, action_request)
+    return Task(id=int(action_request.id), description=f"Execute action: {action_request.type}")
 
-def process_incoming_event(event_type: str, event_data: dict) -> None:
+async def process_incoming_event(event_type: str, event_data: dict) -> None:
     if event_type == "action_event":
         task = create_task_from_event(event_type, event_data)
         task_queue.add_task(task)
+
 
 def handle_action_event(data: Any) -> None:
     print(f"Handling action event: {data}")
@@ -271,11 +292,9 @@ def handle_action_event(data: Any) -> None:
 
 # Initializing all components
 
+theory = Theory("MyTheory", lambda x: x, lambda x: ExperimentResult(x, x, True))
 event_bus = EventBus()
 task_queue = TaskQueue()
-
-# Subscribing to events
-event_bus.subscribe("action_event", process_incoming_event)
 
 # Publish an example event
 sample_event = {
@@ -284,7 +303,14 @@ sample_event = {
     "detail_type": "move",
     "message": [{"key": "value"}]
 }
-event_bus.publish("action_event", sample_event)
+
+# Subscribing to events
+# For EventBus methods
+async def subscribe_and_publish():
+    await event_bus.subscribe("action_event", process_incoming_event)
+    await event_bus.publish("action_event", sample_event)
+
+asyncio.run(subscribe_and_publish())
 
 # Start task processing
 task_queue.start_processing()
@@ -297,7 +323,12 @@ hypothesis = FormalTheory()
 hypothesis.add_axiom("MyHypothesis", lambda x: x)
 anti_theory = theory.get_anti_theory()
 encoded_theory = theory.encode()
-encoded_threading = threading.Thread(target=task_queue.process_tasks)
-encoded_threading.start()
+
+# For TaskQueue.process_tasks
+async def run_task_queue():
+    await task_queue.process_tasks()
+
+asyncio.run(run_task_queue())
+
 decode_theory = FormalTheory()
 decode_theory.decode(encoded_theory)
