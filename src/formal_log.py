@@ -209,14 +209,28 @@ class FormalTheory(Generic[T]):
     tautology: Callable[[Callable[..., bool]], bool] = field(default_factory=lambda: lambda f: f())
 
     MAGIC_CONSTANT: ClassVar[bytes] = b'THY'
-
+    """
+        def __post_init__(self):
+            self.case_base['⊤'] = lambda x, _: x
+            self.case_base['⊥'] = lambda _, y: y
+            self.case_base['a'] = lambda a, b: a if a else b
+            self.case_base['¬'] = lambda a: not a
+            self.case_base['∧'] = lambda a, b: a and b
+            self.case_base['∨'] = lambda a, b: a or b
+    """
     def encode(self) -> bytes:
         functions = [self.reflexivity, self.symmetry, self.transitivity, self.transparency]
-        function_lengths = [len(f.__code__.co_code) for f in functions]
+        function_data = [marshal.dumps(f.__code__) for f in functions]
+        function_lengths = [len(data) for data in function_data]
         header = struct.pack('>3sB4I', self.MAGIC_CONSTANT, 1, *function_lengths)
-        code_data = b''.join(f.__code__.co_code for f in functions)
-        marshal_data = b''.join(marshal.dumps(f.__code__) for f in self.case_base.values())
-        return header + code_data + marshal_data
+        
+        case_base_data = []
+        for name, func in self.case_base.items():
+            name_bytes = name.encode('utf-8')
+            func_bytes = marshal.dumps(func.__code__)
+            case_base_data.extend([struct.pack('>I', len(name_bytes)), name_bytes, struct.pack('>I', len(func_bytes)), func_bytes])
+        
+        return header + b''.join(function_data) + b''.join(case_base_data)
 
     def decode(self, data: bytes) -> None:
         if data[:3] != self.MAGIC_CONSTANT:
@@ -224,35 +238,23 @@ class FormalTheory(Generic[T]):
         offset = 4
         lengths = struct.unpack('>4I', data[offset:offset + 16])
         offset += 16
-        total_length = sum(lengths)
-        if len(data[offset:offset + total_length]) != total_length:
-            raise ValueError('Malformed FormalTheory data')
 
-        dummy_code = (lambda: None).__code__
         for attr, length in zip(['reflexivity', 'symmetry', 'transitivity', 'transparency'], lengths):
-            code_data = data[offset:offset + length]
-            code_obj = types.CodeType(
-                dummy_code.co_argcount,
-                dummy_code.co_posonlyargcount,
-                dummy_code.co_kwonlyargcount,
-                dummy_code.co_nlocals,
-                dummy_code.co_stacksize,
-                dummy_code.co_flags,
-                code_data,
-                dummy_code.co_consts,
-                dummy_code.co_names,
-                dummy_code.co_varnames,
-                dummy_code.co_filename,
-                attr,  # This is already a string
-                1,  # co_firstlineno as an integer
-                b'',  # Use an empty bytes object for co_lnotab
-                dummy_code.co_freevars,
-                dummy_code.co_cellvars,
-            )
+            code_obj = marshal.loads(data[offset:offset + length])
             setattr(self, attr, types.FunctionType(code_obj, {}))
             offset += length
 
-        self.case_base = {name: types.FunctionType(marshal.loads(data[offset:offset + length]), {}) for name, length in zip(self.case_base.keys(), lengths[4:])}
+        self.case_base = {}
+        while offset < len(data):
+            name_length = struct.unpack('>I', data[offset:offset+4])[0]
+            offset += 4
+            name = data[offset:offset+name_length].decode('utf-8')
+            offset += name_length
+            func_length = struct.unpack('>I', data[offset:offset+4])[0]
+            offset += 4
+            func_code = marshal.loads(data[offset:offset+func_length])
+            self.case_base[name] = types.FunctionType(func_code, {})
+            offset += func_length
 
     def add_axiom(self, name: str, axiom: Callable) -> None:
         self.case_base[name] = axiom
