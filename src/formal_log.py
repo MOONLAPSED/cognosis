@@ -1,14 +1,11 @@
-import json
 import logging
 import struct
 from abc import ABC, abstractmethod
 from functools import wraps
-import threading
 import queue
-import time
 import asyncio
 from typing import Any, Callable, Dict, Type, List, Tuple, Union, Optional, Generic, TypeVar, ClassVar
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field
 import marshal
 import types
 import queue
@@ -39,7 +36,6 @@ class Task:
     async def run(self) -> Any:
         # Implement the task execution logic here
         return f"Executed task {self.id}: {self.description}"
-
 
 class TaskQueue:
     def __init__(self):
@@ -93,7 +89,6 @@ class ExperimentAgent(Atom):
     retry_delay: float = 1.0
     max_parallel: int = 1
     experiment_log: List[ExperimentResult] = field(default_factory=list)
-
 
     async def run(self) -> Optional[ExperimentResult]:
         current_input = self.initial_input
@@ -192,7 +187,6 @@ class Theory(Atom):
         inverted_result.metadata['anti_hypothesis_result'] = not result.metadata.get('hypothesis_result', True)
         return inverted_result
 
-
 @dataclass
 class FormalTheory(Generic[T]):
     reflexivity: Callable[[T], bool] = field(default_factory=lambda: lambda x: x == x)
@@ -209,15 +203,15 @@ class FormalTheory(Generic[T]):
     tautology: Callable[[Callable[..., bool]], bool] = field(default_factory=lambda: lambda f: f())
 
     MAGIC_CONSTANT: ClassVar[bytes] = b'THY'
-    """
-        def __post_init__(self):
-            self.case_base['⊤'] = lambda x, _: x
-            self.case_base['⊥'] = lambda _, y: y
-            self.case_base['a'] = lambda a, b: a if a else b
-            self.case_base['¬'] = lambda a: not a
-            self.case_base['∧'] = lambda a, b: a and b
-            self.case_base['∨'] = lambda a, b: a or b
-    """
+
+    def __post_init__(self):
+        self.case_base['⊤'] = lambda x, _: x
+        self.case_base['⊥'] = lambda _, y: y
+        self.case_base['a'] = lambda a, b: a if a else b
+        self.case_base['¬'] = lambda a: not a
+        self.case_base['∧'] = lambda a, b: a and b
+        self.case_base['∨'] = lambda a, b: a or b
+
     def encode(self) -> bytes:
         functions = [self.reflexivity, self.symmetry, self.transitivity, self.transparency]
         function_data = [marshal.dumps(f.__code__) for f in functions]
@@ -285,7 +279,6 @@ async def process_incoming_event(event_type: str, event_data: dict) -> None:
         task = create_task_from_event(event_type, event_data)
         task_queue.add_task(task)
 
-
 def handle_action_event(data: Any) -> None:
     print(f"Handling action event: {data}")
     action = AtomicData.from_dict(data)
@@ -293,7 +286,6 @@ def handle_action_event(data: Any) -> None:
     event_bus.publish("action_response", response)
 
 # Initializing all components
-
 theory = Theory("MyTheory", lambda x: x, lambda x: ExperimentResult(x, x, True))
 event_bus = EventBus()
 task_queue = TaskQueue()
@@ -306,8 +298,7 @@ sample_event = {
     "message": [{"key": "value"}]
 }
 
-# Subscribing to events
-# For EventBus methods
+# Subscribing to events for EventBus methods
 async def subscribe_and_publish():
     await event_bus.subscribe("action_event", process_incoming_event)
     await event_bus.publish("action_event", sample_event)
@@ -318,7 +309,6 @@ asyncio.run(subscribe_and_publish())
 task_queue.start_processing()
 
 # Demonstrating the use of FormalTheory
-
 theory = FormalTheory()
 theory.add_axiom("MyAxiom", lambda x: x)
 hypothesis = FormalTheory()
