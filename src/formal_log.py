@@ -9,9 +9,172 @@ from dataclasses import dataclass, field
 import marshal
 import types
 import queue
-from log2 import *
+import uuid
+import json
+import struct
+import time
+from enum import Enum, auto
+from typing import Any, Dict, List, Optional, Union, Callable, TypeVar, Tuple, Generic, Set, Coroutine, Type, ClassVar
+from dataclasses import dataclass, field
+import asyncio
+from queue import Queue, Empty
+import threading
+from functools import wraps
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
+import inspect
+import ast
+# from log2 import *
+T = TypeVar('T', bound=Type)  # type is synonymous for class: T = type(class()) or vice-versa
+V = TypeVar('V', bound=Union[int, float, str, bool, list, dict, tuple, set, object, Callable, Enum, Type[Any]])
+C = TypeVar('C', bound=Callable[..., Any])
+logging.basicConfig(level=logging.INFO)
+Logger = logging.getLogger(__name__)
+def dynamic_introspection(obj: Any):
+    Logger.info(f"Introspecting: {obj.__class__.__name__}")
+    for name, value in inspect.getmembers(obj):
+        if not name.startswith('_'):
+            if inspect.isfunction(value) or inspect.ismethod(value):
+                Logger.info(f"  Method: {name}")
+            elif isinstance(value, property):
+                Logger.info(f"  Property: {name}")
+            else:
+                Logger.info(f"  Attribute: {name} = {value}")
 
-T = TypeVar('T')
+class ReflectiveIntrospector:  # NYE; 'callable' for Atoms
+    @staticmethod
+    def introspect(obj: Any):
+        dynamic_introspection(obj)
+
+def validate_types(cls: Type[T]) -> Type[T]:
+    original_init = cls.__init__
+    sig = inspect.signature(original_init)
+
+    def new_init(self: T, *args: Any, **kwargs: Any) -> None:
+        bound_args = sig.bind(self, *args, **kwargs)
+        for key, value in bound_args.arguments.items():
+            if key in cls.__annotations__:
+                expected_type = cls.__annotations__.get(key)
+                if not isinstance(value, expected_type):
+                    raise TypeError(f"Expected {expected_type} for {key}, got {type(value)}")
+        original_init(self, *args, **kwargs)
+
+    cls.__init__ = new_init
+    return cls
+
+def validator(field_name: str, validator_fn: Callable[[Any], None]) -> Callable[[Type[T]], Type[T]]:
+    def decorator(cls: Type[T]) -> Type[T]:
+        original_init = cls.__init__
+
+        @wraps(original_init)
+        def new_init(self: T, *args: Any, **kwargs: Any) -> None:
+            original_init(self, *args, **kwargs)
+            value = getattr(self, field_name)
+            validator_fn(value)
+
+        cls.__init__ = new_init
+        return cls
+
+    return decorator
+
+datum = Union[int, float, str, bool, None, List[Any], Tuple[Any, ...]]
+
+class DataType(Enum):
+    INTEGER = auto()
+    FLOAT = auto()
+    STRING = auto()
+    BOOLEAN = auto()
+    NONE = auto()
+    LIST = auto()
+    TUPLE = auto()
+
+TypeMap = {
+    int: DataType.INTEGER,
+    float: DataType.FLOAT,
+    str: DataType.STRING,
+    bool: DataType.BOOLEAN,
+    type(None): DataType.NONE
+}
+
+def get_type(value: datum) -> Optional[DataType]:
+    if isinstance(value, list):
+        return DataType.LIST
+    if isinstance(value, tuple):
+        return DataType.TUPLE
+    return TypeMap.get(type(value))
+
+def validate_datum(value: Any) -> bool:
+    return get_type(value) is not None
+
+def process_datum(value: datum) -> str:
+    dtype = get_type(value)
+    return f"Processed {dtype.name}: {value}" if dtype else "Unknown data type"
+
+def safe_process_input(value: Any) -> str:
+    return "Invalid input type" if not validate_datum(value) else process_datum(value)
+
+
+def log_execution(func):  # asyncio.iscoroutinefunction(func)
+    @wraps(func)
+    async def async_wrapper(*args, **kwargs):
+        logging.info(f"Executing {func.__name__} with args: {args}, kwargs: {kwargs}")
+        result = await func(*args, **kwargs)
+        logging.info(f"Completed {func.__name__} with result: {result}")
+        return result
+
+    @wraps(func)
+    def sync_wrapper(*args, **kwargs):
+        logging.info(f"Executing {func.__name__} with args: {args}, kwargs: {kwargs}")
+        result = func(*args, **kwargs)
+        logging.info(f"Completed {func.__name__} with result: {result}")
+        return result
+
+    return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
+
+def measure_time(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        start_time = time.perf_counter()
+        result = await func(*args, **kwargs)
+        end_time = time.perf_counter()
+        logging.info(f"{func.__name__} executed in {end_time - start_time:.4f} seconds")
+        return result
+    return wrapper
+
+def instant(cls: Type[T]) -> Type[T]:
+    @wraps(cls)
+    def wrapper(*args, **kwargs):
+        instance = cls(*args, **kwargs)
+        logging.info(f"(Insta)nziator: Created instance of {cls.__name__} with args: {args}, kwargs: {kwargs}")
+        return instance
+    return wrapper
+
+# Base class for all Atoms to support homoiconism
+class Atom:
+    def __init__(self, id: str):
+        self.id = id
+
+    def encode(self) -> bytes:
+        raise NotImplementedError("Must be implemented in subclasses")
+
+    @classmethod
+    def decode(cls, data: bytes) -> 'Atom':
+        raise NotImplementedError("Must be implemented in subclasses")
+
+    def to_dict(self) -> Dict[str, Any]:
+        raise NotImplementedError("Must be implemented in subclasses")
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Atom':
+        raise NotImplementedError("Must be implemented in subclasses")
+
+    def introspect(self) -> str:
+        """
+        Reflect on its own code structure via AST.
+        """
+        source = inspect.getsource(self.__class__)
+        return ast.dump(ast.parse(source))
+
 @dataclass(frozen=True)
 class AtomicData:
     id: str
@@ -60,6 +223,51 @@ class TaskQueue:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
         loop.run_until_complete(self.process_tasks())
+
+class EventBus(Atom):
+    def __init__(self, id: str):
+        super().__init__(id)
+        self.subscribers = []
+        self.events = []
+        self.event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.event_loop)
+        self.event_loop.set_exception_handler(self.handle_exception)
+        self.event_loop.create_task(self.process_events())
+        
+    def subscribe(self, subscriber):
+        self.subscribers.append(subscriber)
+    
+    def publish(self, event):
+        self.events.append(event)
+
+    def start(self):
+        self.event_loop.run_until_complete(self.process_events())
+
+    async def process_events(self):
+        while True:
+            if self.events:
+                event_type, event = self.events.pop(0)
+                for sub_type, subscriber in self.subscribers:
+                    if sub_type == event_type:
+                        await subscriber(event_type, event)
+            await asyncio.sleep(0)
+  
+    def handle_exception(self, loop, context):
+        exception = context.get('exception')
+        if exception:
+            print(f"Exception occurred: {exception}")
+        loop.stop()
+
+    async def subscribe(self, event_type, subscriber):
+        self.subscribers.append((event_type, subscriber))
+
+    async def publish(self, event_type, event):
+        self.events.append((event_type, event))
+
+    def close(self):
+        self.event_loop.stop()
+        self.event_loop.close()
+
 
 @dataclass
 class ExperimentResult:
@@ -287,7 +495,7 @@ def handle_action_event(data: Any) -> None:
 
 # Initializing all components
 theory = Theory("MyTheory", lambda x: x, lambda x: ExperimentResult(x, x, True))
-event_bus = EventBus()
+event_bus = EventBus(theory)
 task_queue = TaskQueue()
 
 # Publish an example event
@@ -324,3 +532,6 @@ asyncio.run(run_task_queue())
 
 decode_theory = FormalTheory()
 decode_theory.decode(encoded_theory)
+
+asyncio.run(event_bus.publish("action_event", sample_event))
+event_bus.close()
