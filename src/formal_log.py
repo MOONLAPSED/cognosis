@@ -24,7 +24,8 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 import inspect
 import ast
-# from log2 import *
+import tracemalloc
+tracemalloc.start()
 T = TypeVar('T', bound=Type)  # type is synonymous for class: T = type(class()) or vice-versa
 V = TypeVar('V', bound=Union[int, float, str, bool, list, dict, tuple, set, object, Callable, Enum, Type[Any]])
 C = TypeVar('C', bound=Callable[..., Any])
@@ -232,7 +233,12 @@ class EventBus(Atom):
         self.event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.event_loop)
         self.event_loop.set_exception_handler(self.handle_exception)
-        self.event_loop.create_task(self.process_events())
+        self.process_task = self.event_loop.create_task(self.process_events())
+        # self.process_task.add_done_callback(self.handle_exception)
+    def handle_exception(self, loop, context):
+        exception = context.get('exception')
+        if exception:
+            print(f"Exception occurred: {exception}")
         
     def subscribe(self, subscriber):
         self.subscribers.append(subscriber)
@@ -241,17 +247,21 @@ class EventBus(Atom):
         self.events.append(event)
 
     def start(self):
-        self.event_loop.run_until_complete(self.process_events())
+        self.event_loop.run_forever()
 
     async def process_events(self):
-        while True:
-            if self.events:
-                event_type, event = self.events.pop(0)
-                for sub_type, subscriber in self.subscribers:
-                    if sub_type == event_type:
-                        await subscriber(event_type, event)
-            await asyncio.sleep(0)
-  
+        try:
+            while True:
+                if self.events:
+                    event_type, event = self.events.pop(0)
+                    for sub_type, subscriber in self.subscribers:
+                        if sub_type == event_type:
+                            await subscriber(event_type, event)
+                await asyncio.sleep(0)
+        except asyncio.CancelledError:
+            # Gracefully exit when cancelled
+            pass
+
     def handle_exception(self, loop, context):
         exception = context.get('exception')
         if exception:
@@ -265,8 +275,17 @@ class EventBus(Atom):
         self.events.append((event_type, event))
 
     def close(self):
-        self.event_loop.stop()
-        self.event_loop.close()
+        if not self.event_loop.is_closed():
+            self.process_task.cancel()
+            try:
+                self.event_loop.run_until_complete(asyncio.wait_for(self.process_task, timeout=1.0))
+            except (asyncio.CancelledError, asyncio.TimeoutError):
+                pass
+            finally:
+                self.event_loop.stop()
+                self.event_loop.close()
+        else:
+            print("Event loop is already closed.")
 
 
 @dataclass
@@ -510,6 +529,7 @@ sample_event = {
 async def subscribe_and_publish():
     await event_bus.subscribe("action_event", process_incoming_event)
     await event_bus.publish("action_event", sample_event)
+    await asyncio.sleep(0.1)  # Give some time for the event to be processed
 
 asyncio.run(subscribe_and_publish())
 
@@ -535,3 +555,20 @@ decode_theory.decode(encoded_theory)
 
 asyncio.run(event_bus.publish("action_event", sample_event))
 event_bus.close()
+
+if __name__ == "__main__":
+    print("Initializing components...")
+    theory = Theory("MyTheory", lambda x: x, lambda x: ExperimentResult(x, x, True))
+    event_bus = EventBus(theory.name)
+    task_queue = TaskQueue()
+    asyncio.run(subscribe_and_publish())
+    task_queue.start_processing()
+    time.sleep(1)
+    event_bus.close()
+    print("Publishing sample event...")
+    asyncio.run(subscribe_and_publish())
+    print("Starting task processing...")
+    task_queue.start_processing()
+    print("Closing event bus...")
+    event_bus.close()
+    print("Script execution completed.")
