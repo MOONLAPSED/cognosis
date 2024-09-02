@@ -287,7 +287,6 @@ class EventBus(Atom):
         else:
             print("Event loop is already closed.")
 
-
 @dataclass
 class ExperimentResult:
     input_data: Any
