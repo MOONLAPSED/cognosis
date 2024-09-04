@@ -258,7 +258,11 @@ class TaskAtom(Atom):  # Tasks represent asynchronous potential actions
     async def run(self) -> Any:
         logging.info(f"Running task {self.task_id}")
         try:
-            self.result = await self.atom.execute(*self.args, **self.kwargs)
+            if hasattr(self.atom, 'execute') and callable(self.atom.execute):
+                self.result = await self.atom.execute(*self.args, **self.kwargs)
+            else:
+                logging.warning(f"Task {self.task_id}: Atom does not have an executable 'execute' method")
+                self.result = None
             logging.info(f"Task {self.task_id} completed with result: {self.result}")
         except Exception as e:
             logging.error(f"Task {self.task_id} failed with error: {e}")
