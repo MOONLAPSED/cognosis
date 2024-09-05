@@ -10,7 +10,6 @@
   - [4. Definitions](#4-definitions)
   - [5. Events](#5-events)
     - [Event Format](#event-format)
-  - [Add optional fields commonly used in events](#add-optional-fields-commonly-used-in-events)
   - [6. Actions](#6-actions)
     - [6.1 Actions Overview](#61-actions-overview)
     - [6.2 Sending a Message Example](#62-sending-a-message-example)
@@ -19,7 +18,7 @@
     - [7.2 Authentication](#72-authentication)
     - [7.3 Content Types](#73-content-types)
     - [7.4 Event Polling](#74-event-polling)
-    - [7.5 Webhook](#75-webhook)
+  - [7.5 Webhook](#75-webhook)
       - [7.5.1 Webhook Headers](#751-webhook-headers)
       - [7.5.2 Webhook Authentication](#752-webhook-authentication)
       - [7.5.3 Webhook Timeout](#753-webhook-timeout)
@@ -37,8 +36,10 @@
   - [10. Return Codes](#10-return-codes)
     - [10.1 Request Errors](#101-request-errors)
     - [10.2 Handler Errors](#102-handler-errors)
+    - [10.2 Handler Errors](#102-handler-errors-1)
   - [11. Robot Self Identification](#11-robot-self-identification)
   - [12. Security Considerations](#12-security-considerations)
+    - [12.1 Heuristics](#121-heuristics)
   - [13. Compliance and Conformance](#13-compliance-and-conformance)
   - [14. Examples and Use Cases](#14-examples-and-use-cases)
     - [14.1 Sending a Message Example](#141-sending-a-message-example)
@@ -62,14 +63,11 @@ This document specifies the communication protocols, data formats, and interface
 
 | Term                     | Definition                                           |
 | ------------------------ | ---------------------------------------------------- |
-| Robot/Bot                | Chatbot                                              |
-| Robot Platform           | Platforms like QQ, WeChat that provide chatbot APIs  |
-| AtomicBot                | The standard or an implementation                    |
-| AtomicBot Standard       | The AtomicBot API specification                      |
-| AtomicBot Implementation | A program implementing the AtomicBot standard        |
-| AtomicBot Application    | A program using AtomicBot to implement chatbot logic |
-| AtomicBot SDK            | Helper libraries for building AtomicBot apps         |
-| AtomicBot Library        | Reusable code for AtomicBot implementations          |
+| Robot/Bot                | chatbot that processes inputs and generates responses|
+| User                     | Person using the chatbot                             |
+| Inference                | process of user input to generate response           |
+| Inference point          | Platforms like OpenAI or Ollama provide chatbot APIs |
+| AtomicBot                | The AtomicBot API specification or an instance of one|
 
 ## 5. Events
 
@@ -77,17 +75,18 @@ This document specifies the communication protocols, data formats, and interface
 
 [[Events]] are objects with required fields:
 
-- `id`: Unique ID
-- `type`: Event type
-- `detail_type`: Optional detail defining subtype of event (e.g., private, group, channel)
-- `message`: Event message content (e.g., text, image, file)
+- `id`: Unique ID of the event
+- `type`: The type of event, such as a message or a reaction
+- `detail_type`: Optional subtype or detail defining the event context (e.g., private, group, or channel)
+- `message`: The content of the event (e.g., text, image, file)
+- `time`: The timestamp of the event
 
-## Add optional fields commonly used in events
+Additional optional fields:
 
-* `source`: The source/origin of the event (e.g., user, group, channel)
-* `target`: The target/destination of the event
-* `content`: The main content of the event (e.g., message text, image, file)
-* `metadata`: Additional metadata about the event
+* `source`: The origin of the event, such as a user, group, or channel
+* `target`: The intended recipient or target of the event
+* `content`: The main content, including text, image, or file associated with the event
+* `metadata`: Additional metadata to provide more context about the event, such as file size, image resolution, etc.
 
 ```json
 {
@@ -149,6 +148,9 @@ Action Response Example:
 - `access_token`: Authentication token
 - `event_enabled`: Enable event polling
 - `event_buffer_size`: Event buffer size
+- `ssl_cert_path`: Path to the SSL certificate file for HTTPS connections
+- `ssl_key_path`: Path to the SSL private key file for HTTPS connections
+
 
 [[AtomicBot]] handles requests at `/` and returns action responses.
 
@@ -172,13 +174,13 @@ Response Content-Type mirrors request.
 
 If `event_enabled` is true, [[AtomicBot]] supports `get_latest_events` to poll events. It provides an event buffer of configurable `event_buffer_size`.
 
-### 7.5 Webhook
+## 7.5 Webhook
 
-[[AtomicBot]] pushes events to a webhook URL based on configuration:
+[[AtomicBot]] supports webhooks for pushing events to an external endpoint. Configuration for the webhook includes:
 
-- `url`: Webhook URL
-- `access_token`: Authentication
-- `timeout`: Request timeout
+- `url`: The destination URL where events will be posted.
+- `access_token`: Optional authentication token.
+- `timeout`: The maximum duration before a webhook request times out.
 
 #### 7.5.1 Webhook Headers
 
@@ -193,10 +195,13 @@ Optional `Authorization` header for authentication.
 
 #### 7.5.2 Webhook Authentication
 
-Authenticates via:
+[[AtomicBot]] allows multiple ways to authenticate webhook requests:
 
-- Authorization header
-- access_token query parameter
+1. **Authorization Header**: Include the token in the `Authorization` HTTP header.
+   
+   Example: `Authorization: Bearer <access_token>`
+
+2. **Query Parameter**: Alternatively, the `access_token` can be sent as a query parameter in the URL: `GET /webhook?access_token=<access_token>`
 
 #### 7.5.3 Webhook Timeout
 
@@ -208,10 +213,10 @@ Request timeout is based on the configured timeout value.
 
 ### 8.1 Authentication
 
-If `access_token` is set, [[AtomicBot]] authenticates before handshake via:
+If `access_token` is set, [[AtomicBot]] authenticates before handshake via: `Authorization: Bearer <access_token>` header. Authentication is done by:
 
-- Authorization header
-- access_token query parameter
+- Sending an `Authorization` header during the WebSocket handshake request:
+- Alternatively, passing the `access_token` as a query parameter in the WebSocket URL: `ws://<host>:<port>?access_token=<access_token>`
 
 ### 8.2 Events and Actions
 
@@ -243,6 +248,9 @@ It handles events and actions after connecting.
 
 ### 9.1 Type Values
 
+
+[[AtomicBot]] uses a variety of data types in requests and responses, with the following supported:
+
 - `Integer`: int64, uint64, int32, uint32, int16, uint16, int8, uint8
 - `Float`: float64
 - `String`: string
@@ -250,6 +258,9 @@ It handles events and actions after connecting.
 - `Array`: any[]
 - `Map`: map[key_type]value_type
 - `Object`: object (map[string]any)
+- `Timestamp`: A string or integer that represents a specific point in time, usually in ISO 8601 or Unix epoch format, to better handle time-sensitive data
+- `Boolean`: True or False
+- `Null`: nil, not a number, or undefined
 
 ### 9.2 Action Response
 
@@ -299,31 +310,43 @@ Optional fields:
 
 ## 10. Return Codes
 
-Return codes indicate execution status:
+Return codes are used to indicate the result of action requests and event processing. [[AtomicBot]] categorizes errors into three major types:
 
-- 0: Success
-- 1xxxx: Request errors
-- 2xxxx: Handler errors
-- 3xxxx: Execution errors
+- `0`: Successful execution.
+- `1xxxx`: Client-side request errors.
+- `2xxxx`: Server-side handler errors.
+- `3xxxx`: Execution errors (e.g., timeout, memory limit).
 
 ### 10.1 Request Errors
 
-Similar to HTTP 4xx client errors.
+These errors indicate issues with the request, similar to HTTP 4xx client errors:
 
-| Code   | Error                | Cause                |
-| ------ | -------------------- | -------------------- |
-| 10001  | Bad Request          | Malformed request    |
-| 10002  | Unsupported Action   | Unimplemented action |
-| 10003  | Bad Param            | Invalid parameter    |
+| Code   | Error                | Cause                       |
+| ------ | -------------------- | --------------------------- |
+| 10001  | Bad Request           | Malformed request format     |
+| 10002  | Unsupported Action    | Action is not implemented    |
+| 10003  | Bad Parameter         | Invalid parameters provided  |
+
+### 10.2 Handler Errors
+
+Errors that occur during the processing of a request, akin to HTTP 5xx server errors:
+
+| Code   | Error                | Cause                        |
+| ------ | -------------------- | ---------------------------- |
+| 20001  | Bad Handler           | Issue with the handler logic |
+| 20002  | Internal Handler Error | Unhandled exception in code  |
 
 ### 10.2 Handler Errors
 
 Similar to HTTP 5xx server errors.
 
-| Code   | Error                | Cause                |
-| ------ | -------------------- | -------------------- |
-| 20001  | Bad Handler          | Implementation error |
-| 20002  | Internal Handler Error | Uncaught exception |
+| Code   | Error                  | Cause                             |
+| ------ | ---------------------- | --------------------------------- |
+| 20001  | Bad Handler            | Implementation error              |
+| 20002  | Internal Handler Error | Uncaught exception                |
+| 20003  | Timeout                | Request took too long to process  |
+| 20004  | Memory Exhaustion      | Handler exceeded memory limits    |
+
 
 ## 11. Robot Self Identification
 
@@ -331,9 +354,21 @@ TODO: Add detailed description of robot self-identification fields and format.
 
 ## 12. Security Considerations
 
+### 12.1 Heuristics
 - Ensure secure transmission (e.g., TLS/SSL) for HTTP and WebSocket communication.
 - Use strong authentication mechanisms to protect against unauthorized access.
 - Validate and sanitize all input data to prevent injection attacks.
+
+These practices are necessary to ensure the safety and integrity of [[AtomicBot]], especially in production environments.
+
+"Production" refers to, at a minimum, any networking beyond the local dev-env. To secure the interaction between clients and [[AtomicBot]], the following security measures must be in place for networked environments:
+
+- Encryption: Ensure secure transmission using TLS/SSL for both HTTP and WebSocket communication. Self-signed or third-party certificates should be properly configured for production environments.
+- Authentication: Use strong authentication mechanisms like OAuth 2.0 or token-based authentication to restrict unauthorized access.
+- Input Validation: All input data must be thoroughly validated and sanitized to prevent common injection attacks like SQL injection or cross-site scripting (XSS).
+- Access Control: Implement role-based access control (RBAC) for different users and bots to ensure that only authorized entities can trigger certain actions or access sensitive data.
+- Rate Limiting - To prevent denial-of-service (DoS) attacks, enforce rate-limiting for both HTTP and WebSocket endpoints.
+
 
 ## 13. Compliance and Conformance
 
@@ -418,7 +453,7 @@ Angle-Bracketed Chunks
 
 To organize and modularize the document, this specification leverages the use of angle-bracketed chunks. Chunks are denoted by double angle brackets like this: <<chunk_name>>. This format allows for the inclusion of code or content sections from different parts of the document in a structured and readable way. These chunks are associated with the ~/db/* database section, and the system is designed to search this directory for any angle-bracketed entities and attempt to resolve them to specific file system objects.
 
-When rendered or processed in the [[abraxus]] literate cognitive framing environment (CLI), the double angle-bracketed chunks act as placeholders for code or content blocks defined elsewhere in the document. Additionally, these chunks can be used as anchor tags, allowing for micro-navigation to specific subsections in a command line interface style. This enhances the document's usability by enabling quick navigation to key sections directly.
+When rendered or processed in the [[cognosis]] literate cognitive framing environment (CLI and runtime), the double angle-bracketed chunks act as placeholders for code or content blocks defined elsewhere in the document. Additionally, these chunks can be used as anchor tags, allowing for micro-navigation to specific subsections in a command line interface style. This enhances the document's usability by enabling quick navigation to key sections directly.
 
 For instance:
 
