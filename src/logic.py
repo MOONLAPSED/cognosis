@@ -13,13 +13,7 @@ from asyncio import Queue as AsyncQueue
 from queue import Queue, Empty
 import threading
 from functools import wraps
-from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager
-from http.server import BaseHTTPRequestHandler
 import hashlib
-import base64
-import socket
-import datetime
 import inspect
 logging.basicConfig(level=logging.INFO)
 Logger = logging.getLogger(__name__)
@@ -30,7 +24,7 @@ Type Variable to allow type-checking, linting,.. of Generic...
     "C"((c)allable(reflective functions))"""
 T = TypeVar('T', bound=Type)  # type is synonymous for class: T = type(class()) or vice-versa
 V = TypeVar('V', bound=Union[int, float, str, bool, list, dict, tuple, set, object, Callable, Enum, Type[Any]])
-C = TypeVar('C', bound=Callable[..., Any])
+C = TypeVar('C', bound=Callable[..., Any])  # callable 'T' class/type variable
 datum = Union[int, float, str, bool, None, List[Any], Tuple[Any, ...]]
 class DataType(Enum):
     INTEGER = auto()
