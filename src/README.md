@@ -11,8 +11,7 @@
   - [5. Events](#5-events)
     - [Event Format](#event-format)
   - [6. Actions](#6-actions)
-    - [6.1 Actions Overview](#61-actions-overview)
-    - [6.2 Sending a Message Example](#62-sending-a-message-example)
+    - [6.1 Sending a Message Example](#61-sending-a-message-example)
   - [7. HTTP Communication](#7-http-communication)
     - [7.1 Configuration](#71-configuration)
     - [7.2 Authentication](#72-authentication)
@@ -36,7 +35,6 @@
   - [10. Return Codes](#10-return-codes)
     - [10.1 Request Errors](#101-request-errors)
     - [10.2 Handler Errors](#102-handler-errors)
-    - [10.2 Handler Errors](#102-handler-errors-1)
   - [11. Robot Self Identification](#11-robot-self-identification)
   - [12. Security Considerations](#12-security-considerations)
     - [12.1 Heuristics](#121-heuristics)
@@ -83,10 +81,10 @@ This document specifies the communication protocols, data formats, and interface
 
 Additional optional fields:
 
-* `source`: The origin of the event, such as a user, group, or channel
-* `target`: The intended recipient or target of the event
-* `content`: The main content, including text, image, or file associated with the event
-* `metadata`: Additional metadata to provide more context about the event, such as file size, image resolution, etc.
+* (Optional)`source`: The origin of the event, such as a user, group, or channel
+* (Optional)`target`: The intended recipient or target of the event
+* (Optional)`content`: The main content, including text, image, or file associated with the event
+* (Optional)`metadata`: Additional metadata to provide more context about the event, such as file size, image resolution, etc.
 
 ```json
 {
@@ -103,11 +101,9 @@ Additional optional fields:
 
 ## 6. Actions
 
-### 6.1 Actions Overview
-
 [[Action requests]] are sent by the application to request services. [[Responses]] are returned by [[AtomicBot]] after processing the requests.
 
-### 6.2 Sending a Message Example
+### 6.1 Sending a Message Example
 
 Action Request Example:
 
@@ -248,65 +244,62 @@ It handles events and actions after connecting.
 
 ### 9.1 Type Values
 
-
-[[AtomicBot]] uses a variety of data types in requests and responses, with the following supported:
+[[AtomicBot]] supports the following data types for requests and responses:
 
 - `Integer`: int64, uint64, int32, uint32, int16, uint16, int8, uint8
 - `Float`: float64
 - `String`: string
 - `Bytes`: Base64-encoded string or byte array
-- `Array`: any[]
-- `Map`: map[key_type]value_type
-- `Object`: object (map[string]any)
-- `Timestamp`: A string or integer that represents a specific point in time, usually in ISO 8601 or Unix epoch format, to better handle time-sensitive data
+- `Array`: array of any type (`any[]`)
+- `Map`: map of key-value pairs (`map[key_type]value_type`)
+- `Object`: map of string keys and any type values (`map[string]any`)
+- `Timestamp`: ISO 8601 or Unix epoch format representing a specific point in time
 - `Boolean`: True or False
-- `Null`: nil, not a number, or undefined
+- `Null`: `nil`, `undefined`, or `not a number`
 
 ### 9.2 Action Response
 
-[[Action responses]] are objects with required fields:
+An [[Action response]] is an object with the following required fields:
 
 - `resp`: Action name
-- `status`: Status
+- `status`: Status of the action (e.g., ok or failed)
 - `retcode`: Return code
 - `data`: Response data
-- `message`: Error message
+- `message`: Optional error message, if any
 
 ### 9.3 Event Format
 
-[[Events]] are objects with required fields:
+An [[Event]] is an object with the following required fields:
 
-- `id`: Unique ID
-- `self`: Sender identity
-- `time`: Timestamp
-- `type`: Event type
+- `id`: Unique event ID
+- `self`: Sender's identity
+- `time`: Timestamp of the event (ISO 8601 or Unix epoch format)
+- `type`: Type of event
 
 ### 9.4 Action Request Format
 
-[[Action requests]] are objects with required fields:
+An [[Action request]] is an object with the following required fields:
 
-- `action`: Action name
-- `params`: Parameters
+- `action`: The action name
+- `params`: Action-specific parameters
 
 Optional fields:
 
-- `echo`: Identifier
-- `self`: Sender identity
+- `echo`: Request identifier, echoed back in the response
+- `self`: Sender's identity
 
 ### 9.5 Action Response Format
 
-[[Action responses]] are objects with required fields
+An [[Action response]] is an object with the following required fields:
 
-:
-
-- `status`: ok or failed
+- `status`: Status of the response (e.g., ok or failed)
 - `retcode`: Return code
 - `data`: Response data
-- `message`: Error message
+- `message`: Optional error message, if applicable
 
 Optional fields:
 
-- `echo`: Mirrors request identifier
+- `echo`: Mirrors the request identifier
 
 ## 10. Return Codes
 
@@ -326,15 +319,6 @@ These errors indicate issues with the request, similar to HTTP 4xx client errors
 | 10001  | Bad Request           | Malformed request format     |
 | 10002  | Unsupported Action    | Action is not implemented    |
 | 10003  | Bad Parameter         | Invalid parameters provided  |
-
-### 10.2 Handler Errors
-
-Errors that occur during the processing of a request, akin to HTTP 5xx server errors:
-
-| Code   | Error                | Cause                        |
-| ------ | -------------------- | ---------------------------- |
-| 20001  | Bad Handler           | Issue with the handler logic |
-| 20002  | Internal Handler Error | Unhandled exception in code  |
 
 ### 10.2 Handler Errors
 
