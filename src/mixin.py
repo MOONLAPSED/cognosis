@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Tuple, Union, Callable, TypeVar, Type
 from functools import wraps
 import asyncio
 import time
-
+import pathlib
 """Type Variables to allow type-checking, linting,.. of Generic...
     "T"((t)ypes and classes),
     "V"((v)ariables and functions),
@@ -120,26 +120,20 @@ def validate(validator: Callable[[Any], None]):
         return wrapper
     return decorator
 
+# Generate __all__ dynamically
+__all__ = [name for name, obj in globals().items() if inspect.isclass(obj) or inspect.isfunction(obj) and obj.__module__ == __name__]
+
 # Example usage
 @frozen
-class Person(BaseModel):
+class Runtime(BaseModel):
     name: str
-    age: int
+    # Set the root directory to scan
+    root_dir = pathlib.Path(__file__).parent.parent
+
+    # Create an array to store the files to load
+    files_to_load = []
+
 
     @validate(lambda x: x >= 0)
-    def validate_age(self, value):
+    def _permissions(self, value):
         return value
-
-def main():
-    try:
-        person = Person(name="Alice", age=-30)
-    except TypeError as e:
-        print(f"Validation error: {e}")
-    
-    # This should work
-    person = Person(name="Alice", age=30)
-    print(person)
-    print(person.dict())
-
-if __name__ == "__main__":
-    main()
