@@ -1,274 +1,308 @@
-# ~/main.py - Runtime for Cognosis, curryable (usermain())
 import asyncio
+import inspect
+import json
 import logging
-import platform
-from dataclasses import dataclass, field
-from functools import partial
-from struct import Struct
-from typing import Any, Callable, Dict, TypeVar, List, Tuple
-from typing import Union, Type, Optional, ClassVar, Generic
-from enum import Enum, auto
-from abc import ABC, abstractmethod
-import argparse
 import os
-import subprocess
-import sys
-import logging
+import hashlib
+import platform
 import pathlib
+import struct
+import sys
+import threading
+import time
+import shlex
+import shutil
+import uuid
+import argparse
+from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
+from dataclasses import dataclass, field
+from enum import Enum, auto
+from functools import wraps
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union, Callable, TypeVar, Tuple, Generic, Set, Coroutine, Type, ClassVar, Protocol
+from queue import Queue, Empty
+import ctypes
+# platforms: Ubuntu-22.04LTS, Windows-11
+# non-homoiconic pre-runtime "ADMIN-SCOPED" source code:
+if os.name == 'posix':
+    from ctypes import cdll
+elif os.name == 'nt':
+    from ctypes import windll
 
-state: Dict[str, bool] = {
-    k: False for k in [
-        "pdm_installed", "virtualenv_created", "dependencies_installed",
-        "lint_passed", "code_formatted", "tests_passed",
-        "benchmarks_run", "pre_commit_installed"
-    ]
-}
+@dataclass
+class AppState:
+    pdm_installed: bool = False
+    virtualenv_created: bool = False
+    dependencies_installed: bool = False
+    lint_passed: bool = False
+    code_formatted: bool = False
+    tests_passed: bool = False
+    benchmarks_run: bool = False
+    pre_commit_installed: bool = False
 
-def run_command(command: str, check: bool = True, shell: bool = False, timeout: int = 120) -> Dict[str, Any]:
-    try:
-        process = subprocess.Popen(command, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate(timeout=timeout)
+@dataclass
+class FilesystemState:
+    def __init__(self):
+        try:
+            self.allowed_root: Path = Path(__file__).resolve().parent
+        except Exception as e:
+            logging.error(f"Error initializing FilesystemState: {e}")
+            raise
+        finally:
+            if not self.allowed_root.walk():
+                logging.error(f"Allowed root directory not found: {self.allowed_root}")
+                raise FileNotFoundError(f"Allowed root directory not found: {self.allowed_root}")
+            else:
+                logging.info(f"Allowed root directory found: {self.allowed_root}")
 
-        if check and process.returncode != 0:
-            logging.error(f"Command '{command}' failed with return code {process.returncode}")
-            logging.error(f"Error output: {stderr.decode('utf-8')}")
+    def safe_remove(self, path: Path):
+        """Safely remove a file or directory, handling platform-specific issues."""
+        try:
+            # Normalize and check if the path is within the allowed directory
+            path = path.resolve()
+            if not path.is_relative_to(self.allowed_root):
+                logging.error(f"Attempt to delete outside allowed directory: {path}")
+                return
+            if path.is_dir():
+                shutil.rmtree(path)
+                logging.info(f"Removed directory: {path}")
+            else:
+                path.unlink()  # Removes a single file
+                logging.info(f"Removed file: {path}")
+        except (FileNotFoundError, PermissionError, OSError) as e:
+            logging.error(f"Error removing path {path}: {str(e)}")
+    
+    def _on_error(self, func, path, exc_info):
+        """Error handler for handling removal of read-only files on Windows."""
+        logging.error(f"Error deleting {path}, attempting to fix permissions.")
+        # Attempt to change the file's permissions and retry removal
+        os.chmod(path, 0o777)
+        func(path)
+    
+    async def execute_runtime_tasks(self):
+        for task in self.tasks:
+            try:
+                await task()
+            except Exception as e:
+                logging.error(f"Error executing task: {e}")
+
+    async def run_command_async(self, command: str, shell: bool = False, timeout: int = 120):
+        logging.info(f"Running command: {command}")
+        
+        # Check for platform-specific adjustments
+        if platform.system() == 'Windows':
+            shell = False  # Ensure shell is false for subprocess on Windows
+            # Split command safely for Windows
+            command = shlex.split(command, posix=False)
+            # Normalize paths if the command includes paths
+            command = [os.path.normpath(arg) for arg in command]
+        else:
+            command = shlex.split(command)
+
+        try:
+            process = await asyncio.create_subprocess_exec(
+                *command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, shell=shell
+            )
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
+            stdout = stdout.decode() if stdout else ""
+            stderr = stderr.decode() if stderr else ""
             return {
                 "return_code": process.returncode,
-                "output": stdout.decode("utf-8"),
-                "error": stderr.decode("utf-8")
+                "output": stdout,
+                "error": stderr,
             }
+        except asyncio.TimeoutError:
+            logging.error(f"Command '{command}' timed out.")
+            return {"return_code": -1, "output": "", "error": "Command timed out"}
+        except Exception as e:
+            logging.error(f"Error running command '{command}': {str(e)}")
+            return {"return_code": -1, "output": "", "error": str(e)}
 
-        logging.info(f"Command '{command}' completed successfully")
-        logging.debug(f"Output: {stdout.decode('utf-8')}")
+class CustomFormatter(logging.Formatter):
+    grey = "\x1b[38;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    green = "\x1b[32;20m"
+    reset = "\x1b[0m"
 
-    except subprocess.TimeoutExpired:
-        process.kill()
-        stdout, stderr = process.communicate()
-        logging.error(f"Command '{command}' timed out and was killed.")
-        return {
-            "return_code": -1,
-            "output": stdout.decode("utf-8"),
-            "error": "Command timed out"
-        }
-    except Exception as e:
-        logging.error(f"An error occurred while running command '{command}': {str(e)}")
-        return {
-            "return_code": -1,
-            "output": "",
-            "error": str(e)
-        }
+    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
 
-    return {
-        "return_code": process.returncode,
-        "output": stdout.decode("utf-8"),
-        "error": stderr.decode("utf-8")
+    FORMATS = {
+        logging.DEBUG: grey + format + reset,
+        logging.INFO: green + format + reset,
+        logging.WARNING: yellow + format + reset,
+        logging.ERROR: red + format + reset,
+        logging.CRITICAL: bold_red + format + reset
     }
 
-class Logger:
-    def __init__(self, name: str, level: int = logging.INFO):
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(level)
-        if not self.logger.handlers:
-            for handler in [logging.StreamHandler(), logging.FileHandler(f"{name}.log")]:
-                handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-                self.logger.addHandler(handler)
-            self.logger.info(f"Logger {name} initialized.")
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno, self.format)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
 
-    def log(self, message: str, level: int = logging.INFO):
-        try:
-            self.logger.log(level, message)
-        except Exception as e:
-            logging.error(f"Failed to log message: {e}")
+def setup_logger(name: str, level: int, datefmt: str, handlers: list):
+    """
+    Setup logger with custom formatter.
+    :param name: logger name
+    :param level: logging level
+    :param datefmt: date format
+    :param handlers: list of logging handlers
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
 
-    def debug(self, message: str):
-        self.log(message, logging.DEBUG)
+    if logger.hasHandlers():
+        logger.handlers.clear()
 
-    def info(self, message: str):
-        self.log(message, logging.INFO)
+    for handler in handlers:
+        if not isinstance(handler, logging.Handler):
+            raise ValueError(f"Invalid handler provided: {handler}")
+        handler.setLevel(level)
+        handler.setFormatter(CustomFormatter())
+        logger.addHandler(handler)
 
-    def warning(self, message: str):
-        self.log(message, logging.WARNING)
+    return logger
 
-    def error(self, message: str, exc_info=None):
-        self.logger.error(message, exc_info=exc_info)
+Logger = setup_logger("ApplicationBus", logging.DEBUG, "%Y-%m-%d %H:%M:%S", [logging.StreamHandler()])
 
-logger = Logger("MainLogger")
-def log_error(error: Exception): #usermain() logger wrapper
-    logger.error(f"Error occurred: {error}")
-
-def setup_app():
-    """Setup the application"""
-    global state
-    if not state["pdm_installed"]:
-        ensure_pdm()
-    if not state["virtualenv_created"]:
-        ensure_virtualenv()
-    if not state["dependencies_installed"]:
-        ensure_dependencies()
-
-    mode = prompt_for_mode()
-    if mode == "dev":
-        ensure_lint()
-        ensure_format()
-        ensure_tests()
-        ensure_benchmarks()
-        ensure_pre_commit()
-    introspect()
-
-def ensure_pdm():
-    """Ensure pdm is installed"""
-    if not state["pdm_installed"]:
-        try:
-            subprocess.run("pdm --version", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            state["pdm_installed"] = True
-            logging.info("pdm is already installed.")
-        except subprocess.CalledProcessError:
-            logging.info("pdm not found, installing pdm...")
-            run_command("pip install pdm", shell=True)
-            state["pdm_installed"] = True
-
-def ensure_virtualenv():
-    """Ensure the virtual environment is created"""
-    if not state["virtualenv_created"]:
-        if not os.path.exists(".venv"):
-            run_command("pdm venv create", shell=True)
-        state["virtualenv_created"] = True
-        logging.info("Virtual environment already exists.")
-
-def ensure_dependencies():
-    """Install dependencies"""
-    run_command("pdm install --project ./", shell=True)
-    state["dependencies_installed"] = True
-
-def ensure_lint():
-    """Run linting tools"""
-    run_command("pdm run flake8 .", shell=True)
-    run_command("pdm run black --check .", shell=True)
-    run_command("pdm run mypy .", shell=True)
-    state["lint_passed"] = True
-
-def ensure_format():
-    """Format the code"""
-    run_command("pdm run black .", shell=True)
-    run_command("pdm run isort .", shell=True)
-    state["code_formatted"] = True
-
-def ensure_tests():
-    """Run tests"""
-    run_command("pdm run pytest", shell=True)
-    state["tests_passed"] = True
-
-def ensure_benchmarks():
-    """Run benchmarks"""
-    run_command("pdm run python src/bench/bench.py", shell=True)
-    state["benchmarks_run"] = True
-
-def ensure_pre_commit():
-    """Install pre-commit hooks"""
-    run_command("pdm run pre-commit install", shell=True)
-    state["pre_commit_installed"] = True
-
-def prompt_for_mode():
-    """Prompt the user to choose between development and non-development setup"""
-    while True:
-        choice = input("Choose setup mode: [d]evelopment or [n]on-development? ").lower()
-        if choice in ["d", "n"]:
-            return choice
-        logging.info("Invalid choice, please enter 'd' or 'n'.")
-
-def introspect():
-    """Introspect the current state and print results"""
-    logging.info("Introspection results:")
-    for key, value in state.items():
-        logging.info(f"{key}: {'✅' if value else '❌'}")
-
-
-logger.info(f"Starting main.py on {platform.system()}")
-
-async def usermain(failure_threshold=10) -> bool:
-    user_logger = logging.getLogger("UserMainLogger")
-    user_logger.setLevel(logging.INFO)
-    ch = logging.StreamHandler()
-    ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    user_logger.addHandler(ch)
-
-    async def rtkernel() -> bool:
-        user_logger.info("The user has control of the application kernel.")
-        # logic that requires a thread, etc.
-        return True
-
-    try:
-        result = await rtkernel()
-        if result:
-            user_logger.info("usermain successful, returns True")
-            return True
-    except Exception as e:
-        user_logger.error(f"Failed with error: {e}")
-        return False
-
-    failure_count = sum(1 for _ in range(failure_threshold) if not await rtkernel())
-    failure_rate = failure_count / failure_threshold
-    user_logger.info(f"Failure rate: {failure_rate:.2%}")
-    return failure_rate < 1.0
-
-CurriedUsermain = partial(usermain, failure_threshold=10)
-
-async def main():
-    try:
-        if isinstance(CurriedUsermain, partial):
+def log(level=logging.INFO): # asyncio.iscoroutinefunction(func)
+    def decorator(func): # decorator(func) -> async_wrapper or sync_wrapper
+        @wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            Logger.log(level, f"Executing {func.__name__} with args: {args}, kwargs: {kwargs}")
             try:
-                await asyncio.wait_for(CurriedUsermain(), timeout=60)
-            except asyncio.TimeoutError:
-                logger.error("CurriedUsermain timed out")
+                result = await func(*args, **kwargs)
+                Logger.log(level, f"Completed {func.__name__} with result: {result}")
+                return result
             except Exception as e:
-                log_error(e)
+                Logger.exception(f"Error in {func.__name__}: {str(e)}")
+                raise
+
+        @wraps(func)
+        def sync_wrapper(*args, **kwargs):
+            Logger.log(level, f"Executing {func.__name__} with args: {args}, kwargs: {kwargs}")
+            try:
+                result = func(*args, **kwargs)
+                Logger.log(level, f"Completed {func.__name__} with result: {result}")
+                return result
+            except Exception as e:
+                Logger.exception(f"Error in {func.__name__}: {str(e)}")
+                raise
+
+        return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
+    return decorator
+
+def benchmark(func):
+    if not asyncio.iscoroutinefunction(func):
+        Logger.error(f"Function {func.__name__} is not an asyncio.iscoroutinefunction object")
+        return ValueError("Function is not a coroutine")
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = await func(*args, **kwargs)
+        end_time = time.time()
+        Logger.info(f"Function {func.__name__} executed in {end_time - start_time:.2f} seconds")
+        return result
+    return wrapper
+
+# advanced runtime parameter types
+T = TypeVar('T', bound=Type)  # type is synonymous for class: T = type(class()) or vice-versa
+V = TypeVar('V', bound=Union[int, float, str, bool, list, dict, tuple, set, object, Callable, Enum, Type[Any]])
+C = TypeVar('C', bound=Callable[..., Any])  # callable 'T' class/type variable
+
+datum = Union[int, float, str, bool, None, List[Any], Tuple[Any, ...]]
+
+class DataType(Enum):
+    INTEGER = auto()
+    FLOAT = auto()
+    STRING = auto()
+    BOOLEAN = auto()
+    NONE = auto()
+    LIST = auto()
+    TUPLE = auto()
+
+# Core Atoms and related classes
+class AtomType(Enum):
+    CLASS = auto() # classes, aka types+classes, variables, and/or (callable) functions: ['T', 'V', 'C']
+    MODULE = auto() # modules are SimpleNamespace objects and/or actual modules
+    ATOM = auto() # atoms are the basic building blocks of the system
+
+def _validation(cls: Type[T]) -> Type[T]: # dataclass.field() would be less round-about and faster
+    original_init = cls.__init__
+    sig = inspect.signature(original_init)
+
+    def new_init(self: T, *args: Any, **kwargs: Any) -> None:
+        bound_args = sig.bind(self, *args, **kwargs)
+        for key, value in bound_args.arguments.items():
+            if key in cls.__annotations__:
+                expected_type = cls.__annotations__.get(key)
+                if not isinstance(value, expected_type):
+                    raise TypeError(f"Expected {expected_type} for {key}, got {type(value)}")
+        original_init(self, *args, **kwargs)
+
+    cls.__init__ = new_init
+    return cls
+
+def _validate(field_name: str, validator_fn: Callable[[Any], None]) -> Callable[[Type[T]], Type[T]]:
+    def decorator(cls: Type[T]) -> Type[T]:
+        original_init = cls.__init__
+
+        @wraps(original_init)
+        def new_init(self: T, *args: Any, **kwargs: Any) -> None:
+            original_init(self, *args, **kwargs)
+            value = getattr(self, field_name)
+            validator_fn(value)
+
+        cls.__init__ = new_init
+        return cls
+
+    return decorator
+
+def instant(cls: Type[T]) -> Type[T]:
+    @wraps(cls)
+    def wrapper(*args, **kwargs):
+        instance = cls(*args, **kwargs)
+        return instance
+    return wrapper
+
+class _instant(object):
+    @staticmethod
+    def instantiate(cls: Type[T]) -> Type[T]:
+        return cls()
+
+def __atom__(cls: Type[Union[T, V, C]]) -> Type[Union[T, V, C]]:
+    bytearray = bytearray(cls.__name__.encode('utf-8'))
+    hash_object = hashlib.sha256(bytearray)
+    hash_hex = hash_object.hexdigest()
+    return cls(hash_hex)
+
+class Atom(ABC):
+    def __init__(self, tag: str, value: Any = None, children: Optional[List['Atom']] = None, metadata: Optional[Dict[str, Any]] = None, **attributes):
+        self.children = children if children is not None else []
+        self.id = uuid.uuid4()
+        self.tag = tag
+        self.value = value
+        self.children = children or []
+        self.metadata = metadata or {}
+        self.attributes = attributes
+        self.atom_type = self._infer_atom_type()
+
+    def _infer_atom_type(self) -> AtomType:
+        if callable(self.value):
+            return AtomType.FUNCTION
+        elif inspect.isclass(self.value):
+            return AtomType.CLASS
+        elif inspect.ismodule(self.value):
+            return AtomType.MODULE
         else:
-            await CurriedUsermain()
+            return AtomType.VALUE
 
-    except Exception as e:
-        logger.error(f"An error occurred: {str(e)}", exc_info=True)
-    finally:
-        logger.info("Exiting...")
+    @abstractmethod
+    async def evaluate(self) -> Any:
+        pass
 
-if __name__ == "__main__":
-    asyncio.run(main())
-
-async def run_usermain():
-    try:
-        await usermain()  # Ensure usermain is run as async function
-    except ImportError:
-        logging.error("No user-defined main function found. Please add a main.py file and define a usermain() function.")
-    except Exception as e:
-        logging.error(f"An error occurred while running usermain: {str(e)}", exc_info=True)
-
-def rtmain():
-    ensure_pdm()
-    ensure_virtualenv()
-    parser = argparse.ArgumentParser(description="Setup and run cognosis project")
-    parser.add_argument("-m", "--mode", choices=["dev", "non-dev"], help="Setup mode: 'dev' or 'non-dev'")
-    parser.add_argument("-u", "--skip-user-main", action="store_true", help="Skip running the user-defined main function")
-    args = parser.parse_args()
-    mode = args.mode
-    if not mode:
-        choice = prompt_for_mode()
-        mode = "dev" if choice == "d" else "non-dev"
-
-    ensure_dependencies()
-
-    if mode == "dev":
-        ensure_lint()
-        ensure_format()
-        ensure_tests()
-        ensure_benchmarks()
-        ensure_pre_commit()
-
-    if not args.skip_user_main:
-        try:
-            asyncio.run(run_usermain())
-        except Exception as e:
-            logging.error(f"An error occurred while running usermain: {str(e)}", exc_info=True)
-
-    introspect()
-
-if __name__ == "__main__":
-    rtmain()
+    def __repr__(self):
+        return f"{self.__class__.__name__}(id={self.id}, tag={self.tag}, value={self.value})"
