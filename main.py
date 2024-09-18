@@ -94,8 +94,7 @@ class FilesystemState:
         # Check for platform-specific adjustments
         if platform.system() == 'Windows':
             shell = False  # Ensure shell is false for subprocess on Windows
-            # Split command safely for Windows
-            command = shlex.split(command, posix=False)
+            command = shlex.split(command, posix=False) # Split command safely for Windows
             # Normalize paths if the command includes paths
             command = [os.path.normpath(arg) for arg in command]
         else:
@@ -127,9 +126,7 @@ class CustomFormatter(logging.Formatter):
     bold_red = "\x1b[31;1m"
     green = "\x1b[32;20m"
     reset = "\x1b[0m"
-
     format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
-
     FORMATS = {
         logging.DEBUG: grey + format + reset,
         logging.INFO: green + format + reset,
@@ -208,11 +205,6 @@ def benchmark(func):
         return result
     return wrapper
 
-# advanced runtime parameter types
-T = TypeVar('T', bound=Type)  # type is synonymous for class: T = type(class()) or vice-versa
-V = TypeVar('V', bound=Union[int, float, str, bool, list, dict, tuple, set, object, Callable, Enum, Type[Any]])
-C = TypeVar('C', bound=Callable[..., Any])  # callable 'T' class/type variable
-
 datum = Union[int, float, str, bool, None, List[Any], Tuple[Any, ...]]
 
 class DataType(Enum):
@@ -224,11 +216,14 @@ class DataType(Enum):
     LIST = auto()
     TUPLE = auto()
 
-# Core Atoms and related classes
 class AtomType(Enum):
     CLASS = auto() # classes, aka types+classes, variables, and/or (callable) functions: ['T', 'V', 'C']
     MODULE = auto() # modules are SimpleNamespace objects and/or actual modules
     ATOM = auto() # atoms are the basic building blocks of the system
+
+T = TypeVar('T', bound=Type)  # type is synonymous for class: T = type(class()) or vice-versa
+V = TypeVar('V', bound=Union[int, float, str, bool, list, dict, tuple, set, object, Callable, Enum, Type[Any]])
+C = TypeVar('C', bound=Callable[..., Any])  # callable 'T' class/type variable
 
 def _validation(cls: Type[T]) -> Type[T]: # dataclass.field() would be less round-about and faster
     original_init = cls.__init__
