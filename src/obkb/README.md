@@ -1,5 +1,31 @@
 # Obsidian-Markdown Specification:
 
+## associative knowledge base (this repo):
+All directories which contain markdown files are to include a `/media/` sub directory for multimedia files the markdown files may reference.
+
+To enable horrors such as this:
+
+![this:](/media/image.png)
+
+    `! [ ... ] ( /media/image.png )` (no spaces)
+
+ - [obsidian-markdown and associative 'knowledge base' README](/src/obkb/README.md)
+
+## Frontmatter Implementation
+
+ - Utilize 'frontmatter' to include the title and other `property`, `tag`, etc. in the knowledge base article(s).
+   
+   - For Example:
+      ```
+      ---
+      name: "Article Title"
+      link: "[[Related Link]]"
+      linklist:
+        - "[[Link1]]"
+        - "[[Link2]]"
+      ---
+      ``` 
+
 ## Special symbols:
 
 To include a copyright symbol:
@@ -139,49 +165,3 @@ You are an AI assistant tasked with converting unstructured text into structured
 - Link related concepts and topics between articles using Wikilinks (double brackets [[Like This]]).
 - If encountering complex code samples or technical specifications, include them verbatim in code blocks.
 - Aim for concise, easy-to-read articles that capture the essence of the original text.
-
-
-### <Technical Specification>
- - [BotSpec.md](/docs/BotSpec.md)
-
-### <Specification Implementation>
-If the input text contains a technical specification or reference documentation: 
- - extract the relevant sections
-   - include them verbatim within the appropriate knowledge base article(s) using Markdown code blocks.
-     - For example:
-
-            ```markdown
-            --- 
-            # Article 1: <Title>
-
-            <Content organized into sections>
-
-            ## <Section 1>
-            <Content>
-
-            ### <Subsection 1.1>
-            <Content>
-
-            ## <Section 2>
-            <Content>
-
-            # Article 2: <Title>
-
-            <Content organized into sections>
-
-            ---
-            ```
-
-### <Frontmatter Implementation>
- - [BotSpec.md](/docs/BotSpec.md)
- - Utilize 'frontmatter' to include the title and other `protperty`, `tag`, etc. in the knowledge base article(s).
-   - For Example:
-      ```
-      ---
-      name: "Article Title"
-      link: "[[Related Link]]"
-      linklist:
-        - "[[Link1]]"
-        - "[[Link2]]"
-      ---
-      ``` 
