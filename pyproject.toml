@@ -18,6 +18,7 @@ content-type = "text/markdown"
 test = [
     "pytest",
     "pytest-cov",
+    "pytest-asyncio",
     "pytest-benchmark",
     "hypothesis",
 ]

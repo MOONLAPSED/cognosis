@@ -51,22 +51,8 @@ class Atom(ABC):  # Homoiconic abstract BaseClass
         self.attributes: Dict[str, Any] = attributes
         self.subscribers: Set['Atom'] = set()
 
-    async def execute_operation(operation: str, *args, **kwargs) -> Any:
-        """
-        Execute a logical operation defined in case_base.
-        
-        Args:
-            operation (str): The logical operation symbol (e.g., '∧', '∨', '→').
-            *args (Any): Arguments for the logical operation.
-            **kwargs (Any): Keyword arguments (not used currently).
-
-        Returns:
-            Any: The result of the logical operation.
-        """
-        for slots in case_base:
-            if slots[0] == operation:
-                return slots[1](*args)
-
+    def __repr__(self):
+        return f"{self.__class__.__name__}(id={self.id}, attributes={self.attributes})"
 
 @dataclass
 class TaskAtom(Atom):  # Tasks are atoms that represent asynchronous potential actions
