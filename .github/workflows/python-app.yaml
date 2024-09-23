@@ -1,4 +1,4 @@
-name: python-app
+name: pycognosis
 
 on:
   push:
@@ -29,8 +29,6 @@ jobs:
         run: chmod 755 logs
       - name: Create setup log file
         run: touch logs/setup.log
-      - name: Create run log file
-        run: touch logs/python-app.log
       - name: Create app log file
         run: touch logs/app.log
 
@@ -60,5 +58,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: python-app
-          path: logs/python-app.log
+          name: pycognosis
+          path: logs/app.log

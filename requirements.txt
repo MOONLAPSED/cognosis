@@ -1,7 +1,0 @@
-pyYAML
-matplotlib[notebook]
-numpy
-ipywidgets
-jupyterlab
-ipykernel
-mkdocs

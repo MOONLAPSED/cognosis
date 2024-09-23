@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/bash - pre-commit hoook ubuntu-only
+# Check if the /media/ directory exists in each directory
 
 shopt -s globstar
 for file in **/*.md; do
