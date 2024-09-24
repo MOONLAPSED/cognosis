@@ -1,13 +1,34 @@
 # src/__init__.py
 
 import sys
-import os
 import importlib
 from importlib.util import spec_from_file_location, module_from_spec
 import pathlib
 import logging
 import argparse
 
+import uuid
+import json
+import struct
+import time
+import os
+import logging
+from enum import Enum, auto
+from typing import Any, Dict, List, Optional, Union, Callable, TypeVar, Tuple, Generic, Set, Coroutine, Type, ClassVar
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+import asyncio
+from asyncio import Queue as AsyncQueue
+from queue import Queue, Empty
+import threading
+from functools import wraps
+import hashlib
+import pickle
+import dis
+import inspect
+import tracemalloc
+import pytest
+tracemalloc.start()
 # Detect platform
 IS_POSIX = os.name == 'posix'
 
@@ -51,28 +72,6 @@ def setup_logger(name: str, level: int, datefmt: str, handlers: list):
 
     return logger
 
-import uuid
-import json
-import struct
-import time
-import os
-import logging
-from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Union, Callable, TypeVar, Tuple, Generic, Set, Coroutine, Type, ClassVar
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-import asyncio
-from asyncio import Queue as AsyncQueue
-from queue import Queue, Empty
-import threading
-from functools import wraps
-import hashlib
-import pickle
-import dis
-import inspect
-import tracemalloc
-import pytest
-tracemalloc.start()
 T = TypeVar('T', bound=Type)
 C = TypeVar('C', bound=Callable[..., Any])  # callable 'T' class/type variable
 
