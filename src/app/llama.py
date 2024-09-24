@@ -2,11 +2,11 @@ import asyncio
 import http.client
 import json
 from urllib.parse import urlparse
+from .__init__ import Atom
 
 endpoint = "http://localhost:11434/api/generate"
 
-
-class LlamaInterface:
+class LlamaAtom(Atom):
     def __init__(self):
         self.session = None
 
@@ -23,7 +23,7 @@ class LlamaInterface:
                 "LlamaInterface must be used as an async context manager"
             )
 
-        payload = json.dumps({"model": "llama3", "prompt": prompt, "stream": False})
+        payload = json.dumps({"model": "llama3.1", "prompt": prompt, "stream": False})
         headers = {"Content-Type": "application/json"}
 
         self.session.request("POST", "/api/generate", body=payload, headers=headers)
@@ -37,8 +37,11 @@ class LlamaInterface:
 
     async def extract_concepts(self, text):
         prompt = f"Extract key concepts from the following text:\n\n{text}\n\nConcepts:"
-        response = await self._query_llama(prompt)
-        return [concept.strip() for concept in response.split(",")]
+        try:
+            response = await self._query_llama(prompt)
+            return [concept.strip() for concept in response.split(",")]
+        except Exception as e:
+            print(f"Error extracting concepts: {e}")
 
     async def process(self, task):
         prompt = f"Process the following task:\n\n{task}\n\nResult:"
@@ -47,7 +50,6 @@ class LlamaInterface:
     async def query(self, knowledge_base, query):
         prompt = f"Given the following knowledge base:\n\n{knowledge_base}\n\nAnswer the following query:\n\n{query}\n\nAnswer:"
         return await self._query_llama(prompt)
-
 
 async def main():
     async with LlamaInterface() as llama:
