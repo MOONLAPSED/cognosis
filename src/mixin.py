@@ -137,3 +137,11 @@ class Runtime(BaseModel):
     @validate(lambda x: x >= 0)
     def _permissions(self, value):
         return value
+
+def main():
+    # Create an instance of the Runtime class
+    runtime = Runtime(name="MyRuntime")
+    print(runtime.dict())
+
+if __name__ == "__main__":
+    main()
