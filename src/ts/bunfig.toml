@@ -1,0 +1,6 @@
+# bunfig.toml
+
+name = "cognos.bun"
+version = "2.0.0"
+server = "server.ts"
+main = "dist/app.ts"

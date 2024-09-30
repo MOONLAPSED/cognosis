@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "lib": ["dom", "esnext"],
+    //"types": ["bun"],  // Only include bun types
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "outDir": "../dist",  // Ensure output is placed in the dist folder
+    "rootDir": ".."       // Set root directory for compiling
+  },
+  "include": ["../**/*.ts"],  // Include .ts files in the parent src directory
+  "exclude": ["node_modules", "../dist"],
+
+  "strict": true,
+  "skipLibCheck": true,
+  "noFallthroughCasesInSwitch": true
+}
