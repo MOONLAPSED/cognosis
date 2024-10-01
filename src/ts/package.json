@@ -1,6 +1,6 @@
 {
     "name": "cognos.bun",
-    "module": "index.ts",
+    "module": "server.ts",
     "type": "module",
     "devDependencies": {
         "@types/bun": "^1.1.10"

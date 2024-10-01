@@ -14,6 +14,8 @@ scoop_log.txt
 logs/*
 .pdm.python
 pdm.lock
+/src/ts/dist/*.js
+/src/ts/node_modules/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
