@@ -53,10 +53,6 @@ MSC's architecture is composed of several key components, each playing a crucial
 - Develop subprocesses to handle `__enter__` and `__exit__` for enforcing quine behavior.
 - Use closing scripts to strip comments and store them separately in .json or pickle files.
 
-## Initial Experiments
-
-In initial experiments, the architecture uses a placeholder cognitive agent named "llama." The primary challenge isn't in the computation itself but in developing the 'cognitive lambda calculus' necessary to instantiate and evolve these runtimes.
-
 ### Kernel Agents
 
 - **Description:** Sophisticated language models trained on extensive datasets, responsible for processing cognitive frames and Unified Syntax Descriptors (USDs).
@@ -64,7 +60,7 @@ In initial experiments, the architecture uses a placeholder cognitive agent name
 
 ### Cognitive Lambda Calculus
 
-- **Description:** The core mechanism responsible for bringing cognitive runtimes into existence and facilitating their evolution.
+- **Description:** The primary challenge isn't in the computation itself but in developing the 'cognitive lambda calculus' necessary to instantiate and evolve these runtimes. The core mechanism responsible for bringing cognitive runtimes into existence and facilitating their evolution.
 - **Function:** Integrates computational logic with cognitive principles to dynamically adapt system behavior.
 
 ### Cognosis
@@ -276,5 +272,3 @@ start_server = websockets.serve(repl_server, "localhost", 8765)
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
 ```
-
-This breakdown provides a structured overview of the project's key concepts and components, along with some basic Python code examples to illustrate how these might be implemented. The actual implementation would likely be much more complex and tailored to your specific requirements.
