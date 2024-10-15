@@ -20,18 +20,10 @@ class StateMapper:
         return self.value_to_state.get(value)
 
     def verify_bijection(self):
-        """Verify that the mapping is bijective."""
-        for state, value in self.state_to_value.items():
-            assert self.get_value(state) == value, f"Failed for state {state}"
-            assert self.get_state(value) == state, f"Failed for value {value}"
-        print("Bijection verified for all mappings.")
-    """# round floating point
-        def verify_bijection(self):
         for state, value in self.state_to_value.items():
             assert self.get_value(state) == value, f"Failed for state {state}"
             assert math.isclose(self.get_value(self.get_state(value)), value, rel_tol=1e-9), f"Failed for value {value}"
         print("Bijection verified for all mappings.")
-    """
 
 if __name__ == "__main__":
     mapper = StateMapper()
