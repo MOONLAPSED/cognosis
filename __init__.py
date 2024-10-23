@@ -121,6 +121,10 @@ In essence, our approach ensures that:
 1. **Composition**: Functions (or code segments) can be composed at runtime, akin to how S-Expressions can nest functions and values.
 2. **Evaluation**: Upon invocation, these compositions are evaluated, reflecting the current configuration of the runtime.
 3. **Reflection and Modification**: The runtime can reflect on its structure and make modifications dynamically, which allows it to reason about its state and adapt accordingly.
+4. **Identity Preservation**: The runtime maintains its identity, allowing for a consistent state across different configurations.
+5. **Non-Determinism**: The runtime can exhibit non-deterministic behavior, as it can transition between different configurations based on the input and the code's structure. This is akin to the collapse of the wave function in quantum mechanics, or modeling it on classical hardware via multi-instantaneous multi-threading.
+6. **State Preservation**: The runtime can maintain its state across different configurations, allowing for a consistent execution path.
+7. **Compositionality**: The runtime can compose different configurations, allowing for a rich variety of behaviors.
 
 This synthesis of static and dynamic code concepts is akin to the Copenhagen interpretation of quantum mechanics, where the observation (or execution) collapses the superposition of states (or configurations) into a definite outcome based on the input.
 
