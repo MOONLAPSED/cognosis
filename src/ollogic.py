@@ -91,35 +91,37 @@ class MemorySegment:
         
         return self.base_path / f"{dir_addr:02x}" / f"{file_addr:02x}"
         
-    def read(self, address: int) -> bytes:
-        """Read a byte from the specified address"""
+    async def read(self, address: int) -> bytes:
+        """Asynchronously read a byte from the specified address."""
         if address in self._memory_cache:
             return self._memory_cache[address].value
-            
+        
         path = self._address_to_path(address)
-        value = path.read_bytes()
+        loop = asyncio.get_event_loop()
+        value = await loop.run_in_executor(None, path.read_bytes)
         self._memory_cache[address] = MemoryCell(value)
         return value
-        
-    def write(self, address: int, value: bytes):
-        """Write a byte to the specified address"""
+
+    async def write(self, address: int, value: bytes):
+        """Asynchronously write a byte to the specified address."""
         if len(value) != self.CELL_SIZE:
             raise ValueError(f"Value must be {self.CELL_SIZE} byte")
-            
-        path = self._address_to_path(address)
-        path.write_bytes(value)
-        self._memory_cache[address] = MemoryCell(value)
-
-        # Update the corresponding memory segment
-        segment_index = (address >> 8) & 0xFF  # Extract the upper byte for segment index
-        self._segments[segment_index].write(address & 0xFF, value)  # Write to the segment
         
-    def dump_segment(self, start_addr: int, length: int) -> bytes:
-        """Dump a segment of memory"""
+        path = self._address_to_path(address)
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, path.write_bytes, value)
+        self._memory_cache[address] = MemoryCell(value)
+        
+        segment_index = (address >> 8) & 0xFF
+        self._segments[segment_index].write(address & 0xFF, value)
+        
+    async def dump_segment(self, start_addr, length):
         result = bytearray()
         for addr in range(start_addr, start_addr + length):
-            result.extend(self.read(addr))
-        return bytes(result)
+            # Await the read coroutine to get the actual result
+            data = await self.read(addr)
+            result.extend(data)  # 'data' is expected to be bytes
+        return result
 
 @dataclass
 class MemoryWavefront:
@@ -213,14 +215,14 @@ class MemoryHead:
         self.propagate(address)
         return self.vmem.read(address)
         
-    def write(self, address: int, value: bytes):
+    async def write(self, address: int, value: bytes):
         """
-        Write to memory while tracking wavefront propagation.
+        Asynchronously write to memory while tracking wavefront propagation.
         """
         self.propagate(address)
-        self.vmem.write(address, value)
-        
-    def get_wavefront_info(self) -> dict:
+        await self.vmem.write(address, value)
+
+    async def get_wavefront_info(self) -> dict:
         """
         Get current state of the wavefront.
         """
@@ -365,11 +367,16 @@ async def main():
     inference_head = InferenceHead(vmem)
     query_count = 0
     max_queries = 10
-    # Write some values while tracking propagation
-    inference_head.write(0x1234, b'\x42')
-    value = inference_head.read(0x1234)
-    info = inference_head.get_wavefront_info()
-    print(info)    
+    
+    # Write and read values asynchronously
+    await inference_head.write(0x1234, b'\x42')
+    value = await inference_head.read(0x1234)  # Await the read operation
+    print(f"Value at 0x1234: {value.hex()}")
+
+    # Get wavefront information (assuming it's asynchronous)
+    info = await inference_head.get_wavefront_info()
+    print(info)
+
     test_prompts = [
         "What is memory?",
         "Describe a wave",
@@ -377,15 +384,21 @@ async def main():
         "How do neural networks work?",
         "Explain quantum computing"
     ]
+
     for prompt in test_prompts:
         if query_count >= max_queries:
             print(f"Reached maximum query limit of {max_queries}")
             break
         try:
             print(f"\nProcessing prompt: {prompt}")
+
+            # Write with embedding asynchronously
             await inference_head.write_with_embedding(0x1234 + query_count, b'\x42', prompt)
+
+            # Search for similar segments asynchronously
             results = await inference_head.search_similar_across_segments(prompt)
             print(f"Results for {prompt}: {results}")
+
             query_count += 2  # Counts as 2 queries (embedding + search)
         except ConnectionRefusedError:
             print(f"Connection to Ollama failed on query {query_count + 1}")
@@ -393,20 +406,33 @@ async def main():
         except Exception as e:
             print(f"Error on query {query_count + 1}: {str(e)}")
             break
+
     print(f"\nCompleted {query_count} queries to Ollama")
-    # Example async operations
+
+    # Additional async operations
     await inference_head.write_with_embedding(0x1234, b'\x42', "test text")
     results = await inference_head.search_similar_across_segments("query text")
     print(results)
 
 if __name__ == "__main__":
-    vmem = VirtualMemoryFS()
-    # Write some test values
-    vmem.write(0x1234, b'\x42')
-    vmem.write(0x1235, b'\xFF')
-    # Read values back
-    print(f"Value at 0x1234: {vmem.read(0x1234).hex()}")
-    print(f"Value at 0x1235: {vmem.read(0x1235).hex()}")
-    # Dump a memory segment
-    print(f"Memory segment 0x1234-0x1236: {vmem.dump_segment(0x1234, 2).hex()}")
+    async def run_vmem_operations():
+        vmem = VirtualMemoryFS()
+
+        # Write some test values asynchronously
+        await vmem.write(0x1234, b'\x42')
+        await vmem.write(0x1235, b'\xFF')
+
+        # Read values back asynchronously
+        value_1234 = await vmem.read(0x1234)
+        print(f"Value at 0x1234: {value_1234.hex()}")
+
+        value_1235 = await vmem.read(0x1235)
+        print(f"Value at 0x1235: {value_1235.hex()}")
+
+        # Dump a memory segment asynchronously
+        memory_segment = await vmem.dump_segment(0x1234, 2)
+        print(f"Memory segment 0x1234-0x1236: {memory_segment.hex()}")
+
+    # Run the vmem operations and main async function
+    asyncio.run(run_vmem_operations())
     asyncio.run(main())
